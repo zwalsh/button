@@ -21,6 +21,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-html-builder:$ktorVersion")
+    implementation("io.ktor:ktor-websockets:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:1.2.5")
 
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
