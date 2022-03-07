@@ -46,7 +46,6 @@ class Presser(
         val outgoing = scope.launch {
             // handle outgoing
             for (updatedCount in countUpdateChannel) {
-                logger.info("Got updated count: $updatedCount")
                 socketSession.send(Text(updatedCount.toString()))
             }
         }

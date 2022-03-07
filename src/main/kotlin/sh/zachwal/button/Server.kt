@@ -17,11 +17,13 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.html.HTML
 import kotlinx.html.body
 import kotlinx.html.button
+import kotlinx.html.contentEditable
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.head
 import kotlinx.html.id
 import kotlinx.html.link
+import kotlinx.html.meta
 import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.title
@@ -35,6 +37,10 @@ const val url = "ws://localhost:8080/socket"
 fun HTML.index() {
     head {
         title("Hello from Ktor!")
+        meta {
+            name = "viewport"
+            content = "width=device-width, initial-scale=1"
+        }
         link(href = "static/src/style.css", rel = "stylesheet")
         script {
             unsafe {

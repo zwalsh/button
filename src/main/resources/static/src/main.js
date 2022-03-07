@@ -30,15 +30,23 @@ function sendMessage() {
     }
 }
 
+// prevent right-click weirdness on mobile when holding the button
+document.addEventListener('contextmenu', event => event.preventDefault());
+
 window.onload = function () {
     let button = document.getElementById("pressMePls");
     console.log(button);
 
-    button.onmousedown = function() {
-        sendMessage();
-    };
-    button.onmouseup = function() {
-        sendMessage();
-    };
+    let events = ["mousedown", "mouseup", "touchstart", "touchend"];
+
+    for (const e of events) {
+        button.addEventListener(
+            e,
+            () => {
+                sendMessage();
+            },
+            false
+        );
+    }
 };
 
