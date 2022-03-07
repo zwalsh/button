@@ -5,11 +5,8 @@ socket.onopen = function (event) {
     console.log(event);
 }
 socket.onmessage = function (event) {
-    console.log("Got event!");
-    console.log(event);
-
     let buttonPressDiv = document.getElementById("buttonPressCount");
-    buttonPressDiv.innerText = "Button press count: " + event.data;
+    buttonPressDiv.innerText = "BUTTON PRESSERS: " + event.data;
 }
 
 socket.onclose = function (event) {
@@ -33,5 +30,15 @@ function sendMessage() {
     }
 }
 
-setInterval(sendMessage, 3000);
+window.onload = function () {
+    let button = document.getElementById("pressMePls");
+    console.log(button);
+
+    button.onmousedown = function() {
+        sendMessage();
+    };
+    button.onmouseup = function() {
+        sendMessage();
+    };
+};
 

@@ -16,10 +16,14 @@ import io.ktor.websocket.webSocket
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.html.HTML
 import kotlinx.html.body
+import kotlinx.html.button
 import kotlinx.html.div
+import kotlinx.html.h1
 import kotlinx.html.head
 import kotlinx.html.id
+import kotlinx.html.link
 import kotlinx.html.script
+import kotlinx.html.span
 import kotlinx.html.title
 import kotlinx.html.unsafe
 import org.slf4j.event.Level.INFO
@@ -31,6 +35,7 @@ const val url = "ws://localhost:8080/socket"
 fun HTML.index() {
     head {
         title("Hello from Ktor!")
+        link(href = "static/src/style.css", rel = "stylesheet")
         script {
             unsafe {
                 +"let wsUrl = \"$url\";"
@@ -41,12 +46,17 @@ fun HTML.index() {
         }
     }
     body {
-        div {
-            +"Hello from Button Presser"
-        }
-        div {
-            id = "buttonPressCount"
-            +"Current presser count: 0"
+        div(classes = "container") {
+            button {
+                id = "pressMePls"
+                span {
+                    +"PRESS"
+                }
+            }
+            h1 {
+                id = "buttonPressCount"
+                +"BUTTON PRESSERS: "
+            }
         }
     }
 }

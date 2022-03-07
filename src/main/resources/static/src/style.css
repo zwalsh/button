@@ -1,0 +1,57 @@
+html {
+    height: 100%;
+}
+
+.container {
+    min-height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+body > * {
+    font-family: Avenir, Arial, sans-serif;
+    font-weight: 900;
+}
+
+button {
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    border: none;
+    color: white;
+    font-family: Avenir, Arial, sans-serif;
+    font-weight: 900;
+    font-size: 2.5rem;
+
+
+    background: red;
+    text-shadow: 0 3px 1px rgba(122, 17, 8, .8);
+    box-shadow: 0 8px 0 rgb(183, 9, 0),
+        0 15px 20px rgba(0, 0, 0, .35);
+
+
+    text-transform: uppercase;
+    transition: .1s all ease-in;
+    outline: none;
+    cursor: pointer;
+    text-align: center;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+button span {
+    position: relative;
+}
+
+button:active {
+    padding-top: 3px;
+    transform: translateY(4px);
+
+    background: rgb(15, 201, 15);
+    text-shadow: 0 3px 1px rgba(7, 75, 16, 0.8);
+    box-shadow: 0 4px 0 rgb(17, 117, 50),
+        0 8px 6px rgba(0, 0, 0, .45);
+}
