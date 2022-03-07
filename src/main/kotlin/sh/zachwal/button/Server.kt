@@ -7,11 +7,6 @@ import io.ktor.features.CallLogging
 import io.ktor.features.DefaultHeaders
 import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.cio.websocket.CloseReason
-import io.ktor.http.cio.websocket.CloseReason.Codes.NORMAL
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.close
-import io.ktor.http.cio.websocket.readText
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.routing.get
@@ -23,6 +18,7 @@ import kotlinx.html.HTML
 import kotlinx.html.body
 import kotlinx.html.div
 import kotlinx.html.head
+import kotlinx.html.id
 import kotlinx.html.script
 import kotlinx.html.title
 import kotlinx.html.unsafe
@@ -46,7 +42,11 @@ fun HTML.index() {
     }
     body {
         div {
-            +"Hello from Ktor"
+            +"Hello from Button Presser"
+        }
+        div {
+            id = "buttonPressCount"
+            +"Current presser count: 0"
         }
     }
 }
@@ -85,7 +85,7 @@ fun Application.module(testing: Boolean = false) {
         webSocket("/socket") {
             val presser = Presser(this, manager, presserDispatcher)
             manager.addPresser(presser)
-            presser.watch()
+            presser.watchChannels()
         }
     }
 }

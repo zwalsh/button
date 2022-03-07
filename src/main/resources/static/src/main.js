@@ -7,6 +7,9 @@ socket.onopen = function (event) {
 socket.onmessage = function (event) {
     console.log("Got event!");
     console.log(event);
+
+    let buttonPressDiv = document.getElementById("buttonPressCount");
+    buttonPressDiv.innerText = "Button press count: " + event.data;
 }
 
 socket.onclose = function (event) {
@@ -19,8 +22,15 @@ socket.onerror = (event) => {
     console.log(event);
 };
 
+var currentState = "released";
 function sendMessage() {
-   socket.send("testing");
+    if (currentState === "released") {
+        socket.send("pressing");
+        currentState = "pressing";
+    } else {
+        socket.send("released");
+        currentState = "released";
+    }
 }
 
 setInterval(sendMessage, 3000);
