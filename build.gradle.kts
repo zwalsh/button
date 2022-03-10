@@ -7,7 +7,6 @@ plugins {
 }
 
 group = "sh.zachwal"
-version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
