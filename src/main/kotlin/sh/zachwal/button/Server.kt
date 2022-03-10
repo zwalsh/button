@@ -17,7 +17,6 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.html.HTML
 import kotlinx.html.body
 import kotlinx.html.button
-import kotlinx.html.contentEditable
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.head
@@ -33,8 +32,8 @@ import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserManager
 import java.util.concurrent.Executors
 
-const val url = "ws://localhost:8080/socket"
-fun HTML.index() {
+
+fun index(url: String): HTML.() -> Unit = {
     head {
         title("Hello from Ktor!")
         meta {
@@ -61,7 +60,7 @@ fun HTML.index() {
             }
             h1 {
                 id = "buttonPressCount"
-                +"BUTTON PRESSERS: "
+                +"BUTTON PRESSERS: 0"
             }
         }
     }
@@ -69,8 +68,20 @@ fun HTML.index() {
 
 fun main(args: Array<String>) = io.ktor.server.netty.EngineMain.main(args)
 
+
+fun url(host: String, port: Int?): String {
+    val prefix = "ws://$host"
+    val withPort = port?.let { prefix + ":$it" } ?: prefix
+    return "$withPort/socket"
+}
+
 @Suppress("unused")
 fun Application.module(testing: Boolean = false) {
+    val host = environment.config.property("ktor.deployment.ws_host").getString()
+    val port = if (host == "localhost") 8080 else null
+    val url = url(host, port)
+
+
     install(CallLogging) {
         level = INFO
     }
@@ -88,7 +99,7 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         get("/") {
-            call.respondHtml(HttpStatusCode.OK, HTML::index)
+            call.respondHtml(HttpStatusCode.OK, index(url))
         }
     }
 
