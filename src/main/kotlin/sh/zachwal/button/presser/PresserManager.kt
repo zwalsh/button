@@ -1,6 +1,5 @@
 package sh.zachwal.button.presser
 
-
 class PresserManager : PresserObserver {
     private val pressers = mutableSetOf<Presser>()
 

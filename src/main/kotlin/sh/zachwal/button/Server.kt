@@ -32,7 +32,6 @@ import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserManager
 import java.util.concurrent.Executors
 
-
 fun index(url: String): HTML.() -> Unit = {
     head {
         title("Hello from Ktor!")
@@ -68,7 +67,6 @@ fun index(url: String): HTML.() -> Unit = {
 
 fun main(args: Array<String>) = io.ktor.server.netty.EngineMain.main(args)
 
-
 fun url(host: String, port: Int?): String {
     val prefix = "ws://$host"
     val withPort = port?.let { prefix + ":$it" } ?: prefix
@@ -80,7 +78,6 @@ fun Application.module(testing: Boolean = false) {
     val host = environment.config.property("ktor.deployment.ws_host").getString()
     val port = if (host == "localhost") 8080 else null
     val url = url(host, port)
-
 
     install(CallLogging) {
         level = INFO
