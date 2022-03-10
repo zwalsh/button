@@ -34,7 +34,7 @@ import java.util.concurrent.Executors
 
 fun index(url: String): HTML.() -> Unit = {
     head {
-        title("Hello from Ktor!")
+        title("b̷̖̗̀̋u̶̡̝̙̺̟̓t̵̳̼̰̙͈͋̀t̸̰͙̹̑̓̀͠ͅo̷̭̩̒͂̋̚͝n̵͉͛̀̽̀́̅")
         meta {
             name = "viewport"
             content = "width=device-width, initial-scale=1"
@@ -67,8 +67,8 @@ fun index(url: String): HTML.() -> Unit = {
 
 fun main(args: Array<String>) = io.ktor.server.netty.EngineMain.main(args)
 
-fun url(host: String, port: Int?): String {
-    val prefix = "ws://$host"
+fun url(host: String, port: Int?, protocol: String): String {
+    val prefix = "$protocol://$host"
     val withPort = port?.let { prefix + ":$it" } ?: prefix
     return "$withPort/socket"
 }
@@ -76,8 +76,9 @@ fun url(host: String, port: Int?): String {
 @Suppress("unused")
 fun Application.module(testing: Boolean = false) {
     val host = environment.config.property("ktor.deployment.ws_host").getString()
+    val wsProtocol = environment.config.property("ktor.deployment.ws_protocol").getString()
     val port = if (host == "localhost") 8080 else null
-    val url = url(host, port)
+    val url = url(host, port, wsProtocol)
 
     install(CallLogging) {
         level = INFO
