@@ -40,6 +40,7 @@ fun index(url: String): HTML.() -> Unit = {
             content = "width=device-width, initial-scale=1"
         }
         link(href = "static/src/style.css", rel = "stylesheet")
+        link(href = "static/favicon.png", rel = "icon", type = "image/png")
         script {
             unsafe {
                 +"let wsUrl = \"$url\";"
