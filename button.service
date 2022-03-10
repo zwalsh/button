@@ -1,0 +1,13 @@
+[Unit]
+Description=Button
+After=nginx.service
+Wants=nginx.service
+
+[Service]
+ExecStart=/home/button/releases/current/button/bin/button
+User=button
+Group=button
+EnvironmentFile=/home/button/button.env
+
+[Install]
+WantedBy=multi-user.target
