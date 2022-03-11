@@ -5,6 +5,8 @@ import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.DefaultHeaders
+import io.ktor.features.XForwardedHeaderSupport
+import io.ktor.features.origin
 import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.resources
@@ -27,6 +29,7 @@ import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.title
 import kotlinx.html.unsafe
+import org.slf4j.LoggerFactory
 import org.slf4j.event.Level.INFO
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserManager
@@ -76,6 +79,7 @@ fun url(host: String, port: Int?, protocol: String): String {
 
 @Suppress("unused")
 fun Application.module(testing: Boolean = false) {
+    val logger = LoggerFactory.getLogger(Application::class.java)
     val host = environment.config.property("ktor.deployment.ws_host").getString()
     val wsProtocol = environment.config.property("ktor.deployment.ws_protocol").getString()
     val port = if (host == "localhost") 8080 else null
@@ -88,6 +92,10 @@ fun Application.module(testing: Boolean = false) {
     install(WebSockets) {
         pingPeriodMillis = 1000L
         timeoutMillis = 30_000L
+    }
+
+    if (host != "localhost") {
+        install(XForwardedHeaderSupport)
     }
 
     routing {
@@ -109,9 +117,12 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         webSocket("/socket") {
-            val presser = Presser(this, manager, presserDispatcher)
+            val clientHost = call.request.origin.remoteHost
+            logger.info("New connection from $clientHost")
+            val presser = Presser(this, manager, clientHost, presserDispatcher)
             manager.addPresser(presser)
             presser.watchChannels()
+            logger.info("$clientHost disconnected")
         }
     }
 }

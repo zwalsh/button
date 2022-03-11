@@ -1,32 +1,48 @@
-let socket = new WebSocket(wsUrl); // from script tag in HTML
+var socket;
 
-socket.onopen = function (event) {
-    console.log("Socket opened!");
-    console.log(event);
-}
-socket.onmessage = function (event) {
-    let buttonPressDiv = document.getElementById("buttonPressCount");
-    buttonPressDiv.innerText = "BUTTON PRESSERS: " + event.data;
+function connect() {
+    console.log("Connecting...");
+    if (socket !== null && socket !== undefined) {
+        socket.close(); // clean up
+    }
+    socket = new WebSocket(wsUrl); // from script tag in HTML
+
+    socket.onopen = function (event) {
+        console.log("Socket opened!");
+        console.log(event);
+    }
+    socket.onmessage = function (event) {
+        let buttonPressDiv = document.getElementById("buttonPressCount");
+        buttonPressDiv.innerText = "BUTTON PRESSERS: " + event.data;
+    }
+
+    socket.onclose = function (event) {
+        console.log("Closing, oh no!");
+        console.log(event);
+    }
+
+    socket.onerror = (event) => {
+        console.log("Error, oh no!");
+        console.log(event);
+    };
 }
 
-socket.onclose = function (event) {
-    console.log("Closing, oh no!");
-    console.log(event);
-}
-
-socket.onerror = (event) => {
-    console.log("Error, oh no!");
-    console.log(event);
-};
+connect();
 
 var currentState = "released";
 function sendMessage() {
+    if (socket.readyState !== WebSocket.OPEN) {
+        connect();
+    }
+
     if (currentState === "released") {
-        socket.send("pressing");
+        console.log("sending pressing");
         currentState = "pressing";
+        socket.send("pressing");
     } else {
-        socket.send("released");
+        console.log("sending released")
         currentState = "released";
+        socket.send("released");
     }
 }
 

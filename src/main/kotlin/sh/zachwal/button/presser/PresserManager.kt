@@ -1,6 +1,10 @@
 package sh.zachwal.button.presser
 
+import org.slf4j.LoggerFactory
+
 class PresserManager : PresserObserver {
+
+    private val logger = LoggerFactory.getLogger(PresserManager::class.java)
     private val pressers = mutableSetOf<Presser>()
 
     private var pressedCount = 0
@@ -22,10 +26,12 @@ class PresserManager : PresserObserver {
     }
 
     override suspend fun disconnected(presser: Presser) {
+        logger.info("Presser disconnected")
         pressers.remove(presser)
     }
 
-    fun addPresser(presser: Presser) {
+    suspend fun addPresser(presser: Presser) {
         pressers.add(presser)
+        presser.updatePressingCount(pressedCount)
     }
 }

@@ -22,6 +22,7 @@ private val logger = LoggerFactory.getLogger(Presser::class.java)
 class Presser(
     private val socketSession: WebSocketServerSession,
     private var observer: PresserObserver,
+    private val remoteHost: String,
     dispatcher: CoroutineDispatcher
 ) {
     // uses two coroutines, one to accept incoming & one to send outgoing
@@ -81,8 +82,10 @@ class Presser(
     }
 
     private suspend fun setPresserState(presserState: PresserState) {
-        assert(this.presserState != presserState) {
-            "Setting presser state to current state $presserState is not allowed"
+        logger.info("Setting presser state to $presserState for Presser at $remoteHost")
+        if (this.presserState == presserState) {
+            logger.error("Setting presser state to current state $presserState is not allowed")
+            return
         }
         when (presserState) {
             PRESSING -> observer.pressed(this)
