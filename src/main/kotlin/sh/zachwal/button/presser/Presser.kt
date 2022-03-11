@@ -14,8 +14,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
-import sh.zachwal.button.presser.Presser.PresserState.PRESSING
-import sh.zachwal.button.presser.Presser.PresserState.RELEASED
 
 private val logger = LoggerFactory.getLogger(Presser::class.java)
 
@@ -30,12 +28,6 @@ class Presser(
 
     // updates to the current count of pressers
     private val countUpdateChannel = Channel<Int>(UNLIMITED)
-
-    private enum class PresserState {
-        PRESSING, RELEASED
-    }
-
-    private var presserState: PresserState = RELEASED
 
     suspend fun watchChannels() {
         val incoming = scope.launch {
@@ -52,6 +44,7 @@ class Presser(
         }
         incoming.join()
         outgoing.join()
+        observer.disconnected(this)
     }
 
     private suspend fun handleIncomingFrame(frame: Frame) {
@@ -67,31 +60,16 @@ class Presser(
 
     private suspend fun Presser.handleIncomingText(frame: Text) {
         val text = frame.readText()
-        val newState = when (text) {
-            "pressing" -> PRESSING
-            "released" -> RELEASED
-            else -> null
+        logger.info("Presser at $remoteHost set to $text")
+        when (text) {
+            "pressing" -> observer.pressed(this)
+            "released" -> observer.released(this)
+            else -> {
+                logger.error("Got unexpected text from client on socket: $text, disconnecting.")
+                observer.disconnected(this@Presser)
+                socketSession.close(CloseReason(PROTOCOL_ERROR, "Invalid text $text"))
+            }
         }
-        newState?.let {
-            setPresserState(it)
-        } ?: run {
-            logger.error("Got unexpected text from client on socket: $text, disconnecting.")
-            observer.disconnected(this@Presser)
-            socketSession.close(CloseReason(PROTOCOL_ERROR, "Invalid text $text"))
-        }
-    }
-
-    private suspend fun setPresserState(presserState: PresserState) {
-        logger.info("Setting presser state to $presserState for Presser at $remoteHost")
-        if (this.presserState == presserState) {
-            logger.error("Setting presser state to current state $presserState is not allowed")
-            return
-        }
-        when (presserState) {
-            PRESSING -> observer.pressed(this)
-            RELEASED -> observer.released(this)
-        }
-        this.presserState = presserState
     }
 
     suspend fun updatePressingCount(count: Int) {

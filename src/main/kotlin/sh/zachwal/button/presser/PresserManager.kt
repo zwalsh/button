@@ -7,31 +7,36 @@ class PresserManager : PresserObserver {
     private val logger = LoggerFactory.getLogger(PresserManager::class.java)
     private val pressers = mutableSetOf<Presser>()
 
-    private var pressedCount = 0
+    private val currentlyPressing = mutableSetOf<Presser>()
 
     @Synchronized
-    private suspend fun updateCountBy(update: Int) {
-        pressedCount += update
+    private suspend fun update() {
+        val pressingCount = currentlyPressing.count()
+        logger.info("Pressing count now $pressingCount")
         pressers.forEach { presser ->
-            presser.updatePressingCount(pressedCount)
+            presser.updatePressingCount(pressingCount)
         }
     }
 
     override suspend fun pressed(presser: Presser) {
-        updateCountBy(1)
+        currentlyPressing.add(presser)
+        update()
     }
 
     override suspend fun released(presser: Presser) {
-        updateCountBy(-1)
+        currentlyPressing.remove(presser)
+        update()
     }
 
     override suspend fun disconnected(presser: Presser) {
         logger.info("Presser disconnected")
+        currentlyPressing.remove(presser)
         pressers.remove(presser)
+        update()
     }
 
     suspend fun addPresser(presser: Presser) {
         pressers.add(presser)
-        presser.updatePressingCount(pressedCount)
+        presser.updatePressingCount(currentlyPressing.count())
     }
 }

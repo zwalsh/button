@@ -118,8 +118,10 @@ fun Application.module(testing: Boolean = false) {
     routing {
         webSocket("/socket") {
             val clientHost = call.request.origin.remoteHost
-            logger.info("New connection from $clientHost")
-            val presser = Presser(this, manager, clientHost, presserDispatcher)
+            val clientPort = call.request.origin.port
+            val remote = "$clientHost:$clientPort"
+            logger.info("New connection from $remote")
+            val presser = Presser(this, manager, remote, presserDispatcher)
             manager.addPresser(presser)
             presser.watchChannels()
             logger.info("$clientHost disconnected")
