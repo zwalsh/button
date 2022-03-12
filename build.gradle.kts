@@ -24,6 +24,11 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.5")
 
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
+
+    // for testing many simultaneous websockets
+    testImplementation("io.ktor:ktor-client-core:$ktorVersion")
+    testImplementation("io.ktor:ktor-client-cio:$ktorVersion")
+    testImplementation("io.ktor:ktor-client-websockets:$ktorVersion")
 }
 
 tasks.test {
