@@ -40,7 +40,7 @@ fun index(url: String): HTML.() -> Unit = {
         title("b̷̖̗̀̋u̶̡̝̙̺̟̓t̵̳̼̰̙͈͋̀t̸̰͙̹̑̓̀͠ͅo̷̭̩̒͂̋̚͝n̵͉͛̀̽̀́̅")
         meta {
             name = "viewport"
-            content = "width=device-width, initial-scale=1"
+            content = "width=device-width, initial-scale=1, user-scalable=no"
         }
         link(href = "static/src/style.css", rel = "stylesheet")
         link(href = "static/favicon.png", rel = "icon", type = "image/png")
