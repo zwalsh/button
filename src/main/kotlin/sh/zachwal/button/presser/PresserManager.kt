@@ -9,11 +9,10 @@ class PresserManager : PresserObserver {
 
     private val currentlyPressing = mutableSetOf<Presser>()
 
-    @Synchronized
     private suspend fun update() {
         val pressingCount = currentlyPressing.count()
         logger.info("Pressing count now $pressingCount")
-        pressers.forEach { presser ->
+        pressers.toTypedArray().forEach { presser ->
             presser.updatePressingCount(pressingCount)
         }
     }

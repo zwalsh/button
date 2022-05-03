@@ -29,6 +29,8 @@ dependencies {
     testImplementation("io.ktor:ktor-client-core:$ktorVersion")
     testImplementation("io.ktor:ktor-client-cio:$ktorVersion")
     testImplementation("io.ktor:ktor-client-websockets:$ktorVersion")
+
+    testImplementation("io.mockk:mockk:1.12.3")
 }
 
 tasks.test {
