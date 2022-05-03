@@ -6,14 +6,11 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
 
 internal class PresserManagerTest {
 
-    private val logger = LoggerFactory.getLogger(PresserManagerTest::class.java)
-
     @Test
-    fun disconnected() {
+    fun concurrentOperationsTest() {
         val pm = PresserManager()
         val pressers = (1..100).map { mockk<Presser>(relaxed = true) }
         runBlocking {
