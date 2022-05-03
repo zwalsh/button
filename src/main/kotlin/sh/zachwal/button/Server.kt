@@ -65,6 +65,10 @@ fun index(url: String): HTML.() -> Unit = {
                 id = "buttonPressCount"
                 +"BUTTON PRESSERS: 0"
             }
+            h1(classes = "whiteButton") {
+                id = "buttonPressCountWhite"
+                +"BUTTON PRESSERS: 0"
+            }
         }
     }
 }
