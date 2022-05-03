@@ -12,8 +12,10 @@ function connect() {
         console.log(event);
     }
     socket.onmessage = function (event) {
-        let buttonPressDiv = document.getElementById("buttonPressCount");
-        buttonPressDiv.innerText = "BUTTON PRESSERS: " + event.data;
+    	let buttonPressDiv = document.getElementById("buttonPressCount");
+    	let buttonPressDivWhite = document.getElementById("buttonPressCountWhite");
+    	buttonPressDiv.innerText = "BUTTON PRESSERS: " + event.data;
+    	buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + event.data;
     }
 
     socket.onclose = function (event) {
