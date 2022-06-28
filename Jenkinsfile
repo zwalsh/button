@@ -24,7 +24,7 @@ pipeline {
                 sh "tar -xvf build/distributions/button.tar -C ~button/releases/$GIT_COMMIT"
                 // Set it as current
                 sh "rm ~button/releases/current"
-                sh "ln -s ~button/releases/$GIT_COMMIT current"
+                sh "ln -s ~button/releases/$GIT_COMMIT ~button/releases/current"
                 // Restart the button service (only has sudo permissions for this command)
                 sh "sudo systemctl restart button"
             }
