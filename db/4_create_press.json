@@ -32,8 +32,8 @@
                 },
                 {
                   "column": {
-                    "name": "ip",
-                    "type": "VARCHAR(32)"
+                    "name": "remote",
+                    "type": "VARCHAR(128)"
                   }
                 }
               ]
