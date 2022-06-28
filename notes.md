@@ -21,7 +21,7 @@ Send texts to people when the button is being pressed.
 - [x] Set up persistence
 - [x] Set up an admin page
   - [ ] Show some fun stuff
-- [ ] Count presses
+- [x] Count presses
 - [ ] Set up a registration page
 - [ ] Set up an opt-out page
 - [ ] Integrate with Twilio
