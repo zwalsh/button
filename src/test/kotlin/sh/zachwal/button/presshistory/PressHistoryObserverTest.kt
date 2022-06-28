@@ -1,6 +1,8 @@
 package sh.zachwal.button.presshistory
 
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -42,6 +44,7 @@ internal class PressHistoryObserverTest {
         val presser = mockk<Presser>()
         val remoteHost = "192.168.0.1"
         every { presser.remoteHost } returns remoteHost
+        every { pressHistoryService.createPress(any()) } just Runs
 
         runBlocking {
             observer.pressed(presser)
