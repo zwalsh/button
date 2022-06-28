@@ -37,7 +37,7 @@ import java.util.concurrent.Executors
 
 fun index(url: String): HTML.() -> Unit = {
     head {
-        title("b̷̖̗̀̋u̶̡̝̙̺̟̓t̵̳̼̰̙͈͋̀t̸̰͙̹̑̓̀͠ͅo̷̭̩̒͂̋̚͝n̵͉͛̀̽̀́̅")
+        title("button.")
         meta {
             name = "viewport"
             content = "width=device-width, initial-scale=1, user-scalable=no"
