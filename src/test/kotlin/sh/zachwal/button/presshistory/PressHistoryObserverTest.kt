@@ -33,7 +33,7 @@ internal class PressHistoryObserverTest {
         }
         latch.countDown()
 
-        verify {
+        verify(timeout = 100) {
             pressHistoryService.createPress(any())
         }
         assertTrue(succeeded)
