@@ -2,6 +2,7 @@ package sh.zachwal.button.guice
 
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
+import com.google.inject.Singleton
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.kotlin.KotlinPlugin
 import org.jdbi.v3.postgres.PostgresPlugin
@@ -15,6 +16,7 @@ import javax.sql.DataSource
 class JdbiModule : AbstractModule() {
 
     @Provides
+    @Singleton
     fun jdbi(ds: DataSource): Jdbi {
         return Jdbi.create(ds).installPlugin(KotlinPlugin())
             .installPlugin(PostgresPlugin())

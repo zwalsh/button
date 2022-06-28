@@ -2,7 +2,6 @@ package sh.zachwal.button
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.google.inject.Guice
-import com.zaxxer.hikari.HikariConfig
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.application.log
@@ -22,10 +21,12 @@ import io.ktor.websocket.WebSockets
 import org.slf4j.event.Level
 import sh.zachwal.button.auth.configureFormAuth
 import sh.zachwal.button.auth.configureSessionAuth
+import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.createControllers
 import sh.zachwal.button.features.configureRoleAuthorization
 import sh.zachwal.button.features.configureStatusPages
 import sh.zachwal.button.guice.ApplicationModule
+import sh.zachwal.button.guice.ConfigModule
 import sh.zachwal.button.guice.HikariModule
 import sh.zachwal.button.guice.JdbiModule
 import sh.zachwal.button.roles.RoleAuthorization
@@ -39,30 +40,20 @@ import kotlin.time.ExperimentalTime
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
-private fun url(host: String, port: Int?, protocol: String): String {
-    val prefix = "$protocol://$host"
-    val withPort = port?.let { "$prefix:$it" } ?: prefix
-    return "$withPort/socket"
-}
-
 @ExperimentalTime
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
-    val env = this.environment.config.property("ktor.deployment.environment").getString()
-    val host = environment.config.property("ktor.deployment.ws_host").getString()
-    val wsProtocol = environment.config.property("ktor.deployment.ws_protocol").getString()
-    val port = if (host == "localhost") 8080 else null
-    val url = url(host, port, wsProtocol)
 
-    log.info("Starting app in $env")
-
-    val hikariConfig = HikariConfig("/hikari.properties")
     val injector = Guice.createInjector(
-        ApplicationModule(url),
+        ApplicationModule(),
+        ConfigModule(environment.config),
         JdbiModule(),
-        HikariModule(hikariConfig)
+        HikariModule()
     )
+
+    val config = injector.getInstance(AppConfig::class.java)
+    log.info("Starting app in ${config.env}")
 
     val userService = injector.getInstance(UserService::class.java)
     val roleService = injector.getInstance(RoleService::class.java)
@@ -77,7 +68,7 @@ fun Application.module(testing: Boolean = false) {
         timeoutMillis = 30_000L
     }
 
-    if (host != "localhost") {
+    if (config.env != "DEV") {
         install(XForwardedHeaderSupport)
     }
 
@@ -87,7 +78,7 @@ fun Application.module(testing: Boolean = false) {
             storage = dbSessionStorage
         ) {
             cookie.httpOnly = true
-            cookie.secure = env != "dev"
+            cookie.secure = config.env != "DEV"
             cookie.extensions["SameSite"] = "lax"
         }
     }

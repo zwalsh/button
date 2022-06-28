@@ -4,6 +4,7 @@ import io.ktor.application.call
 import io.ktor.features.StatusPages.Configuration
 import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.HttpStatusCode.Companion
 import io.ktor.request.uri
 import kotlinx.html.DIV
 import kotlinx.html.HTML
@@ -32,7 +33,7 @@ fun Configuration.configureStatusPages() {
     }
 
     status(HttpStatusCode.NotFound) {
-        call.respondHtml {
+        call.respondHtml(HttpStatusCode.NotFound) {
             statusPage("${it.value} Not Found") {
                 h1 {
                     +"Resource not found"
@@ -45,7 +46,7 @@ fun Configuration.configureStatusPages() {
     }
 
     exception<UnauthorizedException> {
-        call.respondHtml {
+        call.respondHtml(HttpStatusCode.Unauthorized) {
             statusPage("Unauthorized") {
                 h1 {
                     +"Unauthorized"
@@ -53,7 +54,7 @@ fun Configuration.configureStatusPages() {
                 p {
                     +(
                         "You are not logged in, or do not have the correct permissions, to access " +
-                            "${call.request.uri}"
+                            call.request.uri
                         )
                 }
                 p {
@@ -64,7 +65,7 @@ fun Configuration.configureStatusPages() {
     }
 
     status(HttpStatusCode.Unauthorized) {
-        call.respondHtml {
+        call.respondHtml(HttpStatusCode.Unauthorized) {
             statusPage("${it.value} Not Logged In") {
                 h1 {
                     +"Unauthorized"
@@ -80,7 +81,7 @@ fun Configuration.configureStatusPages() {
     }
 
     status(HttpStatusCode.Forbidden) {
-        call.respondHtml {
+        call.respondHtml(HttpStatusCode.Forbidden) {
             statusPage("${it.value} Access Denied") {
                 h1 {
                     +"Access Denied"

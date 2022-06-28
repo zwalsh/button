@@ -1,6 +1,5 @@
 package sh.zachwal.button.home
 
-import com.google.inject.name.Named
 import io.ktor.application.call
 import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
@@ -19,18 +18,14 @@ import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.title
 import kotlinx.html.unsafe
+import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.Controller
 import javax.inject.Inject
 
 @Controller
 class HomeController @Inject constructor(
-    @Named("wsUrl")
-    private val wsUrl: String
+    private val appConfig: AppConfig,
 ) {
-
-    private fun index(url: String): HTML.() -> Unit = {
-    }
-
     internal fun Routing.home() {
         get("/") {
             call.respondHtml(HttpStatusCode.OK) {
@@ -44,7 +39,7 @@ class HomeController @Inject constructor(
                     link(href = "static/favicon.png", rel = "icon", type = "image/png")
                     script {
                         unsafe {
-                            +"let wsUrl = \"$wsUrl\";"
+                            +"let wsUrl = \"${appConfig.websocketUrl}\";"
                         }
                     }
                     script {

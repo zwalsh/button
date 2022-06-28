@@ -42,6 +42,9 @@ dependencies {
     // Logging
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
+    // Reflection (for @Controller annotation inspection)
+    implementation("org.reflections:reflections:0.10.2")
+
     // database
     implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("org.postgresql:postgresql:42.1.4")
