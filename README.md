@@ -1,6 +1,6 @@
 # Button
 
-https://healthchecks.io/badge/7ab6eb12-90e4-43cd-9f37-16d2d1/JEbd2RgO-2/button.svg
+![Button Status](https://healthchecks.io/badge/7ab6eb12-90e4-43cd-9f37-16d2d1/JEbd2RgO-2/button.svg)
 
 This is a dumb website that lets you press a button and tells you how
 many people are currently also pressing that button.
