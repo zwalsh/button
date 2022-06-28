@@ -24,10 +24,8 @@ class PressHistoryObserver @Inject constructor(
     }
 
     override suspend fun released(presser: Presser) {
-
     }
 
     override suspend fun disconnected(presser: Presser) {
-
     }
 }
