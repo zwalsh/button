@@ -1,19 +1,18 @@
 package sh.zachwal.button.db.dao
 
 import org.jdbi.v3.sqlobject.statement.SqlQuery
-import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import sh.zachwal.button.db.jdbi.Press
 import java.time.Instant
 
 interface PressDAO {
 
-    @SqlUpdate(
+    @SqlQuery(
         """
-            insert into public.press (ip) values (:ip)
+            insert into public.press (remote) values (:remote)
             returning *
         """
     )
-    fun createPress(ip: String): Press
+    fun createPress(remote: String): Press
 
     @SqlQuery(
         "select * from public.press where time > ? order by time"
