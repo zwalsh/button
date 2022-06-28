@@ -1,0 +1,60 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "4",
+        "author": "zach",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "press",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "int",
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "time",
+                    "type": "timestamp with time zone",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "ip",
+                    "type": "VARCHAR(32)"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "columns": [
+                {
+                  "column": {
+                    "name": "time"
+                  }
+                }
+              ],
+              "indexName": "idx_press_time",
+              "schemaName": "public",
+              "tableName": "press"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

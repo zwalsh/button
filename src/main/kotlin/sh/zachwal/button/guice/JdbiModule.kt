@@ -8,6 +8,7 @@ import org.jdbi.v3.core.kotlin.KotlinPlugin
 import org.jdbi.v3.postgres.PostgresPlugin
 import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
 import org.jdbi.v3.sqlobject.kotlin.onDemand
+import sh.zachwal.button.db.dao.PressDAO
 import sh.zachwal.button.db.dao.SessionDAO
 import sh.zachwal.button.db.dao.UserDAO
 import sh.zachwal.button.db.dao.UserRoleDAO
@@ -31,4 +32,7 @@ class JdbiModule : AbstractModule() {
 
     @Provides
     fun roleDao(jdbi: Jdbi): UserRoleDAO = jdbi.onDemand()
+
+    @Provides
+    fun pressDao(jdbi: Jdbi): PressDAO = jdbi.onDemand()
 }
