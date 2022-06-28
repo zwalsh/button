@@ -16,7 +16,8 @@ Send texts to people when the button is being pressed.
 
 ### To Do
 
-- [ ] Continuous Delivery
+- [x] Continuous Delivery
+- [ ] Healthchecks.io
 - [ ] Set up persistence
 - [ ] Set up an admin page 
   - [ ] Show some fun stuff
