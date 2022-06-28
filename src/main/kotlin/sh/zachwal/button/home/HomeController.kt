@@ -5,7 +5,6 @@ import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.Routing
 import io.ktor.routing.get
-import kotlinx.html.HTML
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
