@@ -19,8 +19,14 @@ pipeline {
                 expression { env.GIT_BRANCH == 'origin/main' }
             }
             steps {
+                // Create the release
                 sh "mkdir ~button/releases/$GIT_COMMIT"
                 sh "tar -xvf build/distributions/button.tar -C ~button/releases/$GIT_COMMIT"
+                // Set it as current
+                sh "rm ~button/releases/current"
+                sh "ln -s ~button/releases/$GIT_COMMIT current"
+                // Restart the button service (only has sudo permissions for this command)
+                sh "sudo systemctl restart button"
             }
         }
     }
