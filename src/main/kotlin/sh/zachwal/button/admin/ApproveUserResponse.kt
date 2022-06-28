@@ -1,3 +1,3 @@
-package sh.zachwal.authserver.admin
+package sh.zachwal.button.admin
 
 data class ApproveUserResponse(val message: String)

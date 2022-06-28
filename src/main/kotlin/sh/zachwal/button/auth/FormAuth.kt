@@ -1,4 +1,4 @@
-package sh.zachwal.authserver.auth
+package sh.zachwal.button.auth
 
 import io.ktor.application.call
 import io.ktor.auth.Authentication

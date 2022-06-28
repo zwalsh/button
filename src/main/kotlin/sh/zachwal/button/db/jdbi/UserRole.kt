@@ -1,4 +1,4 @@
-package sh.zachwal.authserver.db.jdbi
+package sh.zachwal.button.db.jdbi
 
 import sh.zachwal.button.roles.Role
 

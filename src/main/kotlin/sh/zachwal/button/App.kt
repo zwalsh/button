@@ -20,9 +20,9 @@ import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.websocket.WebSockets
 import org.slf4j.event.Level
-import sh.zachwal.authserver.auth.configureFormAuth
-import sh.zachwal.authserver.auth.configureSessionAuth
-import sh.zachwal.authserver.controller.createControllers
+import sh.zachwal.button.auth.configureFormAuth
+import sh.zachwal.button.auth.configureSessionAuth
+import sh.zachwal.button.controller.createControllers
 import sh.zachwal.button.features.configureRoleAuthorization
 import sh.zachwal.button.features.configureStatusPages
 import sh.zachwal.button.guice.ApplicationModule

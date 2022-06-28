@@ -1,4 +1,4 @@
-package sh.zachwal.authserver.admin
+package sh.zachwal.button.admin
 
 import io.ktor.application.call
 import io.ktor.html.respondHtml
@@ -25,8 +25,8 @@ import kotlinx.html.thead
 import kotlinx.html.title
 import kotlinx.html.tr
 import org.slf4j.LoggerFactory
-import sh.zachwal.authserver.controller.Controller
-import sh.zachwal.authserver.db.jdbi.User
+import sh.zachwal.button.controller.Controller
+import sh.zachwal.button.db.jdbi.User
 import sh.zachwal.button.roles.Role
 import sh.zachwal.button.roles.Role.ADMIN
 import sh.zachwal.button.roles.Role.USER

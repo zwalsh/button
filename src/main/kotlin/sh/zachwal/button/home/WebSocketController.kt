@@ -6,7 +6,7 @@ import io.ktor.routing.Routing
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.CoroutineDispatcher
 import org.slf4j.LoggerFactory
-import sh.zachwal.authserver.controller.Controller
+import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserManager
 import javax.inject.Inject

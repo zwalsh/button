@@ -1,10 +1,10 @@
-package sh.zachwal.authserver.db.dao
+package sh.zachwal.button.db.dao
 
 import org.jdbi.v3.sqlobject.customizer.BindBean
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import org.jdbi.v3.sqlobject.transaction.Transaction
-import sh.zachwal.authserver.db.jdbi.Session
+import sh.zachwal.button.db.jdbi.Session
 import java.time.Instant
 
 interface SessionDAO {

@@ -14,16 +14,6 @@
       "include": {
         "file": "3_create_role.json"
       }
-    },
-    {
-      "include": {
-        "file": "4_create_friendship.json"
-      }
-    },
-    {
-      "include": {
-        "file": "5_create_friend_request.json"
-      }
     }
   ]
 }

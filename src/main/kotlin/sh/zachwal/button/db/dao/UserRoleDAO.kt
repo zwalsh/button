@@ -1,12 +1,12 @@
-package sh.zachwal.authserver.db.dao
+package sh.zachwal.button.db.dao
 
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindBean
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
-import sh.zachwal.authserver.db.jdbi.User
-import sh.zachwal.authserver.db.jdbi.UserRole
+import sh.zachwal.button.db.jdbi.User
+import sh.zachwal.button.db.jdbi.UserRole
 import sh.zachwal.button.roles.Role
 
 interface UserRoleDAO {

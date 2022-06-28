@@ -1,7 +1,7 @@
 package sh.zachwal.button.session
 
 import org.slf4j.LoggerFactory
-import sh.zachwal.authserver.db.dao.SessionDAO
+import sh.zachwal.button.db.dao.SessionDAO
 import java.time.Instant
 import javax.inject.Inject
 import kotlin.concurrent.timer

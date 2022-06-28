@@ -1,8 +1,8 @@
-package sh.zachwal.authserver.db.dao
+package sh.zachwal.button.db.dao
 
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.statement.SqlQuery
-import sh.zachwal.authserver.db.jdbi.User
+import sh.zachwal.button.db.jdbi.User
 
 interface UserDAO {
     @SqlQuery("select * from public.user where username = ?")

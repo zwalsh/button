@@ -58,8 +58,6 @@ dependencies {
 
     // Use the Kotlin test library.
     testImplementation(kotlin("test"))
-    // Use the Kotlin JUnit integration.
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 
     // For testing Ktor & websockets
     testImplementation("io.ktor:ktor-client-core:$ktorVersion")

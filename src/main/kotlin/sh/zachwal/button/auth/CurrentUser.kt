@@ -1,11 +1,11 @@
-package sh.zachwal.authserver.auth
+package sh.zachwal.button.auth
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
-import sh.zachwal.authserver.db.jdbi.User
+import sh.zachwal.button.db.jdbi.User
 import sh.zachwal.button.session.SessionPrincipal
 import sh.zachwal.button.users.UserService
 

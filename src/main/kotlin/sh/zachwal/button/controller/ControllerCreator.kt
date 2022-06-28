@@ -1,4 +1,4 @@
-package sh.zachwal.authserver.controller
+package sh.zachwal.button.controller
 
 import com.google.inject.Injector
 import io.ktor.application.Application
@@ -15,7 +15,7 @@ import java.util.Enumeration
 private val logger = LoggerFactory.getLogger("ControllerCreator")
 
 fun Application.createControllers(injector: Injector) {
-    val classes = getClasses("sh.zachwal.authserver") // TODO change package
+    val classes = getClasses("sh.zachwal.button")
     val controllers = classes.filter { clazz ->
         clazz.annotations.any { ann ->
             ann.instanceOf(Controller::class)

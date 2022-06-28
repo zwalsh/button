@@ -1,8 +1,8 @@
 package sh.zachwal.button.roles
 
-import sh.zachwal.authserver.db.dao.UserDAO
-import sh.zachwal.authserver.db.dao.UserRoleDAO
-import sh.zachwal.authserver.db.jdbi.User
+import sh.zachwal.button.db.dao.UserDAO
+import sh.zachwal.button.db.dao.UserRoleDAO
+import sh.zachwal.button.db.jdbi.User
 import javax.inject.Inject
 
 class RoleService @Inject constructor(private val userRoleDAO: UserRoleDAO, private val userDAO: UserDAO) {

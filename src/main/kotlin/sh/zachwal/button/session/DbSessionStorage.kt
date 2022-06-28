@@ -9,8 +9,8 @@ import io.ktor.utils.io.writer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
-import sh.zachwal.authserver.db.dao.SessionDAO
-import sh.zachwal.authserver.db.jdbi.Session
+import sh.zachwal.button.db.dao.SessionDAO
+import sh.zachwal.button.db.jdbi.Session
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject

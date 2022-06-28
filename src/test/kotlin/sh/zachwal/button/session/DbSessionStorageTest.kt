@@ -15,8 +15,8 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import sh.zachwal.authserver.db.dao.SessionDAO
-import sh.zachwal.authserver.db.jdbi.Session
+import sh.zachwal.button.db.dao.SessionDAO
+import sh.zachwal.button.db.jdbi.Session
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals

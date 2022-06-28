@@ -29,7 +29,7 @@ import kotlinx.html.label
 import kotlinx.html.passwordInput
 import kotlinx.html.submitInput
 import kotlinx.html.textInput
-import sh.zachwal.authserver.controller.Controller
+import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.session.SessionPrincipal
 import sh.zachwal.button.session.SessionService
 import sh.zachwal.button.shared_html.bootstrapCss
@@ -131,9 +131,6 @@ class UserController @Inject constructor(
                             div(classes = "container") {
                                 h1 {
                                     +"${greeting()}, ${p?.user}!"
-                                }
-                                a(href = "/friends") {
-                                    +"Friends"
                                 }
                                 a(href = "/logout") {
                                     +"Log out"

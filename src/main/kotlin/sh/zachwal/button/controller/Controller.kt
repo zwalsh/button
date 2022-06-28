@@ -1,4 +1,4 @@
-package sh.zachwal.authserver.controller
+package sh.zachwal.button.controller
 
 import io.ktor.routing.Routing
 import io.ktor.routing.routing

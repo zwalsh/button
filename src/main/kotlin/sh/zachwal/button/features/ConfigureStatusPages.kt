@@ -13,7 +13,7 @@ import kotlinx.html.h1
 import kotlinx.html.head
 import kotlinx.html.p
 import kotlinx.html.title
-import sh.zachwal.authserver.auth.UnauthorizedException
+import sh.zachwal.button.auth.UnauthorizedException
 import sh.zachwal.button.shared_html.bootstrapCss
 
 fun Configuration.configureStatusPages() {

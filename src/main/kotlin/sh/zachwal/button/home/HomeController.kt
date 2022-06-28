@@ -19,7 +19,7 @@ import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.title
 import kotlinx.html.unsafe
-import sh.zachwal.authserver.controller.Controller
+import sh.zachwal.button.controller.Controller
 import javax.inject.Inject
 
 @Controller

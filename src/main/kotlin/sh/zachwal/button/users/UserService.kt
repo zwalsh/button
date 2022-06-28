@@ -4,8 +4,8 @@ import io.ktor.util.error
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import org.mindrot.jbcrypt.BCrypt
 import org.slf4j.LoggerFactory
-import sh.zachwal.authserver.db.dao.UserDAO
-import sh.zachwal.authserver.db.jdbi.User
+import sh.zachwal.button.db.dao.UserDAO
+import sh.zachwal.button.db.jdbi.User
 import javax.inject.Inject
 
 class UserService @Inject constructor(private val userDAO: UserDAO) {
