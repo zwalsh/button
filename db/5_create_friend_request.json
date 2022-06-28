@@ -1,0 +1,45 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "5",
+        "author": "zach",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "friend_request",
+              "columns": [
+                {
+                  "column": {
+                    "name": "requester_id",
+                    "type": "int",
+                    "constraints": {
+                      "primaryKey": true,
+                      "primaryKeyName": "req_pk",
+                      "nullable": false,
+                      "references": "public.user(id)",
+                      "foreignKeyName": "requester_id_fk"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "requested_id",
+                    "type": "int",
+                    "constraints": {
+                      "primaryKey": true,
+                      "primaryKeyName": "req_pk",
+                      "nullable": false,
+                      "references": "public.user(id)",
+                      "foreignKeyName": "requested_id_fk"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
