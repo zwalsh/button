@@ -79,7 +79,7 @@ application {
 
 tasks.withType(KotlinCompile::class.java).all {
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
 }
 
