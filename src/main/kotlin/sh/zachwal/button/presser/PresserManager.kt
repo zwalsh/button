@@ -1,7 +1,9 @@
 package sh.zachwal.button.presser
 
+import com.google.inject.Singleton
 import org.slf4j.LoggerFactory
 
+@Singleton
 class PresserManager : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(PresserManager::class.java)

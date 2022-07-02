@@ -1,0 +1,19 @@
+{
+  "databaseChangeLog": [
+    {
+      "include": {
+        "file": "1_create_user.json"
+      }
+    },
+    {
+      "include": {
+        "file": "2_create_session.json"
+      }
+    },
+    {
+      "include": {
+        "file": "3_create_role.json"
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "3",
+        "author": "zach",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "role",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "int",
+                    "constraints": {
+                      "primaryKey": true,
+                      "primaryKeyName": "user_id_role_pk",
+                      "nullable": false,
+                      "references": "public.user(id)",
+                      "foreignKeyName": "user_id_fk"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "role",
+                    "type": "VARCHAR(16)",
+                    "constraints": {
+                      "primaryKey": true,
+                      "primaryKeyName": "user_id_role_pk",
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
