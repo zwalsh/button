@@ -18,9 +18,10 @@ Send texts to people when the button is being pressed.
 
 - [x] Continuous Delivery
 - [x] Healthchecks.io
-- [ ] Set up persistence
-- [ ] Set up an admin page 
+- [x] Set up persistence
+- [x] Set up an admin page
   - [ ] Show some fun stuff
+- [x] Count presses
 - [ ] Set up a registration page
 - [ ] Set up an opt-out page
 - [ ] Integrate with Twilio

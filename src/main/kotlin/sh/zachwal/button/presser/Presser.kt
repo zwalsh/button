@@ -19,8 +19,8 @@ private val logger = LoggerFactory.getLogger(Presser::class.java)
 
 class Presser(
     private val socketSession: WebSocketServerSession,
-    private var observer: PresserObserver,
-    private val remoteHost: String,
+    private val observer: PresserObserver,
+    val remoteHost: String,
     dispatcher: CoroutineDispatcher
 ) {
     // uses two coroutines, one to accept incoming & one to send outgoing
