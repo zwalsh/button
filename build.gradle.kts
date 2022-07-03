@@ -59,6 +59,9 @@ dependencies {
     // DI
     implementation("com.google.inject:guice:4.2.3")
 
+    // Twilio
+    implementation("com.twilio.sdk:twilio:8.32.0")
+
     // Use the Kotlin test library.
     testImplementation(kotlin("test"))
 
