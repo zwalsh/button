@@ -8,15 +8,17 @@ import sh.zachwal.button.sms.InvalidNumber
 import sh.zachwal.button.sms.MessagingService
 import sh.zachwal.button.sms.ValidNumber
 
+
+class InvalidNumberException(val invalidNumber: InvalidNumber) : Exception(invalidNumber.reason)
+
 @Singleton
 class PhoneBookService @Inject constructor(
     private val messagingService: MessagingService,
     private val contactDAO: ContactDAO,
 ) {
-
     suspend fun register(name: String, number: String): Contact {
         val validNumber = when (val validated = messagingService.validateNumber(number)) {
-            is InvalidNumber -> throw IllegalArgumentException(validated.reason)
+            is InvalidNumber -> throw InvalidNumberException(validated)
             is ValidNumber -> validated.validNumber
         }
 
