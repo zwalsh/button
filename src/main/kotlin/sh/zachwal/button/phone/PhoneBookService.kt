@@ -21,6 +21,8 @@ class PhoneBookService @Inject constructor(
             is ValidNumber -> validated.validNumber
         }
 
+        // TODO check if phone number already exists
+
         return contactDAO.createContact(name, validNumber)
     }
 }
