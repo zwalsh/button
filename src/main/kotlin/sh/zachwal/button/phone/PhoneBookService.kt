@@ -8,7 +8,6 @@ import sh.zachwal.button.sms.InvalidNumber
 import sh.zachwal.button.sms.MessagingService
 import sh.zachwal.button.sms.ValidNumber
 
-
 class InvalidNumberException(val invalidNumber: InvalidNumber) : Exception(invalidNumber.reason)
 
 @Singleton

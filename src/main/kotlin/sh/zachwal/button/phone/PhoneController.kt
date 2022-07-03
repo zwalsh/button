@@ -65,10 +65,12 @@ class PhoneController @Inject constructor(private val phoneBookService: PhoneBoo
                                                 }
                                                 small(classes = "form-text") {
                                                     style = "max-width: 300px"
-                                                    +("We'll text you (at most once a day) when " +
-                                                        "someone " +
-                                                        "presses the " +
-                                                        "button so you can join in!")
+                                                    +(
+                                                        "We'll text you (at most once a day) when " +
+                                                            "someone " +
+                                                            "presses the " +
+                                                            "button so you can join in!"
+                                                        )
                                                 }
                                             }
                                             div(classes = "form-group") {
@@ -158,10 +160,12 @@ class PhoneController @Inject constructor(private val phoneBookService: PhoneBoo
                                 h1(classes = "mt-4") {
                                     +"Congrats, $name!"
                                 }
-                                div(classes="m-3") {
-                                    +("You'll receive texts from now on the first time the button" +
-                                        " " +
-                                        "is pressed in a given day.")
+                                div(classes = "m-3") {
+                                    +(
+                                        "You'll receive texts from now on the first time the button" +
+                                            " " +
+                                            "is pressed in a given day."
+                                        )
                                 }
                                 a(href = "/", classes = "button") {
                                     span {
