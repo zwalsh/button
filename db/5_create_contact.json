@@ -67,6 +67,21 @@
             }
           },
           {
+            "createIndex": {
+              "columns": [
+                {
+                  "column": {
+                    "name": "phone_number"
+                  }
+                }
+              ],
+              "indexName": "idx_contact_phone_number",
+              "schemaName": "public",
+              "tableName": "contact",
+              "unique": true
+            }
+          },
+          {
             "sql": {
               "sql": "ALTER TABLE public.contact ADD CONSTRAINT contact_phone_number_is_E164_format CHECK (phone_number ~* '^\\+[1-9]\\d{1,14}$')"
             }
