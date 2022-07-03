@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.twilio.Twilio
+import com.twilio.exception.ApiException
 import com.twilio.rest.lookups.v1.PhoneNumber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -35,13 +36,26 @@ class TwilioMessagingService @Inject constructor(
         )
     }
 
-    override suspend fun validateNumber(phoneNumber: String): String {
+    override suspend fun validateNumber(phoneNumber: String): PhoneNumberValidation {
         val number = PhoneNumber.fetcher(com.twilio.type.PhoneNumber(phoneNumber))
 
         // run the fetch on the Twilio thread
         return withContext(scope.coroutineContext) {
-            val validatedNumber = number.fetchAsync().await()
-            validatedNumber.phoneNumber.toString()
+            val validatedNumber = try {
+                number.fetchAsync().await()
+            } catch (apiException: ApiException) {
+                if (apiException.statusCode == 404) {
+                    return@withContext InvalidNumber(
+                        phoneNumber, "The phone number $phoneNumber does not exist."
+                    )
+                }
+
+                return@withContext InvalidNumber(phoneNumber, apiException.localizedMessage)
+            } catch (e: Exception) {
+                throw e
+            }
+
+            ValidNumber(validatedNumber.phoneNumber.toString())
         }
     }
 }
