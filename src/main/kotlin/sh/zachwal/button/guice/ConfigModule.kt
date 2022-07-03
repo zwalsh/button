@@ -4,7 +4,6 @@ import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import io.ktor.config.ApplicationConfig
 import sh.zachwal.button.config.AppConfig
-import sh.zachwal.button.config.TwilioConfig
 
 class ConfigModule(
     private val applicationConfig: ApplicationConfig,
