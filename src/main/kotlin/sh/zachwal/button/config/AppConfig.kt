@@ -14,11 +14,16 @@ private fun url(config: ApplicationConfig): String {
 data class AppConfig(
     val env: String,
     val dbPasswordOverride: String?,
-    val websocketUrl: String
+    val websocketUrl: String,
+    val twilioConfig: TwilioConfig,
 ) {
     constructor(config: ApplicationConfig) : this(
         env = config.property("ktor.deployment.environment").getString(),
         dbPasswordOverride = config.propertyOrNull("ktor.deployment.db_password")?.getString(),
-        websocketUrl = url(config)
+        websocketUrl = url(config),
+        twilioConfig = TwilioConfig(
+            config.property("ktor.twilio.account").getString(),
+            config.property("ktor.twilio.authToken").getString()
+        )
     )
 }
