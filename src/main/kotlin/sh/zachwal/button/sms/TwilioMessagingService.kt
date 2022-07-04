@@ -23,6 +23,7 @@ class TwilioMessagingService @Inject constructor(
     twilioConfig: TwilioConfig
 ) : MessagingService {
 
+    private val fromNumber = com.twilio.type.PhoneNumber(twilioConfig.fromNumber)
     private val logger = LoggerFactory.getLogger(TwilioMessagingService::class.java)
     private val threadPool = Executors.newFixedThreadPool(
         1,
@@ -68,7 +69,7 @@ class TwilioMessagingService @Inject constructor(
         withContext(scope.coroutineContext) {
             val message: Message = Message.creator(
                 com.twilio.type.PhoneNumber(toPhoneNumber),
-                com.twilio.type.PhoneNumber("+18507064548"), // TODO
+                fromNumber,
                 body
             ).createAsync().await()
 

@@ -24,7 +24,8 @@ data class AppConfig(
         websocketUrl = url(config),
         twilioConfig = TwilioConfig(
             config.property("ktor.twilio.account").getString(),
-            config.property("ktor.twilio.authToken").getString()
+            config.property("ktor.twilio.authToken").getString(),
+            config.property("ktor.twilio.fromNumber").getString(),
         ),
         messagingConfig = MessagingConfig(
             monthlyLimit = 600
