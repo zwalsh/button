@@ -90,7 +90,13 @@ class TwilioMessagingService @Inject constructor(
 
                     MessageFailed(message.errorMessage)
                 }
-                else -> throw Exception("What the heck!") // TODO
+                else -> {
+                    logger.error(
+                        "Got unhandled message status from Twilio when sending message to " +
+                            "$toPhoneNumber: ${message.status}, ${message.errorMessage}"
+                    )
+                    throw RuntimeException("Unhandled Twilio message status: ${message.status}")
+                }
             }
         }
 }
