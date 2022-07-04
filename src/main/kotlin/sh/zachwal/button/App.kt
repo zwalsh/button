@@ -18,6 +18,7 @@ import io.ktor.routing.routing
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.websocket.WebSockets
+import kotlinx.coroutines.runBlocking
 import org.slf4j.event.Level
 import sh.zachwal.button.auth.configureFormAuth
 import sh.zachwal.button.auth.configureSessionAuth
@@ -34,6 +35,7 @@ import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.session.DbSessionStorage
 import sh.zachwal.button.session.SessionCleanupTask
 import sh.zachwal.button.session.SessionPrincipal
+import sh.zachwal.button.sms.MessagingService
 import sh.zachwal.button.users.UserService
 import kotlin.collections.set
 import kotlin.time.ExperimentalTime

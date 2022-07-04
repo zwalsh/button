@@ -5,6 +5,9 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.twilio.Twilio
 import com.twilio.exception.ApiException
+import com.twilio.rest.api.v2010.account.Message
+import com.twilio.rest.api.v2010.account.Message.Status.FAILED
+import com.twilio.rest.api.v2010.account.Message.Status.QUEUED
 import com.twilio.rest.lookups.v1.PhoneNumber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -58,4 +61,19 @@ class TwilioMessagingService @Inject constructor(
             ValidNumber(validatedNumber.phoneNumber.toString())
         }
     }
+
+    override suspend fun sendMessage(toPhoneNumber: String, body: String): MessageStatus =
+        withContext(scope.coroutineContext) {
+            val message: Message = Message.creator(
+                com.twilio.type.PhoneNumber(toPhoneNumber),
+                com.twilio.type.PhoneNumber("+18507064548"), // TODO
+                body
+            ).createAsync().await()
+
+            when (message.status) {
+                QUEUED -> MessageQueued
+                FAILED -> MessageFailed(message.errorMessage)
+                else -> throw Exception("What the heck!") // TODO
+            }
+        }
 }
