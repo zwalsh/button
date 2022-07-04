@@ -16,6 +16,7 @@ data class AppConfig(
     val dbPasswordOverride: String?,
     val websocketUrl: String,
     val twilioConfig: TwilioConfig,
+    val messagingConfig: MessagingConfig,
 ) {
     constructor(config: ApplicationConfig) : this(
         env = config.property("ktor.deployment.environment").getString(),
@@ -24,6 +25,9 @@ data class AppConfig(
         twilioConfig = TwilioConfig(
             config.property("ktor.twilio.account").getString(),
             config.property("ktor.twilio.authToken").getString()
+        ),
+        messagingConfig = MessagingConfig(
+            monthlyLimit = 600
         )
     )
 }
