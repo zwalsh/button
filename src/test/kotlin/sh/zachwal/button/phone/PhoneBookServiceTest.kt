@@ -27,7 +27,7 @@ internal class PhoneBookServiceTest {
             "123", reason
         )
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<InvalidNumberException> {
             runBlocking {
                 phoneBookService.register("My Name", "123")
             }
