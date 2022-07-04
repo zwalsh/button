@@ -25,6 +25,7 @@ Send texts to people when the button is being pressed.
 - [x] Count presses
 - [x] Set up a registration page
 - [ ] Set up an opt-out page
+  - [ ] Delete numbers on request 
 - [x] Integrate with Twilio
 - [x] Validate phone numbers
 - [ ] Send messages, configurably

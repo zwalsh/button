@@ -10,6 +10,7 @@ import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.PressDAO
+import sh.zachwal.button.db.dao.SentMessageDAO
 import sh.zachwal.button.db.dao.SessionDAO
 import sh.zachwal.button.db.dao.UserDAO
 import sh.zachwal.button.db.dao.UserRoleDAO
@@ -39,4 +40,7 @@ class JdbiModule : AbstractModule() {
 
     @Provides
     fun contactDao(jdbi: Jdbi): ContactDAO = jdbi.onDemand()
+
+    @Provides
+    fun sentMessageDao(jdbi: Jdbi): SentMessageDAO = jdbi.onDemand()
 }

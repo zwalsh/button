@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import sh.zachwal.button.config.TwilioConfig
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
@@ -22,6 +23,7 @@ class TwilioMessagingService @Inject constructor(
     twilioConfig: TwilioConfig
 ) : MessagingService {
 
+    private val logger = LoggerFactory.getLogger(TwilioMessagingService::class.java)
     private val threadPool = Executors.newFixedThreadPool(
         1,
         ThreadFactoryBuilder()
@@ -71,8 +73,22 @@ class TwilioMessagingService @Inject constructor(
             ).createAsync().await()
 
             when (message.status) {
-                QUEUED -> MessageQueued
-                FAILED -> MessageFailed(message.errorMessage)
+                QUEUED -> {
+                    logger.info("Sent message to $toPhoneNumber with id ${message.sid}.")
+
+                    MessageQueued(
+                        id = message.sid,
+                        sentDate = message.dateSent.toInstant()
+                    )
+                }
+                FAILED -> {
+                    logger.warn(
+                        "Failed to send message to $toPhoneNumber: ${message.sid}, " +
+                            "${message.errorMessage}."
+                    )
+
+                    MessageFailed(message.errorMessage)
+                }
                 else -> throw Exception("What the heck!") // TODO
             }
         }

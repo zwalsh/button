@@ -24,6 +24,11 @@
       "include": {
         "file": "5_create_contact.json"
       }
+    },
+    {
+      "include": {
+        "file": "6_create_sent_message.json"
+      }
     }
   ]
 }
