@@ -15,4 +15,7 @@ class ConfigModule(
 
     @Provides
     fun twilioConfig(appConfig: AppConfig) = appConfig.twilioConfig
+
+    @Provides
+    fun messagingConfig(appConfig: AppConfig) = appConfig.messagingConfig
 }

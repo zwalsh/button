@@ -24,6 +24,7 @@ import sh.zachwal.button.auth.configureFormAuth
 import sh.zachwal.button.auth.configureSessionAuth
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.createControllers
+import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.dao.SentMessageDAO
 import sh.zachwal.button.db.jdbi.SentMessage
 import sh.zachwal.button.features.configureRoleAuthorization
