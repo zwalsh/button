@@ -23,7 +23,10 @@ internal class ContactNotifierTest {
     private val contactDao: ContactDAO = mockk()
     private val notificationDAO: NotificationDAO = mockk()
     private val messagingService: ControlledContactMessagingService = mockk()
-    private val notifier = ContactNotifier(contactDao, messagingService, notificationDAO)
+    private val notifier = ContactNotifier(
+        contactDao, messagingService, notificationDAO,
+        "example.com"
+    )
 
     private val zachContact = Contact(1, Instant.now(), "Zach", "+18001234567", active = true)
     private val jackieContact = Contact(2, Instant.now(), "Jackie", "+18001225555", active = true)

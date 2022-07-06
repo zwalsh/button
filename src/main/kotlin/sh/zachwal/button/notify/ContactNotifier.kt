@@ -3,12 +3,12 @@ package sh.zachwal.button.notify
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.google.inject.name.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
-import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.presser.Presser
@@ -24,7 +24,8 @@ class ContactNotifier @Inject constructor(
     private val contactDAO: ContactDAO,
     private val controlledContactMessagingService: ControlledContactMessagingService,
     private val notificationDAO: NotificationDAO,
-    appConfig: AppConfig,
+    @Named("host")
+    private val host: String,
 ) : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(ContactNotifier::class.java)
@@ -36,7 +37,7 @@ class ContactNotifier @Inject constructor(
             .build()
     )
     private val scope = CoroutineScope(threadPool.asCoroutineDispatcher())
-    private val link = "https://${appConfig.host}"
+    private val link = "https://$host"
 
     init {
         Runtime.getRuntime().addShutdownHook(
