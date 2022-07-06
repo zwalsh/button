@@ -44,7 +44,6 @@ internal class ControlledContactMessagingServiceTest {
         )
         coEvery { messagingService.sendMessage(any(), any()) } returns response
 
-
         val message = runBlocking {
             service.sendMessage(contact, "body")
         }
