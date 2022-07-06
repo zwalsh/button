@@ -9,9 +9,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.dao.ContactDAO
+import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserObserver
 import sh.zachwal.button.sms.ControlledContactMessagingService
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 
@@ -19,6 +22,7 @@ import kotlin.concurrent.thread
 class ContactNotifier @Inject constructor(
     private val contactDAO: ContactDAO,
     private val controlledContactMessagingService: ControlledContactMessagingService,
+    private val notificationDAO: NotificationDAO,
 ) : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(ContactNotifier::class.java)
@@ -40,9 +44,15 @@ class ContactNotifier @Inject constructor(
     }
 
     override suspend fun pressed(presser: Presser) = withContext(scope.coroutineContext) {
-        // TODO grab last notification
-        // TODO if > 1d ago, create a new row
-        // TODO else return
+        val lastNotification = notificationDAO.getLatestNotification()
+
+        val shouldSendNewNotification = lastNotification?.let { n ->
+            val oneDayAgo = Instant.now().minus(1, ChronoUnit.DAYS)
+            n.sentDate.isBefore(oneDayAgo)
+        } ?: true
+        if (!shouldSendNewNotification) {
+            return@withContext
+        }
 
         val contacts = contactDAO.selectActiveContacts()
         logger.info("Sending a notification to ${contacts.size} contacts.")
