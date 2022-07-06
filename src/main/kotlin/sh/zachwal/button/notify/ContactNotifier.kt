@@ -8,6 +8,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.presser.Presser
@@ -23,6 +24,7 @@ class ContactNotifier @Inject constructor(
     private val contactDAO: ContactDAO,
     private val controlledContactMessagingService: ControlledContactMessagingService,
     private val notificationDAO: NotificationDAO,
+    appConfig: AppConfig,
 ) : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(ContactNotifier::class.java)
@@ -34,6 +36,7 @@ class ContactNotifier @Inject constructor(
             .build()
     )
     private val scope = CoroutineScope(threadPool.asCoroutineDispatcher())
+    private val link = "https://${appConfig.host}"
 
     init {
         Runtime.getRuntime().addShutdownHook(
@@ -61,8 +64,7 @@ class ContactNotifier @Inject constructor(
         contacts.forEach { c ->
             controlledContactMessagingService.sendMessage(
                 contact = c,
-                // TODO parameterize url
-                body = "Someone's pressing The Button! Join in: https://button.zachwal.sh"
+                body = "Someone's pressing The Button! Join in: $link"
             )
             // Don't get our number blocked
             delay(1000)
