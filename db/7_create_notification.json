@@ -1,0 +1,54 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "7",
+        "author": "zach",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "notification",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "int",
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "sent_date",
+                    "type": "timestamp with time zone",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "columns": [
+                {
+                  "column": {
+                    "name": "sent_date"
+                  }
+                }
+              ],
+              "indexName": "idx_notification_sent_date",
+              "schemaName": "public",
+              "tableName": "notification"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
