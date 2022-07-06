@@ -4,6 +4,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -34,6 +35,8 @@ internal class ContactNotifierTest {
             "blah",
             Instant.now()
         )
+        every { contactDao.selectActiveContacts() } returns emptyList()
+        every { notificationDAO.createNotification() } returns Notification(1, Instant.now())
     }
 
     @Test
@@ -75,7 +78,6 @@ internal class ContactNotifierTest {
         every { notificationDAO.getLatestNotification() } returns null
         every { contactDao.selectActiveContacts() } returns listOf(zachContact)
 
-
         runBlocking {
             notifier.pressed(presser)
         }
@@ -83,5 +85,17 @@ internal class ContactNotifierTest {
         coVerify {
             messagingService.sendMessage(zachContact, any())
         }
+    }
+
+    @Test
+    fun `creates new notification record`() {
+        val overOneDayAgo = Instant.now().minus(25, ChronoUnit.HOURS)
+        every { notificationDAO.getLatestNotification() } returns Notification(1, overOneDayAgo)
+
+        runBlocking {
+            notifier.pressed(presser)
+        }
+
+        verify { notificationDAO.createNotification() }
     }
 }
