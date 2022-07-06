@@ -79,7 +79,7 @@ class TwilioMessagingService @Inject constructor(
 
                     MessageQueued(
                         id = message.sid,
-                        sentDate = message.dateSent.toInstant()
+                        sentDate = message.dateCreated.toInstant()
                     )
                 }
                 FAILED -> {
