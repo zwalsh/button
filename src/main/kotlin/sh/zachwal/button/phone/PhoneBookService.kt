@@ -58,7 +58,6 @@ class PhoneBookService @Inject constructor(
             )
         }
 
-
         return contact
     }
 }

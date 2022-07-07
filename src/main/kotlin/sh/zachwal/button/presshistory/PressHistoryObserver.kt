@@ -5,7 +5,6 @@ import com.google.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserObserver
 import java.util.concurrent.Executors

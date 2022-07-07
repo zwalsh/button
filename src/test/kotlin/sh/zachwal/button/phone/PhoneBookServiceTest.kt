@@ -5,7 +5,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -109,7 +108,8 @@ internal class PhoneBookServiceTest {
 
         coVerify(timeout = 1000) {
             messagingService.sendMessage(
-                messagingConfig.adminPhone, "New contact just signed up:" +
+                messagingConfig.adminPhone,
+                "New contact just signed up:" +
                     " Second one at 456."
             )
         }
