@@ -17,6 +17,8 @@ class PhoneBookService @Inject constructor(
     private val contactDAO: ContactDAO,
     private val messagingConfig: MessagingConfig,
 ) {
+
+
     suspend fun register(name: String, number: String): Contact {
         val validNumber = when (val validated = messagingService.validateNumber(number)) {
             is InvalidNumber -> throw InvalidNumberException(validated)
@@ -25,6 +27,13 @@ class PhoneBookService @Inject constructor(
 
         // TODO check if phone number already exists
 
-        return contactDAO.createContact(name, validNumber)
+        val contact = contactDAO.createContact(name, validNumber)
+
+        messagingService.sendMessage(
+            messagingConfig.adminPhone,
+            "New contact just signed up: ${contact.name} at ${contact.phoneNumber}."
+        )
+
+        return contact
     }
 }
