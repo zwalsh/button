@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -87,5 +88,30 @@ internal class PhoneBookServiceTest {
         }
         assertThat(contact.name).isEqualTo("My Name")
         assertThat(contact.phoneNumber).isEqualTo("123")
+    }
+
+    @Test
+    fun `one admin text failure does not prevent future admin texts`() {
+        coEvery {
+            messagingService.sendMessage(
+                any(),
+                any()
+            )
+        } throws Exception("Oops!") andThen MessageQueued("", Instant.now())
+
+        // should not fail
+        runBlocking {
+            phoneBookService.register("My Name", "123")
+        }
+        runBlocking {
+            phoneBookService.register("Second one", "456")
+        }
+
+        coVerify(timeout = 1000) {
+            messagingService.sendMessage(
+                messagingConfig.adminPhone, "New contact just signed up:" +
+                    " Second one at 456."
+            )
+        }
     }
 }
