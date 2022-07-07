@@ -5,11 +5,15 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.twilio.Twilio
 import com.twilio.exception.ApiException
+import com.twilio.rest.api.v2010.account.Message
+import com.twilio.rest.api.v2010.account.Message.Status.FAILED
+import com.twilio.rest.api.v2010.account.Message.Status.QUEUED
 import com.twilio.rest.lookups.v1.PhoneNumber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import sh.zachwal.button.config.TwilioConfig
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
@@ -19,6 +23,8 @@ class TwilioMessagingService @Inject constructor(
     twilioConfig: TwilioConfig
 ) : MessagingService {
 
+    private val fromNumber = com.twilio.type.PhoneNumber(twilioConfig.fromNumber)
+    private val logger = LoggerFactory.getLogger(TwilioMessagingService::class.java)
     private val threadPool = Executors.newFixedThreadPool(
         1,
         ThreadFactoryBuilder()
@@ -58,4 +64,39 @@ class TwilioMessagingService @Inject constructor(
             ValidNumber(validatedNumber.phoneNumber.toString())
         }
     }
+
+    override suspend fun sendMessage(toPhoneNumber: String, body: String): MessageStatus =
+        withContext(scope.coroutineContext) {
+            val message: Message = Message.creator(
+                com.twilio.type.PhoneNumber(toPhoneNumber),
+                fromNumber,
+                body
+            ).createAsync().await()
+
+            when (message.status) {
+                QUEUED -> {
+                    logger.info("Sent message to $toPhoneNumber with id ${message.sid}.")
+
+                    MessageQueued(
+                        id = message.sid,
+                        sentDate = message.dateCreated.toInstant()
+                    )
+                }
+                FAILED -> {
+                    logger.warn(
+                        "Failed to send message to $toPhoneNumber: ${message.sid}, " +
+                            "${message.errorMessage}."
+                    )
+
+                    MessageFailed(message.errorMessage)
+                }
+                else -> {
+                    logger.error(
+                        "Got unhandled message status from Twilio when sending message to " +
+                            "$toPhoneNumber: ${message.status}, ${message.errorMessage}"
+                    )
+                    throw RuntimeException("Unhandled Twilio message status: ${message.status}")
+                }
+            }
+        }
 }

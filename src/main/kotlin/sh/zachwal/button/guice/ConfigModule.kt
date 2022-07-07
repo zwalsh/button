@@ -2,6 +2,7 @@ package sh.zachwal.button.guice
 
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
+import com.google.inject.name.Named
 import io.ktor.config.ApplicationConfig
 import sh.zachwal.button.config.AppConfig
 
@@ -15,4 +16,11 @@ class ConfigModule(
 
     @Provides
     fun twilioConfig(appConfig: AppConfig) = appConfig.twilioConfig
+
+    @Provides
+    fun messagingConfig(appConfig: AppConfig) = appConfig.messagingConfig
+
+    @Provides
+    @Named("host")
+    fun hostString(appConfig: AppConfig) = appConfig.host
 }

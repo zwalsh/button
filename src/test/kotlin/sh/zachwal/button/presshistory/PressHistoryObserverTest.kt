@@ -25,7 +25,7 @@ internal class PressHistoryObserverTest {
         every { presser.remoteHost } returns "127.0.0.1"
         every { pressHistoryService.createPress(any()) } answers {
             // createPress blocks until the latch counts down, or for 100ms
-            succeeded = latch.await(500, MILLISECONDS)
+            succeeded = latch.await(1000, MILLISECONDS)
         }
 
         runBlocking {
@@ -33,7 +33,7 @@ internal class PressHistoryObserverTest {
         }
         latch.countDown()
 
-        verify(timeout = 500) {
+        verify(timeout = 1000) {
             pressHistoryService.createPress(any())
         }
         assertTrue(succeeded)

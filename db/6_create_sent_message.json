@@ -1,0 +1,77 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "6",
+        "author": "zach",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "sent_message",
+              "columns": [
+                {
+                  "column": {
+                    "name": "twilio_id",
+                    "type": "VARCHAR(64)",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "sent_date",
+                    "type": "timestamp with time zone",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "contact_id",
+                    "type": "int",
+                    "constraints": {
+                      "nullable": false,
+                      "references": "public.contact(id)",
+                      "foreignKeyName": "contact_id_fk"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "columns": [
+                {
+                  "column": {
+                    "name": "contact_id"
+                  }
+                }
+              ],
+              "indexName": "idx_sent_message_contact_id",
+              "schemaName": "public",
+              "tableName": "sent_message"
+            }
+          },
+          {
+            "createIndex": {
+              "columns": [
+                {
+                  "column": {
+                    "name": "sent_date"
+                  }
+                }
+              ],
+              "indexName": "idx_sent_message_sent_date",
+              "schemaName": "public",
+              "tableName": "sent_message"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
