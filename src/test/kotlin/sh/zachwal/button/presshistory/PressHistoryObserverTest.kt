@@ -1,9 +1,11 @@
 package sh.zachwal.button.presshistory
 
 import io.mockk.Runs
+import io.mockk.andThenJust
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -51,6 +53,27 @@ internal class PressHistoryObserverTest {
         }
 
         verify(timeout = 100) {
+            pressHistoryService.createPress(remoteHost)
+        }
+    }
+
+    @Test
+    fun `one failed create will not prevent others`() {
+        val presser = mockk<Presser>()
+        val remoteHost = "192.168.0.1"
+        every { presser.remoteHost } returns remoteHost
+        every { pressHistoryService.createPress(any()) } throws Exception("Oops!") andThenJust runs
+
+        runBlocking {
+            // first will fail
+            observer.pressed(presser)
+            // second should succeed
+            observer.pressed(presser)
+            // third should succeed
+            observer.pressed(presser)
+        }
+
+        verify(timeout = 100, exactly = 3) {
             pressHistoryService.createPress(remoteHost)
         }
     }
