@@ -30,7 +30,8 @@ data class AppConfig(
             config.property("ktor.twilio.fromNumber").getString(),
         ),
         messagingConfig = MessagingConfig(
-            monthlyLimit = 600
+            monthlyLimit = config.property("ktor.messaging.monthlyLimit").getString().toInt(),
+            adminPhone = config.property("ktor.messaging.adminPhone").getString()
         )
     )
 }

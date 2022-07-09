@@ -21,7 +21,8 @@ internal class ControlledContactMessagingServiceTest {
     private val messagingService: MessagingService = mockk()
     private val sentMessageDAO: SentMessageDAO = mockk()
     private val messagingConfig = MessagingConfig(
-        monthlyLimit = 3
+        monthlyLimit = 3,
+        adminPhone = "+18009999999"
     )
     private val service = ControlledContactMessagingService(
         messagingService, sentMessageDAO, messagingConfig
