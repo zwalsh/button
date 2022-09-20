@@ -22,11 +22,15 @@ Send texts to people when the button is being pressed.
 - [x] Set up an admin page
   - [ ] Show some fun stuff
   - [ ] List phone numbers
+  - [ ] Pause texting
+  - [ ] Update limits
 - [x] Count presses
 - [x] Set up a registration page
 - [ ] Set up an opt-out page
   - [ ] Delete numbers on request 
 - [x] Integrate with Twilio
 - [x] Validate phone numbers
-- [ ] Send messages, configurably
+- [x] Send messages, configurably
 - [ ] Set up Twilio webhooks
+- [ ] Set up sentry monitoring
+- [ ] On register, check if number exists
