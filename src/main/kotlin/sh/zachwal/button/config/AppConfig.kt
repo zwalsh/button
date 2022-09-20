@@ -16,7 +16,7 @@ data class AppConfig(
     val host: String,
     val dbPasswordOverride: String?,
     val websocketUrl: String,
-    val twilioConfig: TwilioConfig,
+    val twilioConfig: TwilioConfig?,
     val messagingConfig: MessagingConfig
 ) {
     constructor(config: ApplicationConfig) : this(
@@ -24,11 +24,13 @@ data class AppConfig(
         host = config.property("ktor.deployment.ws_host").getString(),
         dbPasswordOverride = config.propertyOrNull("ktor.deployment.db_password")?.getString(),
         websocketUrl = url(config),
-        twilioConfig = TwilioConfig(
-            config.property("ktor.twilio.account").getString(),
-            config.property("ktor.twilio.authToken").getString(),
-            config.property("ktor.twilio.fromNumber").getString(),
-        ),
+        twilioConfig = config.propertyOrNull("ktor.twilio.account")?.let {
+            TwilioConfig(
+                config.property("ktor.twilio.account").getString(),
+                config.property("ktor.twilio.authToken").getString(),
+                config.property("ktor.twilio.fromNumber").getString(),
+            )
+        },
         messagingConfig = MessagingConfig(
             monthlyLimit = config.property("ktor.messaging.monthlyLimit").getString().toInt(),
             adminPhone = config.property("ktor.messaging.adminPhone").getString()

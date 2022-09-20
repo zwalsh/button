@@ -19,7 +19,7 @@ import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 
 @Singleton
-class TwilioMessagingService @Inject constructor(
+class TwilioMessagingService constructor(
     twilioConfig: TwilioConfig
 ) : MessagingService {
 

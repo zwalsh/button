@@ -12,10 +12,6 @@ import java.util.concurrent.Executors
 
 class ApplicationModule : AbstractModule() {
 
-    override fun configure() {
-        bind(MessagingService::class.java).to(TwilioMessagingService::class.java)
-    }
-
     @Provides
     @Singleton
     @Named("presserDispatcher")

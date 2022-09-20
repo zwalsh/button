@@ -29,6 +29,7 @@ import sh.zachwal.button.guice.ApplicationModule
 import sh.zachwal.button.guice.ConfigModule
 import sh.zachwal.button.guice.HikariModule
 import sh.zachwal.button.guice.JdbiModule
+import sh.zachwal.button.guice.MessagingModule
 import sh.zachwal.button.roles.RoleAuthorization
 import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.session.DbSessionStorage
@@ -49,7 +50,8 @@ fun Application.module(testing: Boolean = false) {
         ApplicationModule(),
         ConfigModule(environment.config),
         JdbiModule(),
-        HikariModule()
+        HikariModule(),
+        MessagingModule()
     )
 
     val config = injector.getInstance(AppConfig::class.java)
