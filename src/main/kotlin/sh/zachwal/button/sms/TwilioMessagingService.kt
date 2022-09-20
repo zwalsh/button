@@ -1,7 +1,6 @@
 package sh.zachwal.button.sms
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
-import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.twilio.Twilio
 import com.twilio.exception.ApiException
