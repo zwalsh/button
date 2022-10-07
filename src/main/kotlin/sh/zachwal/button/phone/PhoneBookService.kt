@@ -65,4 +65,16 @@ class PhoneBookService @Inject constructor(
     fun contacts(): List<Contact> {
         return contactDAO.selectContacts()
     }
+
+    fun deactivateContact(contactId: Int): UpdateContactResult {
+        return contactDAO.updateContactStatus(contactId, false)?.let {
+            UpdatedContact(it)
+        } ?: ContactNotFound
+    }
+
+    fun activateContact(contactId: Int): UpdateContactResult {
+        return contactDAO.updateContactStatus(contactId, true)?.let {
+            UpdatedContact(it)
+        } ?: ContactNotFound
+    }
 }
