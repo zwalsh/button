@@ -119,13 +119,13 @@ internal class PhoneBookServiceTest {
     }
 
     @Test
-    fun `activateContact updates contact to active`() {
+    fun `updateContactStatus updates contact to active`() {
         val inactiveContact = zachContact.copy(active = false)
         every {
             contactDAO.updateContactStatus(inactiveContact.id, true)
         } returns zachContact
 
-        val returned = phoneBookService.activateContact(inactiveContact.id)
+        val returned = phoneBookService.updateContactStatus(inactiveContact.id, true)
         assertThat(returned).isEqualTo(UpdatedContact(zachContact))
         verify {
             contactDAO.updateContactStatus(inactiveContact.id, true)
@@ -133,13 +133,13 @@ internal class PhoneBookServiceTest {
     }
 
     @Test
-    fun `deactivateContact updates contact to inactive`() {
+    fun `updateContactStatus updates contact to inactive`() {
         val inactiveContact = zachContact.copy(active = false)
         every {
             contactDAO.updateContactStatus(zachContact.id, false)
         } returns inactiveContact
 
-        val returned = phoneBookService.deactivateContact(inactiveContact.id)
+        val returned = phoneBookService.updateContactStatus(inactiveContact.id, false)
         assertThat(returned).isEqualTo(UpdatedContact(inactiveContact))
         verify {
             contactDAO.updateContactStatus(inactiveContact.id, false)
@@ -147,12 +147,12 @@ internal class PhoneBookServiceTest {
     }
 
     @Test
-    fun `nonexistent contact returns ContactNotFound`() {
+    fun `updateContactStatus on nonexistent contact returns ContactNotFound`() {
         every {
             contactDAO.updateContactStatus(zachContact.id, false)
         } returns null
 
-        val returned = phoneBookService.deactivateContact(inactiveContact.id)
+        val returned = phoneBookService.updateContactStatus(inactiveContact.id, false)
         assertThat(returned).isEqualTo(ContactNotFound)
     }
 }

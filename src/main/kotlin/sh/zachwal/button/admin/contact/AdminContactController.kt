@@ -3,10 +3,9 @@ package sh.zachwal.button.admin.contact
 import com.google.inject.Inject
 import io.ktor.application.call
 import io.ktor.html.respondHtml
+import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.response.respondRedirect
-import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -28,7 +27,9 @@ import kotlinx.html.tr
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.db.jdbi.Contact
+import sh.zachwal.button.phone.ContactNotFound
 import sh.zachwal.button.phone.PhoneBookService
+import sh.zachwal.button.phone.UpdatedContact
 import sh.zachwal.button.roles.adminRoute
 import sh.zachwal.button.shared_html.headSetup
 
@@ -136,7 +137,19 @@ class AdminContactController @Inject constructor(
             post {
                 val request = call.receive<UpdateContactRequest>()
                 logger.info("Received request to set active=${request.active} for ${request.contactId}")
-                call.respond("Success")
+                when (val result = phoneBookService.updateContactStatus(
+                    request.contactId, request.active
+                )) {
+                    ContactNotFound -> call.respond(
+                        NotFound, "Contact with id ${request.contactId} does not exist."
+                    )
+                    is UpdatedContact -> {
+                        logger.info(
+                            "Contact ${result.contact.id} status set to ${result.contact.active}"
+                        )
+                        call.respond("Success")
+                    }
+                }
             }
         }
     }
