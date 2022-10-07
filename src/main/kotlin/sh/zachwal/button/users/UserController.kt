@@ -29,10 +29,11 @@ import kotlinx.html.label
 import kotlinx.html.passwordInput
 import kotlinx.html.submitInput
 import kotlinx.html.textInput
+import kotlinx.html.title
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.session.SessionPrincipal
 import sh.zachwal.button.session.SessionService
-import sh.zachwal.button.shared_html.bootstrapCss
+import sh.zachwal.button.shared_html.headSetup
 import javax.inject.Inject
 
 @Controller
@@ -54,7 +55,10 @@ class UserController @Inject constructor(
 
                 call.respondHtml {
                     head {
-                        bootstrapCss()
+                        title {
+                            +"Login"
+                        }
+                        headSetup()
                     }
                     body {
                         div(classes = "container") {
@@ -69,13 +73,19 @@ class UserController @Inject constructor(
                                             }
                                             div(classes = "form-group") {
                                                 label { +"Username" }
-                                                textInput(name = "username", classes = "form-control") {
+                                                textInput(
+                                                    name = "username",
+                                                    classes = "form-control"
+                                                ) {
                                                     placeholder = "user"
                                                 }
                                             }
                                             div(classes = "form-group") {
                                                 label { +"Password" }
-                                                passwordInput(name = "password", classes = "form-control") {
+                                                passwordInput(
+                                                    name = "password",
+                                                    classes = "form-control"
+                                                ) {
                                                     placeholder = "password"
                                                 }
                                             }
@@ -101,7 +111,10 @@ class UserController @Inject constructor(
             authenticate("form") {
                 post {
                     val p = call.principal<UserIdPrincipal>()
-                        ?: return@post call.respond(HttpStatusCode.InternalServerError, "No User principal found after post")
+                        ?: return@post call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "No User principal found after post"
+                        )
                     sessionService.createSession(call, p.name)
                     call.respondRedirect("/profile")
                 }
@@ -125,7 +138,10 @@ class UserController @Inject constructor(
                     val p = call.sessions.get<SessionPrincipal>()
                     call.respondHtml {
                         head {
-                            bootstrapCss()
+                            title {
+                                +"${p?.user}'s Profile"
+                            }
+                            headSetup()
                         }
                         body {
                             div(classes = "container") {
@@ -159,7 +175,10 @@ class UserController @Inject constructor(
             get {
                 call.respondHtml {
                     head {
-                        bootstrapCss()
+                        title {
+                            +"Register"
+                        }
+                        headSetup()
                     }
                     body {
                         form(method = post) {
@@ -183,7 +202,10 @@ class UserController @Inject constructor(
             }
             post {
                 val params = call.receiveParameters()
-                val user = userService.createUser(params.getOrFail("username"), params.getOrFail("password"))
+                val user = userService.createUser(
+                    params.getOrFail("username"),
+                    params.getOrFail("password")
+                )
 
                 if (user != null) {
                     sessionService.createSession(call, user.username)

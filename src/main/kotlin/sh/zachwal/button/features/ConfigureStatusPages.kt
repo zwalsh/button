@@ -14,8 +14,7 @@ import kotlinx.html.head
 import kotlinx.html.p
 import kotlinx.html.title
 import sh.zachwal.button.auth.UnauthorizedException
-import sh.zachwal.button.shared_html.bootstrapCss
-import sh.zachwal.button.shared_html.favicon
+import sh.zachwal.button.shared_html.headSetup
 
 fun Configuration.configureStatusPages() {
 
@@ -102,8 +101,7 @@ private fun HTML.statusPage(title: String, block: DIV.() -> Unit) {
         title {
             +title
         }
-        bootstrapCss()
-        favicon()
+        headSetup()
     }
     body {
         div(classes = "container", block = block)

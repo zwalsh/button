@@ -18,3 +18,9 @@ fun HEAD.mobileUI() {
         content = "width=device-width, initial-scale=1, user-scalable=no"
     }
 }
+
+fun HEAD.headSetup() {
+    bootstrapCss()
+    favicon()
+    mobileUI()
+}

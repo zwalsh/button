@@ -17,5 +17,7 @@ class PressHistoryService @Inject constructor(private val pressDAO: PressDAO) {
         return pressDAO.selectSince(since)
     }
 
-    // later add more features for listing presses in controller
+    fun countPresses(since: Instant = Instant.EPOCH): Long {
+        return pressDAO.countSince(since)
+    }
 }
