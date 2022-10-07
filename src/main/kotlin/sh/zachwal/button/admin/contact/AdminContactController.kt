@@ -137,9 +137,11 @@ class AdminContactController @Inject constructor(
             post {
                 val request = call.receive<UpdateContactRequest>()
                 logger.info("Received request to set active=${request.active} for ${request.contactId}")
-                when (val result = phoneBookService.updateContactStatus(
-                    request.contactId, request.active
-                )) {
+                when (
+                    val result = phoneBookService.updateContactStatus(
+                        request.contactId, request.active
+                    )
+                ) {
                     ContactNotFound -> call.respond(
                         NotFound, "Contact with id ${request.contactId} does not exist."
                     )
