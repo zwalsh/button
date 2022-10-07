@@ -5,7 +5,6 @@ import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.Routing
 import io.ktor.routing.get
-import kotlinx.html.HEAD
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
@@ -19,6 +18,7 @@ import kotlinx.html.title
 import kotlinx.html.unsafe
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.Controller
+import sh.zachwal.button.shared_html.favicon
 import sh.zachwal.button.shared_html.mobileUI
 import javax.inject.Inject
 
@@ -32,8 +32,10 @@ class HomeController @Inject constructor(
                 head {
                     title("button.")
                     mobileUI()
-                    link(href = "static/src/style.css", rel = "stylesheet")
                     favicon()
+
+                    link(href = "static/src/style.css", rel = "stylesheet")
+
                     script {
                         unsafe {
                             +"let wsUrl = \"${appConfig.websocketUrl}\";"
@@ -63,9 +65,5 @@ class HomeController @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun HEAD.favicon() {
-        link(href = "static/favicon.png", rel = "icon", type = "image/png")
     }
 }

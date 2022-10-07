@@ -28,9 +28,7 @@ import kotlinx.html.textInput
 import kotlinx.html.title
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.controller.Controller
-import sh.zachwal.button.shared_html.bootstrapCss
-import sh.zachwal.button.shared_html.favicon
-import sh.zachwal.button.shared_html.mobileUI
+import sh.zachwal.button.shared_html.headSetup
 
 @Controller
 class PhoneController @Inject constructor(private val phoneBookService: PhoneBookService) {
@@ -49,9 +47,7 @@ class PhoneController @Inject constructor(private val phoneBookService: PhoneBoo
                         title {
                             +"Sign up for Button texts"
                         }
-                        mobileUI()
-                        bootstrapCss()
-                        favicon()
+                        headSetup()
                     }
                     body {
                         div(classes = "container") {
@@ -149,10 +145,8 @@ class PhoneController @Inject constructor(private val phoneBookService: PhoneBoo
                         title {
                             +"Yay!"
                         }
-                        mobileUI()
-                        bootstrapCss()
                         link(href = "/static/src/button.css", rel = "stylesheet")
-                        favicon()
+                        headSetup()
                     }
                     body {
                         div(classes = "container") {
