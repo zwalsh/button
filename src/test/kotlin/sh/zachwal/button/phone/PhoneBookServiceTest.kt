@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -152,7 +153,7 @@ internal class PhoneBookServiceTest {
             contactDAO.updateContactStatus(zachContact.id, false)
         } returns null
 
-        val returned = phoneBookService.updateContactStatus(inactiveContact.id, false)
+        val returned = phoneBookService.updateContactStatus(zachContact.id, false)
         assertThat(returned).isEqualTo(ContactNotFound)
     }
 }
