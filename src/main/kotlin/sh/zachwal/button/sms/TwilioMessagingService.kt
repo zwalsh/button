@@ -1,7 +1,6 @@
 package sh.zachwal.button.sms
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
-import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.twilio.Twilio
 import com.twilio.exception.ApiException
@@ -19,7 +18,7 @@ import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 
 @Singleton
-class TwilioMessagingService @Inject constructor(
+class TwilioMessagingService constructor(
     twilioConfig: TwilioConfig
 ) : MessagingService {
 
