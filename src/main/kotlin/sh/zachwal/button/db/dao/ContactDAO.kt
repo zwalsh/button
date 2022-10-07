@@ -20,5 +20,12 @@ interface ContactDAO {
     )
     fun selectActiveContacts(): List<Contact>
 
+    @SqlQuery(
+        """
+            select * from public.contact order by name;
+        """
+    )
+    fun selectContacts(): List<Contact>
+
     // TODO deactivate number
 }

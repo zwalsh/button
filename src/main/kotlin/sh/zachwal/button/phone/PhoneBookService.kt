@@ -31,6 +31,7 @@ class PhoneBookService @Inject constructor(
             .setNameFormat("phone-book-service-thread-%d")
             .build()
     )
+
     // Use supervisor so individual coroutines can fail independently
     private val scope = CoroutineScope(threadPool.asCoroutineDispatcher() + SupervisorJob())
 
@@ -59,5 +60,9 @@ class PhoneBookService @Inject constructor(
         }
 
         return contact
+    }
+
+    fun contacts(): List<Contact> {
+        return contactDAO.selectContacts()
     }
 }
