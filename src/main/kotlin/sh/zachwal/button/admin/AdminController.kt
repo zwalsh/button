@@ -110,6 +110,16 @@ class AdminController @Inject constructor(
                                 }
                             }
                             h2 {
+                                +"Contacts"
+                            }
+                            ul {
+                                li {
+                                    a(href = "/admin/contacts") {
+                                        +"Manage Contacts"
+                                    }
+                                }
+                            }
+                            h2 {
                                 +"Stats"
                             }
                             ul {
