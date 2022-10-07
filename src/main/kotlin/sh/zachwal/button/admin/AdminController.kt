@@ -10,11 +10,14 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import kotlinx.html.FlowContent
+import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
 import kotlinx.html.h1
+import kotlinx.html.h2
 import kotlinx.html.head
+import kotlinx.html.li
 import kotlinx.html.p
 import kotlinx.html.script
 import kotlinx.html.table
@@ -24,6 +27,7 @@ import kotlinx.html.th
 import kotlinx.html.thead
 import kotlinx.html.title
 import kotlinx.html.tr
+import kotlinx.html.ul
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.db.jdbi.User
@@ -73,6 +77,53 @@ class AdminController @Inject constructor(
                 u1.username.lowercase().compareTo(u2.username.lowercase())
             }
         )
+    }
+
+    internal fun Routing.admin() {
+        adminRoute("/admin") {
+            get {
+                call.respondHtml {
+                    head {
+                        title {
+                            +"Admin"
+                        }
+                        headSetup()
+                    }
+                    body {
+                        div(classes = "container") {
+                            h1 {
+                                +"Admin"
+                            }
+                            h2 {
+                                +"Users"
+                            }
+                            ul {
+                                li {
+                                    a(href = "/admin/users") {
+                                        +"Users"
+                                    }
+                                }
+                                li {
+                                    a(href = "/admin/pending") {
+                                        +"Pending"
+                                    }
+                                }
+                            }
+                            h2 {
+                                +"Stats"
+                            }
+                            ul {
+                                li {
+                                    a(href = "/admin/press-stats") {
+                                        +"Press Stats"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     internal fun Routing.listUsers() {
@@ -137,7 +188,8 @@ class AdminController @Inject constructor(
     internal fun Routing.pendingUsers() {
         adminRoute("/admin/pending") {
             get {
-                val pendingUsers = roleService.usersWithoutRole(USER).sortedBy { it.username.lowercase() }
+                val pendingUsers =
+                    roleService.usersWithoutRole(USER).sortedBy { it.username.lowercase() }
                 call.respondHtml {
                     head {
                         title {

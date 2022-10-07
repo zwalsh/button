@@ -18,4 +18,9 @@ interface PressDAO {
         "select * from public.press where time > ? order by time"
     )
     fun selectSince(time: Instant): List<Press>
+
+    @SqlQuery(
+        "select count(*) from public.press where time > ?"
+    )
+    fun countSince(time: Instant): Long
 }
