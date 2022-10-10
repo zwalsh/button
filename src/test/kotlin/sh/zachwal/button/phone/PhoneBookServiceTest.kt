@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,6 +26,9 @@ internal class PhoneBookServiceTest {
 
     private val messagingConfig = MessagingConfig(monthlyLimit = 600, adminPhone = "+18001234567")
     private val phoneBookService = PhoneBookService(messagingService, contactDAO, messagingConfig)
+
+    private val zachContact = Contact(1, Instant.now(), "Zach", "+18001234567", active = true)
+    private val jackieContact = Contact(2, Instant.now(), "Jackie", "+18001225555", active = true)
 
     @BeforeEach
     fun setup() {
@@ -113,5 +117,43 @@ internal class PhoneBookServiceTest {
                     " Second one at 456."
             )
         }
+    }
+
+    @Test
+    fun `updateContactStatus updates contact to active`() {
+        val inactiveContact = zachContact.copy(active = false)
+        every {
+            contactDAO.updateContactStatus(inactiveContact.id, true)
+        } returns zachContact
+
+        val returned = phoneBookService.updateContactStatus(inactiveContact.id, true)
+        assertThat(returned).isEqualTo(UpdatedContact(zachContact))
+        verify {
+            contactDAO.updateContactStatus(inactiveContact.id, true)
+        }
+    }
+
+    @Test
+    fun `updateContactStatus updates contact to inactive`() {
+        val inactiveContact = zachContact.copy(active = false)
+        every {
+            contactDAO.updateContactStatus(zachContact.id, false)
+        } returns inactiveContact
+
+        val returned = phoneBookService.updateContactStatus(inactiveContact.id, false)
+        assertThat(returned).isEqualTo(UpdatedContact(inactiveContact))
+        verify {
+            contactDAO.updateContactStatus(inactiveContact.id, false)
+        }
+    }
+
+    @Test
+    fun `updateContactStatus on nonexistent contact returns ContactNotFound`() {
+        every {
+            contactDAO.updateContactStatus(zachContact.id, false)
+        } returns null
+
+        val returned = phoneBookService.updateContactStatus(zachContact.id, false)
+        assertThat(returned).isEqualTo(ContactNotFound)
     }
 }
