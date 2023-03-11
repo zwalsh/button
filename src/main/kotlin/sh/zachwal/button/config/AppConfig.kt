@@ -17,7 +17,8 @@ data class AppConfig(
     val dbPasswordOverride: String?,
     val websocketUrl: String,
     val twilioConfig: TwilioConfig?,
-    val messagingConfig: MessagingConfig
+    val messagingConfig: MessagingConfig,
+    val cubeButton: Boolean
 ) {
     constructor(config: ApplicationConfig) : this(
         env = config.property("ktor.deployment.environment").getString(),
@@ -34,6 +35,7 @@ data class AppConfig(
         messagingConfig = MessagingConfig(
             monthlyLimit = config.property("ktor.messaging.monthlyLimit").getString().toInt(),
             adminPhone = config.property("ktor.messaging.adminPhone").getString()
-        )
+        ),
+        cubeButton = config.property("ktor.button.cube").getString().toBooleanStrict()
     )
 }
