@@ -16,6 +16,7 @@ import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.title
 import kotlinx.html.unsafe
+import sh.zachwal.button.admin.dynamic.ButtonConfigService
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.shared_html.favicon
@@ -25,6 +26,7 @@ import javax.inject.Inject
 @Controller
 class HomeController @Inject constructor(
     private val appConfig: AppConfig,
+    private val buttonConfigService: ButtonConfigService,
 ) {
     internal fun Routing.home() {
         get("/") {
@@ -35,7 +37,9 @@ class HomeController @Inject constructor(
                     favicon()
 
                     link(href = "static/src/style.css", rel = "stylesheet")
-                    link(href = "static/src/cube.css", rel = "stylesheet")
+                    if (buttonConfigService.isCube()) {
+                        link(href = "static/src/cube.css", rel = "stylesheet")
+                    }
 
                     script {
                         unsafe {
