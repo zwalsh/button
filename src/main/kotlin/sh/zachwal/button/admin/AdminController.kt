@@ -129,6 +129,16 @@ class AdminController @Inject constructor(
                                     }
                                 }
                             }
+                            h2 {
+                                +"Config"
+                            }
+                            ul {
+                                li {
+                                    a(href = "/admin/config") {
+                                        +"Button Config"
+                                    }
+                                }
+                            }
                         }
                     }
                 }
