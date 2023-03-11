@@ -10,17 +10,13 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import kotlinx.html.FlowContent
-import kotlinx.html.InputType
 import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.button
-import kotlinx.html.checkBoxInput
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.h2
 import kotlinx.html.head
-import kotlinx.html.input
-import kotlinx.html.label
 import kotlinx.html.li
 import kotlinx.html.p
 import kotlinx.html.script
