@@ -1,4 +1,5 @@
 var socket;
+var count = 0;
 
 function connect() {
     console.log("Connecting...");
@@ -45,6 +46,10 @@ function sendMessage() {
         console.log("sending released")
         currentState = "released";
         socket.send("released");
+    }
+    count++;
+    if (count > 35) {
+        let signup = document.getElementById("signup").style.display = 'block';
     }
 }
 

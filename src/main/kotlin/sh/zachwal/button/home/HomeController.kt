@@ -5,6 +5,7 @@ import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.Routing
 import io.ktor.routing.get
+import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
@@ -65,6 +66,13 @@ class HomeController @Inject constructor(
                         h1(classes = "whiteButton") {
                             id = "buttonPressCountWhite"
                             +"BUTTON PRESSERS: 0"
+                        }
+                        div {
+                            id = "signup"
+                            +"Love the button? "
+                            a(href = "/phone/signup") {
+                                +"Sign up for texts."
+                            }
                         }
                     }
                 }
