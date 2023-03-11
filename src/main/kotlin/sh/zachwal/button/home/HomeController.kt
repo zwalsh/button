@@ -35,6 +35,7 @@ class HomeController @Inject constructor(
                     favicon()
 
                     link(href = "static/src/style.css", rel = "stylesheet")
+                    link(href = "static/src/cube.css", rel = "stylesheet")
 
                     script {
                         unsafe {
