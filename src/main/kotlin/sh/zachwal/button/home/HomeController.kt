@@ -16,7 +16,7 @@ import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.title
 import kotlinx.html.unsafe
-import sh.zachwal.button.admin.dynamic.ButtonConfigService
+import sh.zachwal.button.admin.config.ButtonConfigService
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.shared_html.favicon

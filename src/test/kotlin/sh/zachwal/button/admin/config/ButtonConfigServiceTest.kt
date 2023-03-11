@@ -1,4 +1,4 @@
-package sh.zachwal.button.admin.dynamic
+package sh.zachwal.button.admin.config
 
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
