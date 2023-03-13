@@ -3,41 +3,42 @@ package sh.zachwal.button.admin.config
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
+import sh.zachwal.button.admin.config.ButtonShape.CUBE
 import sh.zachwal.button.admin.config.ButtonShape.HEART
-import sh.zachwal.button.config.AppConfig
-import sh.zachwal.button.config.MessagingConfig
-import sh.zachwal.button.config.TwilioConfig
 import java.time.LocalDateTime
 
 class ButtonConfigServiceTest {
 
-    private val appConfig = AppConfig(
-        "", "", "", "", TwilioConfig("", "", ""), MessagingConfig(0, ""), true
-    )
+    private val dateTime = LocalDateTime.of(2023, 3, 1, 0, 0)
+    private val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
 
     @Test
-    fun `takes initial config value`() {
-        val buttonConfigService = ButtonConfigService(appConfig)
-        assertTrue(buttonConfigService.isCube())
+    fun `shape is CIRCLE on normal day`() {
+        val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
 
-        val buttonConfigServiceFalse = ButtonConfigService(appConfig.copy(cubeButton = false))
-        assertFalse(buttonConfigServiceFalse.isCube())
+        assertEquals(CIRCLE, buttonConfigService.currentShape())
     }
 
     @Test
-    fun `updates when set`() {
-        val buttonConfigService = ButtonConfigService(appConfig)
-        buttonConfigService.setCube(false)
+    fun `uses override when set`() {
+        val buttonConfigService = ButtonConfigService(currentDateTime)
 
-        assertFalse(buttonConfigService.isCube())
+        buttonConfigService.setOverride(CUBE)
 
-        buttonConfigService.setCube(true)
-        assertTrue(buttonConfigService.isCube())
+        assertEquals(CUBE, buttonConfigService.currentShape())
+    }
+
+    @Test
+    fun `can clear override`() {
+        val buttonConfigService = ButtonConfigService(currentDateTime)
+
+        buttonConfigService.setOverride(CUBE)
+        buttonConfigService.setOverride(null)
+
+        assertEquals(CIRCLE, buttonConfigService.currentShape())
     }
 
     @Test
@@ -47,11 +48,12 @@ class ButtonConfigServiceTest {
         }
         dateTimes.forEach { dateTime ->
             val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
-            val buttonConfigService = ButtonConfigService(appConfig, currentDateTime = currentDateTime)
+            val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
 
             assertEquals(HEART, buttonConfigService.currentShape())
         }
     }
+
     @Test
     fun `shape is SHAMROCK within 3 days of St Paddy's`() {
         val dateTimes = (17 - 3..17 + 3).map { day ->
@@ -59,18 +61,20 @@ class ButtonConfigServiceTest {
         }
         dateTimes.forEach { dateTime ->
             val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
-            val buttonConfigService = ButtonConfigService(appConfig, currentDateTime = currentDateTime)
+            val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
 
             assertEquals(SHAMROCK, buttonConfigService.currentShape())
         }
     }
 
     @Test
-    fun `shape is CIRCLE on normal day`() {
-        val dateTime = LocalDateTime.of(2023, 3, 1, 0, 0)
-        val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
-        val buttonConfigService = ButtonConfigService(appConfig, currentDateTime = currentDateTime)
+    fun `uses override on holiday`() {
+        val stPatricksDay = LocalDateTime.of(2023, 3, 17, 0, 0)
+        val currentDateTime = mockk<CurrentDateTime> { every { now() } returns stPatricksDay }
+        val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
+        assertEquals(SHAMROCK, buttonConfigService.currentShape())
 
+        buttonConfigService.setOverride(CIRCLE)
         assertEquals(CIRCLE, buttonConfigService.currentShape())
     }
 }

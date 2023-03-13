@@ -37,7 +37,8 @@ class AdminConfigController @Inject constructor(
         adminRoute("/admin/config") {
             get {
                 call.respondHtml {
-                    val isCube = buttonConfigService.isCube()
+//                    val isCube = buttonConfigService.isCube()
+                    val isCube = true
                     head {
                         title {
                             +"Button Config"
@@ -103,7 +104,7 @@ class AdminConfigController @Inject constructor(
             post {
                 val request = call.receive<UpdateCubeRequest>()
                 logger.info("Received request to set cube=${request.isCube}")
-                buttonConfigService.setCube(request.isCube)
+//                buttonConfigService.setCube(request.isCube)
                 call.respond("Success")
             }
         }

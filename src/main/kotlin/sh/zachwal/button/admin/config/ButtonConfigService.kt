@@ -3,7 +3,6 @@ package sh.zachwal.button.admin.config
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
-import sh.zachwal.button.admin.config.ButtonShape.CUBE
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.config.AppConfig
 import java.time.LocalDate
@@ -24,19 +23,15 @@ class CurrentDateTime {
 
 @Singleton
 class ButtonConfigService @Inject constructor(
-    config: AppConfig,
     private val currentDateTime: CurrentDateTime = CurrentDateTime()
 ) {
 
     private val logger = LoggerFactory.getLogger(ButtonConfigService::class.java)
 
-    private var isCube = config.cubeButton
-
-    fun isCube(): Boolean = isCube
-
-    fun setCube(cube: Boolean) {
-        isCube = cube
-        logger.info("Set cube to $isCube")
+    private var override: ButtonShape? = null
+    fun setOverride(shape: ButtonShape?) {
+        override = shape
+        logger.info("Set override to $shape")
     }
 
     fun currentShape(): ButtonShape {
