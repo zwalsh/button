@@ -1,5 +1,7 @@
 package sh.zachwal.button.admin.config
 
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -44,7 +46,8 @@ class ButtonConfigServiceTest {
             LocalDateTime.of(2023, 2, day, 0, 1)
         }
         dateTimes.forEach { dateTime ->
-            val buttonConfigService = ButtonConfigService(appConfig, currentDateTime = { dateTime })
+            val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
+            val buttonConfigService = ButtonConfigService(appConfig, currentDateTime = currentDateTime)
 
             assertEquals(HEART, buttonConfigService.currentShape())
         }
@@ -55,7 +58,8 @@ class ButtonConfigServiceTest {
             LocalDateTime.of(2023, 3, day, 0, 1)
         }
         dateTimes.forEach { dateTime ->
-            val buttonConfigService = ButtonConfigService(appConfig, currentDateTime = { dateTime })
+            val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
+            val buttonConfigService = ButtonConfigService(appConfig, currentDateTime = currentDateTime)
 
             assertEquals(SHAMROCK, buttonConfigService.currentShape())
         }
@@ -64,7 +68,8 @@ class ButtonConfigServiceTest {
     @Test
     fun `shape is CIRCLE on normal day`() {
         val dateTime = LocalDateTime.of(2023, 3, 1, 0, 0)
-        val buttonConfigService = ButtonConfigService(appConfig, currentDateTime = { dateTime })
+        val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
+        val buttonConfigService = ButtonConfigService(appConfig, currentDateTime = currentDateTime)
 
         assertEquals(CIRCLE, buttonConfigService.currentShape())
     }
