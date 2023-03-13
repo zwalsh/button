@@ -35,6 +35,10 @@ class ButtonConfigService @Inject constructor(
     }
 
     fun currentShape(): ButtonShape {
+        override?.let {
+            return it
+        }
+
         val date = currentDateTime.now().toLocalDate()
 
         if (withinDays(date, stPatricksDay, 3)) {
