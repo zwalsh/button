@@ -5,6 +5,7 @@ import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.config.AppConfig
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month.FEBRUARY
 import java.time.Month.MARCH
@@ -32,19 +33,23 @@ class ButtonConfigService @Inject constructor(
         isCube = cube
         logger.info("Set cube to $isCube")
     }
+
     fun currentShape(): ButtonShape {
         val date = currentDateTime().toLocalDate()
-        val dayOfYear = date.dayOfYear
 
-        val stPatricksDayOfYear = stPatricksDay.atYear(date.year).dayOfYear
-        if (abs(stPatricksDayOfYear - dayOfYear) <= 3) {
+        if (withinDays(date, stPatricksDay, 3)) {
             return SHAMROCK
         }
-        val valentinesDayOfYear = valentinesDay.atYear(date.year).dayOfYear
-        if (abs(valentinesDayOfYear - dayOfYear) <= 3) {
+        if (withinDays(date, valentinesDay, 3)) {
             return HEART
         }
 
         return CIRCLE
+    }
+
+    private fun withinDays(localDate: LocalDate, holiday: MonthDay, days: Int): Boolean {
+        val dayOfYear = localDate.dayOfYear
+        val holidayDayOfYear = holiday.atYear(localDate.year).dayOfYear
+        return abs(holidayDayOfYear - dayOfYear) <= days
     }
 }
