@@ -12,6 +12,7 @@ import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.head
 import kotlinx.html.id
+import kotlinx.html.img
 import kotlinx.html.link
 import kotlinx.html.script
 import kotlinx.html.span
@@ -38,6 +39,7 @@ class HomeController @Inject constructor(
                     favicon()
 
                     link(href = "static/src/style.css", rel = "stylesheet")
+                    link(href = "static/src/special.css", rel = "stylesheet")
                     if (buttonConfigService.isCube()) {
                         link(href = "static/src/cube.css", rel = "stylesheet")
                     }
@@ -53,8 +55,12 @@ class HomeController @Inject constructor(
                 }
                 body {
                     div(classes = "container") {
-                        button {
-                            id = "pressMePls"
+//                        button {
+//                            id = "pressMePls"
+                        div(classes = "specialContainer") {
+                            img(src = "static/special/shamrock.svg") {
+                                id = "pressMePls"
+                            }
                             span {
                                 +"PRESS"
                             }
