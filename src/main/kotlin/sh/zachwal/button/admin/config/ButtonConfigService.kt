@@ -4,9 +4,7 @@ import org.slf4j.LoggerFactory
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.HEART
-import sh.zachwal.button.config.AppConfig
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.Month.FEBRUARY
 import java.time.Month.MARCH
 import java.time.MonthDay
@@ -17,13 +15,9 @@ import kotlin.math.abs
 private val valentinesDay = MonthDay.of(FEBRUARY, 14)
 private val stPatricksDay = MonthDay.of(MARCH, 17)
 
-class CurrentDateTime {
-    fun now(): LocalDateTime = LocalDateTime.now()
-}
-
 @Singleton
 class ButtonConfigService @Inject constructor(
-    private val currentDateTime: CurrentDateTime = CurrentDateTime()
+    private val currentDateTime: CurrentDateTime
 ) {
 
     private val logger = LoggerFactory.getLogger(ButtonConfigService::class.java)
