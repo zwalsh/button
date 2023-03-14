@@ -21,10 +21,14 @@ import kotlinx.html.title
 import kotlinx.html.unsafe
 import sh.zachwal.button.admin.config.ButtonConfigService
 import sh.zachwal.button.admin.config.ButtonShape
+import sh.zachwal.button.admin.config.ButtonShape.CHAMPAGNE
+import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
+import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
+import sh.zachwal.button.admin.config.ButtonShape.TURKEY
 import sh.zachwal.button.admin.config.isSpecial
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.Controller
@@ -44,6 +48,8 @@ class HomeController @Inject constructor(
             CUBE -> throw IllegalArgumentException("No svg for cube")
             SHAMROCK -> "static/special/shamrock.svg"
             HEART -> "static/special/heart.svg"
+            CHRISTMAS_TREE -> "static/special/christmas-tree.svg"
+            TURKEY -> "static/special/turkey.svg"
         }
     }
 

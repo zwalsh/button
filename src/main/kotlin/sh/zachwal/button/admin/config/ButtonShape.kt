@@ -7,7 +7,9 @@ enum class ButtonShape {
     CIRCLE,
     CUBE,
     SHAMROCK,
-    HEART
+    HEART,
+    CHRISTMAS_TREE,
+    TURKEY
 }
 
 fun ButtonShape.isSpecial(): Boolean {

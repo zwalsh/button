@@ -100,7 +100,7 @@ class AdminConfigController @Inject constructor(
         }
     }
 
-    private fun DIV.buttonConfigForm(override: ButtonShape?) {
+    private fun DIV.buttonConfigForm(buttonShapeOverride: ButtonShape?) {
         form(
             method = post,
             classes = "mb-1",
@@ -119,13 +119,13 @@ class AdminConfigController @Inject constructor(
 
                     option {
                         value = "none"
-                        selected = override == null
+                        selected = buttonShapeOverride == null
                         +"None"
                     }
                     ButtonShape.values().forEach { s ->
                         option {
                             value = s.name
-                            selected = s == override
+                            selected = s == buttonShapeOverride
                             +s.name
                         }
                     }

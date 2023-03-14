@@ -1,19 +1,25 @@
 package sh.zachwal.button.admin.config
 
 import org.slf4j.LoggerFactory
+import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.HEART
+import sh.zachwal.button.admin.config.ButtonShape.TURKEY
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.Month.DECEMBER
 import java.time.Month.FEBRUARY
 import java.time.Month.MARCH
 import java.time.MonthDay
+import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
 
 private val valentinesDay = MonthDay.of(FEBRUARY, 14)
 private val stPatricksDay = MonthDay.of(MARCH, 17)
+private val christmas = MonthDay.of(DECEMBER, 25)
 
 @Singleton
 class ButtonConfigService @Inject constructor(
@@ -36,20 +42,28 @@ class ButtonConfigService @Inject constructor(
         }
 
         val date = currentDateTime.now().toLocalDate()
+        val thanksgivingDay = LocalDate.of(date.year, 11, 1)
+            .with(TemporalAdjusters.dayOfWeekInMonth(4, DayOfWeek.THURSDAY))
 
-        if (withinDays(date, stPatricksDay, 3)) {
-            return SHAMROCK
+        return if (withinDays(date, stPatricksDay, 3)) {
+            SHAMROCK
+        } else if (withinDays(date, valentinesDay, 3)) {
+            HEART
+        } else if (withinDays(date, christmas, 1)) {
+            CHRISTMAS_TREE
+        } else if (withinDays(date, thanksgivingDay, 1)) {
+            TURKEY
+        } else {
+            CIRCLE
         }
-        if (withinDays(date, valentinesDay, 3)) {
-            return HEART
-        }
-
-        return CIRCLE
     }
 
-    private fun withinDays(localDate: LocalDate, holiday: MonthDay, days: Int): Boolean {
+    private fun withinDays(localDate: LocalDate, holiday: MonthDay, days: Int): Boolean =
+        withinDays(localDate, holiday.atYear(localDate.year), days)
+
+    private fun withinDays(localDate: LocalDate, holiday: LocalDate, days: Int): Boolean {
         val dayOfYear = localDate.dayOfYear
-        val holidayDayOfYear = holiday.atYear(localDate.year).dayOfYear
+        val holidayDayOfYear = holiday.dayOfYear
         return abs(holidayDayOfYear - dayOfYear) <= days
     }
 }
