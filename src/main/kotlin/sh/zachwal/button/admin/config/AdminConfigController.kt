@@ -3,20 +3,36 @@ package sh.zachwal.button.admin.config
 import com.google.inject.Inject
 import io.ktor.application.call
 import io.ktor.html.respondHtml
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.HttpStatusCode.Companion
 import io.ktor.request.receive
+import io.ktor.request.receiveParameters
 import io.ktor.response.respond
+import io.ktor.response.respondRedirect
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
+import io.ktor.util.getOrFail
+import kotlinx.html.FormMethod
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
+import kotlinx.html.form
 import kotlinx.html.h1
+import kotlinx.html.h2
 import kotlinx.html.head
+import kotlinx.html.id
+import kotlinx.html.label
+import kotlinx.html.option
 import kotlinx.html.script
+import kotlinx.html.select
+import kotlinx.html.small
+import kotlinx.html.style
+import kotlinx.html.submitInput
 import kotlinx.html.table
 import kotlinx.html.tbody
 import kotlinx.html.td
+import kotlinx.html.textInput
 import kotlinx.html.th
 import kotlinx.html.thead
 import kotlinx.html.title
@@ -25,6 +41,8 @@ import org.slf4j.LoggerFactory
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.roles.adminRoute
 import sh.zachwal.button.shared_html.headSetup
+import java.lang.IllegalArgumentException
+import kotlin.math.log
 
 @Controller
 class AdminConfigController @Inject constructor(
@@ -37,8 +55,7 @@ class AdminConfigController @Inject constructor(
         adminRoute("/admin/config") {
             get {
                 call.respondHtml {
-//                    val isCube = buttonConfigService.isCube()
-                    val isCube = true
+                    val override = buttonConfigService.getOverride()
                     head {
                         title {
                             +"Button Config"
@@ -55,46 +72,71 @@ class AdminConfigController @Inject constructor(
                             h1 {
                                 +"Button Config"
                             }
-                            table(classes = "table") {
-                                thead {
-                                    tr {
-                                        th {
-                                            +"Config"
+                            form(
+                                method = FormMethod.post,
+                                classes = "mb-1",
+                                action = "/admin/config"
+                            ) {
+                                div(classes = "form-group") {
+                                    h2 {
+                                        +"Override Button Shape"
+                                    }
+                                }
+                                div(classes = "form-group") {
+                                    label { +"Shape" }
+                                    select(classes = "form-control") {
+                                        name = "shape"
+                                        id = "shape"
+
+                                        option {
+                                            value = "none"
+                                            selected = override == null
+                                            +"None"
                                         }
-                                        th {
-                                            +"Value"
-                                        }
-                                        th {
-                                            +"Update"
+                                        ButtonShape.values().forEach { s ->
+                                            option {
+                                                value = s.name
+                                                selected = s == override
+                                                +s.name
+                                            }
                                         }
                                     }
                                 }
-                                tbody {
-
-                                    tr {
-                                        td {
-                                            +"Cube?"
-                                        }
-                                        td {
-                                            +"$isCube"
-                                        }
-                                        td {
-                                            val buttonText = if (isCube) {
-                                                "De-Cubify"
-                                            } else {
-                                                "Cubify"
-                                            }
-                                            button(classes = "cube-update btn btn-primary") {
-                                                attributes["data-cube"] = isCube.not().toString()
-                                                +buttonText
-                                            }
-                                        }
-                                    }
+                                submitInput(classes = "btn btn-primary") {
+                                    value = "Submit"
                                 }
                             }
                         }
                     }
                 }
+            }
+            post {
+                val params = call.receiveParameters()
+                val shape = params.getOrFail("shape")
+
+                if (shape == "none")  {
+                    logger.info("Removing button override")
+                    buttonConfigService.setOverride(null)
+                    call.respondRedirect("/admin/config")
+                    return@post
+                }
+
+                val buttonShape = try {
+                    ButtonShape.valueOf(shape)
+                } catch (e: IllegalArgumentException) {
+                    logger.error(
+                        "Tried to set button override to $shape, which is not a ButtonShape", e
+                    )
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Cannot override button shape to $shape"
+                    )
+                    return@post
+                }
+
+                logger.info("Setting button override to $buttonShape")
+                buttonConfigService.setOverride(buttonShape)
+                call.respondRedirect("/admin/config")
             }
         }
     }
