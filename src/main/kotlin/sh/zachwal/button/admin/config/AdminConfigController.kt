@@ -4,8 +4,6 @@ import com.google.inject.Inject
 import io.ktor.application.call
 import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.HttpStatusCode.Companion
-import io.ktor.request.receive
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
@@ -14,10 +12,8 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.util.getOrFail
 import kotlinx.html.DIV
-import kotlinx.html.FormMethod
 import kotlinx.html.FormMethod.post
 import kotlinx.html.body
-import kotlinx.html.button
 import kotlinx.html.div
 import kotlinx.html.form
 import kotlinx.html.h1
@@ -28,23 +24,13 @@ import kotlinx.html.label
 import kotlinx.html.option
 import kotlinx.html.script
 import kotlinx.html.select
-import kotlinx.html.small
-import kotlinx.html.style
 import kotlinx.html.submitInput
-import kotlinx.html.table
-import kotlinx.html.tbody
-import kotlinx.html.td
-import kotlinx.html.textInput
-import kotlinx.html.th
-import kotlinx.html.thead
 import kotlinx.html.title
-import kotlinx.html.tr
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.roles.adminRoute
 import sh.zachwal.button.shared_html.headSetup
 import java.lang.IllegalArgumentException
-import kotlin.math.log
 
 @Controller
 class AdminConfigController @Inject constructor(
@@ -57,7 +43,7 @@ class AdminConfigController @Inject constructor(
         adminRoute("/admin/config") {
             get {
                 call.respondHtml {
-                    val override = buttonConfigService.getOverride()
+                    val buttonShapeOverride = buttonConfigService.getOverride()
                     head {
                         title {
                             +"Button Config"
@@ -76,7 +62,7 @@ class AdminConfigController @Inject constructor(
                             }
                             div(classes = "card mt-4") {
                                 div(classes = "card-body") {
-                                    buttonConfigForm(override)
+                                    buttonConfigForm(buttonShapeOverride)
                                 }
                             }
                         }

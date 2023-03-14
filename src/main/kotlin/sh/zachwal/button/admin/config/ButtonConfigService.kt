@@ -22,16 +22,16 @@ class ButtonConfigService @Inject constructor(
 
     private val logger = LoggerFactory.getLogger(ButtonConfigService::class.java)
 
-    private var override: ButtonShape? = null
+    private var buttonShapeOverride: ButtonShape? = null
     fun setOverride(shape: ButtonShape?) {
-        override = shape
+        buttonShapeOverride = shape
         logger.info("Set override to $shape")
     }
 
-    fun getOverride(): ButtonShape? = override
+    fun getOverride(): ButtonShape? = buttonShapeOverride
 
     fun currentShape(): ButtonShape {
-        override?.let {
+        buttonShapeOverride?.let {
             return it
         }
 
