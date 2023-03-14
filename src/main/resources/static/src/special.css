@@ -1,0 +1,28 @@
+/* For when the button is some SVG image */
+#pressMePls {
+    width: 400px;
+    filter: drop-shadow(2px 20px 2px rgb(0 0 0 / 0.4));
+}
+
+#pressMePls:active {
+    transform: translateY(12px);
+
+    filter: drop-shadow(1px 8px 0px rgb(0 0 0 / 0.4)) saturate(250%);
+}
+
+#pressMePls:active + span {
+    transform: translateY(12px) translate(-50%, -50%);
+}
+
+.specialContainer {
+    position: relative;
+}
+
+.specialContainer > span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 2em;
+}

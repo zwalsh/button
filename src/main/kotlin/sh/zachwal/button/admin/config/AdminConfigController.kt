@@ -3,28 +3,34 @@ package sh.zachwal.button.admin.config
 import com.google.inject.Inject
 import io.ktor.application.call
 import io.ktor.html.respondHtml
-import io.ktor.request.receive
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receiveParameters
 import io.ktor.response.respond
+import io.ktor.response.respondRedirect
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
+import io.ktor.util.getOrFail
+import kotlinx.html.DIV
+import kotlinx.html.FormMethod.post
 import kotlinx.html.body
-import kotlinx.html.button
 import kotlinx.html.div
+import kotlinx.html.form
 import kotlinx.html.h1
+import kotlinx.html.h2
 import kotlinx.html.head
+import kotlinx.html.id
+import kotlinx.html.label
+import kotlinx.html.option
 import kotlinx.html.script
-import kotlinx.html.table
-import kotlinx.html.tbody
-import kotlinx.html.td
-import kotlinx.html.th
-import kotlinx.html.thead
+import kotlinx.html.select
+import kotlinx.html.submitInput
 import kotlinx.html.title
-import kotlinx.html.tr
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.roles.adminRoute
 import sh.zachwal.button.shared_html.headSetup
+import java.lang.IllegalArgumentException
 
 @Controller
 class AdminConfigController @Inject constructor(
@@ -37,7 +43,7 @@ class AdminConfigController @Inject constructor(
         adminRoute("/admin/config") {
             get {
                 call.respondHtml {
-                    val isCube = buttonConfigService.isCube()
+                    val buttonShapeOverride = buttonConfigService.getOverride()
                     head {
                         title {
                             +"Button Config"
@@ -51,60 +57,82 @@ class AdminConfigController @Inject constructor(
                     }
                     body {
                         div(classes = "container") {
-                            h1 {
+                            h1(classes = "mt-4 text-center") {
                                 +"Button Config"
                             }
-                            table(classes = "table") {
-                                thead {
-                                    tr {
-                                        th {
-                                            +"Config"
-                                        }
-                                        th {
-                                            +"Value"
-                                        }
-                                        th {
-                                            +"Update"
-                                        }
-                                    }
-                                }
-                                tbody {
-
-                                    tr {
-                                        td {
-                                            +"Cube?"
-                                        }
-                                        td {
-                                            +"$isCube"
-                                        }
-                                        td {
-                                            val buttonText = if (isCube) {
-                                                "De-Cubify"
-                                            } else {
-                                                "Cubify"
-                                            }
-                                            button(classes = "cube-update btn btn-primary") {
-                                                attributes["data-cube"] = isCube.not().toString()
-                                                +buttonText
-                                            }
-                                        }
-                                    }
+                            div(classes = "card mt-4") {
+                                div(classes = "card-body") {
+                                    buttonConfigForm(buttonShapeOverride)
                                 }
                             }
                         }
                     }
                 }
             }
+            post {
+                val params = call.receiveParameters()
+                val shape = params.getOrFail("shape")
+
+                if (shape == "none") {
+                    logger.info("Removing button override")
+                    buttonConfigService.setOverride(null)
+                    call.respondRedirect("/admin/config")
+                    return@post
+                }
+
+                val buttonShape = try {
+                    ButtonShape.valueOf(shape)
+                } catch (e: IllegalArgumentException) {
+                    logger.error(
+                        "Tried to set button override to $shape, which is not a ButtonShape", e
+                    )
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Cannot override button shape to $shape"
+                    )
+                    return@post
+                }
+
+                logger.info("Setting button override to $buttonShape")
+                buttonConfigService.setOverride(buttonShape)
+                call.respondRedirect("/admin/config")
+            }
         }
     }
 
-    internal fun Routing.updateContact() {
-        adminRoute("/admin/config/update-cube") {
-            post {
-                val request = call.receive<UpdateCubeRequest>()
-                logger.info("Received request to set cube=${request.isCube}")
-                buttonConfigService.setCube(request.isCube)
-                call.respond("Success")
+    private fun DIV.buttonConfigForm(buttonShapeOverride: ButtonShape?) {
+        form(
+            method = post,
+            classes = "mb-1",
+            action = "/admin/config"
+        ) {
+            div(classes = "form-group") {
+                h2 {
+                    +"Override Button Shape"
+                }
+            }
+            div(classes = "form-group") {
+                label { +"Shape" }
+                select(classes = "form-control") {
+                    name = "shape"
+                    id = "shape"
+
+                    option {
+                        value = "none"
+                        selected = buttonShapeOverride == null
+                        +"None"
+                    }
+                    ButtonShape.values().forEach { s ->
+                        option {
+                            value = s.name
+                            selected = s == buttonShapeOverride
+                            +s.name
+                        }
+                    }
+                }
+            }
+            submitInput(classes = "btn btn-primary") {
+                value = "Submit"
             }
         }
     }
