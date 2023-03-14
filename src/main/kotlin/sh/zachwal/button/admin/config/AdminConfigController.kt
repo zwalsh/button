@@ -13,7 +13,9 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.util.getOrFail
+import kotlinx.html.DIV
 import kotlinx.html.FormMethod
+import kotlinx.html.FormMethod.post
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
@@ -69,41 +71,12 @@ class AdminConfigController @Inject constructor(
                     }
                     body {
                         div(classes = "container") {
-                            h1 {
+                            h1(classes = "mt-4 text-center") {
                                 +"Button Config"
                             }
-                            form(
-                                method = FormMethod.post,
-                                classes = "mb-1",
-                                action = "/admin/config"
-                            ) {
-                                div(classes = "form-group") {
-                                    h2 {
-                                        +"Override Button Shape"
-                                    }
-                                }
-                                div(classes = "form-group") {
-                                    label { +"Shape" }
-                                    select(classes = "form-control") {
-                                        name = "shape"
-                                        id = "shape"
-
-                                        option {
-                                            value = "none"
-                                            selected = override == null
-                                            +"None"
-                                        }
-                                        ButtonShape.values().forEach { s ->
-                                            option {
-                                                value = s.name
-                                                selected = s == override
-                                                +s.name
-                                            }
-                                        }
-                                    }
-                                }
-                                submitInput(classes = "btn btn-primary") {
-                                    value = "Submit"
+                            div(classes = "card mt-4") {
+                                div(classes = "card-body") {
+                                    buttonConfigForm(override)
                                 }
                             }
                         }
@@ -114,7 +87,7 @@ class AdminConfigController @Inject constructor(
                 val params = call.receiveParameters()
                 val shape = params.getOrFail("shape")
 
-                if (shape == "none")  {
+                if (shape == "none") {
                     logger.info("Removing button override")
                     buttonConfigService.setOverride(null)
                     call.respondRedirect("/admin/config")
@@ -137,6 +110,43 @@ class AdminConfigController @Inject constructor(
                 logger.info("Setting button override to $buttonShape")
                 buttonConfigService.setOverride(buttonShape)
                 call.respondRedirect("/admin/config")
+            }
+        }
+    }
+
+    private fun DIV.buttonConfigForm(override: ButtonShape?) {
+        form(
+            method = post,
+            classes = "mb-1",
+            action = "/admin/config"
+        ) {
+            div(classes = "form-group") {
+                h2 {
+                    +"Override Button Shape"
+                }
+            }
+            div(classes = "form-group") {
+                label { +"Shape" }
+                select(classes = "form-control") {
+                    name = "shape"
+                    id = "shape"
+
+                    option {
+                        value = "none"
+                        selected = override == null
+                        +"None"
+                    }
+                    ButtonShape.values().forEach { s ->
+                        option {
+                            value = s.name
+                            selected = s == override
+                            +s.name
+                        }
+                    }
+                }
+            }
+            submitInput(classes = "btn btn-primary") {
+                value = "Submit"
             }
         }
     }
