@@ -150,15 +150,4 @@ class AdminConfigController @Inject constructor(
             }
         }
     }
-
-    internal fun Routing.updateContact() {
-        adminRoute("/admin/config/update-cube") {
-            post {
-                val request = call.receive<UpdateCubeRequest>()
-                logger.info("Received request to set cube=${request.isCube}")
-//                buttonConfigService.setCube(request.isCube)
-                call.respond("Success")
-            }
-        }
-    }
 }
