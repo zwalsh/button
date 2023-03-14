@@ -2,9 +2,9 @@ package sh.zachwal.button.admin.config
 
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
-import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.HEART
+import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
 import java.time.DayOfWeek
 import java.time.LocalDate

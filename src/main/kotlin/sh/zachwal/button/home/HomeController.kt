@@ -21,11 +21,9 @@ import kotlinx.html.title
 import kotlinx.html.unsafe
 import sh.zachwal.button.admin.config.ButtonConfigService
 import sh.zachwal.button.admin.config.ButtonShape
-import sh.zachwal.button.admin.config.ButtonShape.CHAMPAGNE
 import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
-import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY

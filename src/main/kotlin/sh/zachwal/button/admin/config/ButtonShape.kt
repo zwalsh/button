@@ -15,4 +15,3 @@ enum class ButtonShape {
 fun ButtonShape.isSpecial(): Boolean {
     return this !in setOf(CIRCLE, CUBE)
 }
-
