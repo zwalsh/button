@@ -6,15 +6,18 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import kotlinx.css.button
+import kotlinx.html.Draggable.htmlFalse
 import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
+import kotlinx.html.draggable
 import kotlinx.html.h1
 import kotlinx.html.head
 import kotlinx.html.id
 import kotlinx.html.img
 import kotlinx.html.link
+import kotlinx.html.onDragStart
 import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.title
@@ -83,6 +86,8 @@ class HomeController @Inject constructor(
                             div(classes = "specialContainer") {
                                 img(src = svgForShape(buttonShape)) {
                                     id = "pressMePls"
+                                    draggable = htmlFalse
+                                    onDragStart = "false;"
                                 }
                                 span {
                                     +"PRESS"
