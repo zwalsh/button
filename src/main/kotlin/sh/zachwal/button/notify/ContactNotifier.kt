@@ -5,9 +5,10 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.google.inject.name.Named
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
@@ -36,7 +37,7 @@ class ContactNotifier @Inject constructor(
             .setNameFormat("contact-notifier-thread-%d")
             .build()
     )
-    private val scope = CoroutineScope(threadPool.asCoroutineDispatcher())
+    private val scope = CoroutineScope(threadPool.asCoroutineDispatcher() + SupervisorJob())
     private val link = "https://$host"
 
     init {
@@ -47,28 +48,30 @@ class ContactNotifier @Inject constructor(
         )
     }
 
-    override suspend fun pressed(presser: Presser) = withContext(scope.coroutineContext) {
-        val lastNotification = notificationDAO.getLatestNotification()
+    override suspend fun pressed(presser: Presser) {
+        scope.launch {
+            val lastNotification = notificationDAO.getLatestNotification()
 
-        val shouldSendNewNotification = lastNotification?.let { n ->
-            val oneDayAgo = Instant.now().minus(1, ChronoUnit.DAYS)
-            n.sentDate.isBefore(oneDayAgo)
-        } ?: true
-        if (!shouldSendNewNotification) {
-            return@withContext
-        }
-        logger.info("Last notification was at ${lastNotification?.sentDate}, sending a new one.")
-        notificationDAO.createNotification()
+            val shouldSendNewNotification = lastNotification?.let { n ->
+                val oneDayAgo = Instant.now().minus(1, ChronoUnit.DAYS)
+                n.sentDate.isBefore(oneDayAgo)
+            } ?: true
+            if (!shouldSendNewNotification) {
+                return@launch
+            }
+            logger.info("Last notification was at ${lastNotification?.sentDate}, sending a new one.")
+            notificationDAO.createNotification()
 
-        val contacts = contactDAO.selectActiveContacts()
-        logger.info("Sending a notification to ${contacts.size} contacts.")
-        contacts.forEach { c ->
-            controlledContactMessagingService.sendMessage(
-                contact = c,
-                body = "Someone's pressing The Button! Join in: $link"
-            )
-            // Don't get our number blocked
-            delay(1000)
+            val contacts = contactDAO.selectActiveContacts()
+            logger.info("Sending a notification to ${contacts.size} contacts.")
+            contacts.forEach { c ->
+                controlledContactMessagingService.sendMessage(
+                    contact = c,
+                    body = "Someone's pressing The Button! Join in: $link"
+                )
+                // Don't get our number blocked
+                delay(1000)
+            }
         }
     }
 

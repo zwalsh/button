@@ -16,7 +16,7 @@ class StdOutMessagingService @Inject constructor() : MessagingService {
 
     override suspend fun validateNumber(phoneNumber: String): PhoneNumberValidation {
         logger.info("Validating $phoneNumber")
-        return ValidNumber(phoneNumber)
+        return ValidNumber("+1$phoneNumber")
     }
 
     override suspend fun sendMessage(toPhoneNumber: String, body: String): MessageStatus {
