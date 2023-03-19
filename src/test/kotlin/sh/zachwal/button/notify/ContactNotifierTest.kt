@@ -6,8 +6,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.jdbi.Contact
@@ -54,9 +56,26 @@ internal class ContactNotifierTest {
             notifier.pressed(presser)
         }
 
-        coVerify {
+        coVerify(timeout = 2000) {
             messagingService.sendMessage(zachContact, any())
             messagingService.sendMessage(jackieContact, any())
+        }
+    }
+
+    @Test
+    fun `does not block while sending messages`() {
+        every { notificationDAO.getLatestNotification() } returns Notification(
+            1,
+            Instant.now().minus(25, ChronoUnit.HOURS)
+        )
+        every { contactDao.selectActiveContacts() } returns List(10) { jackieContact }
+
+        assertDoesNotThrow {
+            runBlocking {
+                withTimeout(timeMillis = 500) {
+                    notifier.pressed(presser)
+                }
+            }
         }
     }
 
@@ -71,7 +90,7 @@ internal class ContactNotifierTest {
             notifier.pressed(presser)
         }
 
-        coVerify(exactly = 0) {
+        coVerify(exactly = 0, timeout = 1000) {
             messagingService.sendMessage(any(), any())
         }
     }
@@ -85,7 +104,7 @@ internal class ContactNotifierTest {
             notifier.pressed(presser)
         }
 
-        coVerify {
+        coVerify(timeout = 2000) {
             messagingService.sendMessage(zachContact, any())
         }
     }
@@ -99,6 +118,6 @@ internal class ContactNotifierTest {
             notifier.pressed(presser)
         }
 
-        verify { notificationDAO.createNotification() }
+        verify(timeout = 1000) { notificationDAO.createNotification() }
     }
 }
