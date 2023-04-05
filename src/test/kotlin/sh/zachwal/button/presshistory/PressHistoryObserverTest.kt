@@ -25,6 +25,7 @@ internal class PressHistoryObserverTest {
         val latch = CountDownLatch(1)
         var succeeded = false
         every { presser.remoteHost } returns "127.0.0.1"
+        every { presser.contact } returns null
         every { pressDAO.createPress(any(), any()) } answers {
             // createPress blocks until the latch counts down, or for 100ms
             succeeded = latch.await(1000, MILLISECONDS)
@@ -47,6 +48,7 @@ internal class PressHistoryObserverTest {
         val presser = mockk<Presser>()
         val remoteHost = "192.168.0.1"
         every { presser.remoteHost } returns remoteHost
+        every { presser.contact } returns null
         every { pressDAO.createPress(any(), any()) } returns Press(Instant.now(), "", 1)
 
         runBlocking {
@@ -79,6 +81,7 @@ internal class PressHistoryObserverTest {
         val presser = mockk<Presser>()
         val remoteHost = "192.168.0.1"
         every { presser.remoteHost } returns remoteHost
+        every { presser.contact } returns null
         every { pressDAO.createPress(any(), any()) } throws
             Exception("Oops!") andThen
             Press(Instant.now(), "", 1)
