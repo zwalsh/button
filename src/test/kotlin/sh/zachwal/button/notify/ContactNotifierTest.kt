@@ -10,6 +10,7 @@ import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
+import sh.zachwal.button.auth.ContactTokenStore
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.jdbi.Contact
@@ -27,7 +28,8 @@ internal class ContactNotifierTest {
     private val messagingService: ControlledContactMessagingService = mockk()
     private val notifier = ContactNotifier(
         contactDao, messagingService, notificationDAO,
-        "example.com"
+        "example.com",
+        ContactTokenStore()
     )
 
     private val zachContact = Contact(1, Instant.now(), "Zach", "+18001234567", active = true)
