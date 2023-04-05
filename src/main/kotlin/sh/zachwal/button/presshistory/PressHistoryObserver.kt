@@ -39,7 +39,7 @@ class PressHistoryObserver @Inject constructor(
     override suspend fun pressed(presser: Presser) {
         scope.launch {
             // Create the press in the background - don't block the caller
-            pressDAO.createPress(presser.remoteHost)
+            pressDAO.createPress(presser.remoteHost, presser.contact?.id)
         }
     }
 

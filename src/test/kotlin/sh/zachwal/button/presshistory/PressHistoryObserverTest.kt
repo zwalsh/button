@@ -10,6 +10,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.dao.PressDAO
+import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.Press
 import sh.zachwal.button.presser.Presser
 import java.time.Instant
@@ -28,10 +29,10 @@ internal class PressHistoryObserverTest {
         val latch = CountDownLatch(1)
         var succeeded = false
         every { presser.remoteHost } returns "127.0.0.1"
-        every { pressDAO.createPress(any()) } answers {
+        every { pressDAO.createPress(any(), any()) } answers {
             // createPress blocks until the latch counts down, or for 100ms
             succeeded = latch.await(1000, MILLISECONDS)
-            Press(Instant.now(), firstArg())
+            Press(Instant.now(), firstArg(), secondArg())
         }
 
         runBlocking {
@@ -40,7 +41,7 @@ internal class PressHistoryObserverTest {
         latch.countDown()
 
         verify(timeout = 1000) {
-            pressDAO.createPress(any())
+            pressDAO.createPress(any(), any())
         }
         assertTrue(succeeded)
     }
@@ -50,14 +51,30 @@ internal class PressHistoryObserverTest {
         val presser = mockk<Presser>()
         val remoteHost = "192.168.0.1"
         every { presser.remoteHost } returns remoteHost
-        every { pressDAO.createPress(any()) } returns Press(Instant.now(), "")
+        every { pressDAO.createPress(any(), any()) } returns Press(Instant.now(), "", 1)
 
         runBlocking {
             observer.pressed(presser)
         }
 
         verify(timeout = 100) {
-            pressDAO.createPress(remoteHost)
+            pressDAO.createPress(remoteHost, null)
+        }
+    }
+    @Test
+    fun `uses the contact id of the presser on the press`() {
+        val presser = mockk<Presser>()
+        val remoteHost = "192.168.0.1"
+        every { presser.remoteHost } returns remoteHost
+        every { presser.contact } returns Contact(id = 10, Instant.now(), "", "", true)
+        every { pressDAO.createPress(any(), any()) } returns Press(Instant.now(), "", 1)
+
+        runBlocking {
+            observer.pressed(presser)
+        }
+
+        verify(timeout = 100) {
+            pressDAO.createPress(remoteHost, 10)
         }
     }
 
@@ -66,7 +83,9 @@ internal class PressHistoryObserverTest {
         val presser = mockk<Presser>()
         val remoteHost = "192.168.0.1"
         every { presser.remoteHost } returns remoteHost
-        every { pressDAO.createPress(any()) } throws Exception("Oops!") andThen Press(Instant.now(), "")
+        every { pressDAO.createPress(any(), any()) } throws
+            Exception("Oops!") andThen
+            Press(Instant.now(), "", 1)
 
         runBlocking {
             // first will fail
@@ -78,7 +97,7 @@ internal class PressHistoryObserverTest {
         }
 
         verify(timeout = 100, exactly = 3) {
-            pressDAO.createPress(remoteHost)
+            pressDAO.createPress(remoteHost, null)
         }
     }
 }

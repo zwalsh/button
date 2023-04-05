@@ -8,11 +8,11 @@ interface PressDAO {
 
     @SqlQuery(
         """
-            insert into public.press (remote) values (:remote)
+            insert into public.press (remote, contact_id) values (:remote, :contactId)
             returning *
         """
     )
-    fun createPress(remote: String): Press
+    fun createPress(remote: String, contactId: Int?): Press
 
     @SqlQuery(
         "select * from public.press where time > ? order by time"

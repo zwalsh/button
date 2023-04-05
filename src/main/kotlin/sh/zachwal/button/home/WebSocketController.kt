@@ -34,7 +34,7 @@ class WebSocketController @Inject constructor(
             val clientPort = call.request.origin.port
             val remote = "$clientHost:$clientPort"
             logger.info("New connection from $remote")
-            val presser = presserFactory.createPresser(this, remote)
+            val presser = presserFactory.createPresser(this, remote, contact)
             manager.addPresser(presser)
             presser.watchChannels()
             logger.info("$clientHost disconnected")

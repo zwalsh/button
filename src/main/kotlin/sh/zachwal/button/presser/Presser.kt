@@ -14,13 +14,15 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import sh.zachwal.button.db.jdbi.Contact
 
 private val logger = LoggerFactory.getLogger(Presser::class.java)
 
-class Presser(
+class Presser constructor(
     private val socketSession: WebSocketServerSession,
     private val observer: PresserObserver,
     val remoteHost: String,
+    val contact: Contact?,
     dispatcher: CoroutineDispatcher
 ) {
     // uses two coroutines, one to accept incoming & one to send outgoing
