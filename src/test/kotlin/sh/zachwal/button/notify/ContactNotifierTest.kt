@@ -4,9 +4,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -15,21 +17,24 @@ import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.Notification
+import sh.zachwal.button.home.TOKEN_PARAMETER
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.sms.ControlledContactMessagingService
 import sh.zachwal.button.sms.MessageQueued
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import kotlin.test.assertTrue
 
 internal class ContactNotifierTest {
 
     private val contactDao: ContactDAO = mockk()
     private val notificationDAO: NotificationDAO = mockk()
     private val messagingService: ControlledContactMessagingService = mockk()
+    private val contactTokenStore = ContactTokenStore()
     private val notifier = ContactNotifier(
         contactDao, messagingService, notificationDAO,
         "example.com",
-        ContactTokenStore()
+        contactTokenStore
     )
 
     private val zachContact = Contact(1, Instant.now(), "Zach", "+18001234567", active = true)
@@ -62,6 +67,27 @@ internal class ContactNotifierTest {
             messagingService.sendMessage(zachContact, any())
             messagingService.sendMessage(jackieContact, any())
         }
+    }
+
+    @Test
+    fun `contact gets a message with a specific token`() {
+        every { notificationDAO.getLatestNotification() } returns Notification(
+            1,
+            Instant.now().minus(25, ChronoUnit.HOURS)
+        )
+        every { contactDao.selectActiveContacts() } returns listOf(zachContact)
+
+        runBlocking {
+            notifier.pressed(presser)
+        }
+
+        val message = slot<String>()
+        coVerify(timeout = 2000) {
+            messagingService.sendMessage(zachContact, capture(message))
+        }
+        assertTrue(message.captured.startsWith("Someone's pressing The Button! Join in: "))
+        val token = message.captured.substringAfter("$TOKEN_PARAMETER=")
+        assertEquals(zachContact.id, contactTokenStore.checkToken(token))
     }
 
     @Test
