@@ -7,6 +7,7 @@ import io.ktor.sessions.sessions
 import io.ktor.websocket.webSocket
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.controller.Controller
+import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.presser.PresserFactory
 import sh.zachwal.button.presser.PresserManager
 import sh.zachwal.button.session.principals.ContactSessionPrincipal
@@ -16,6 +17,7 @@ import javax.inject.Inject
 class WebSocketController @Inject constructor(
     private val manager: PresserManager,
     private val presserFactory: PresserFactory,
+    private val contactDAO: ContactDAO,
 ) {
 
     private val logger = LoggerFactory.getLogger(WebSocketController::class.java)
@@ -23,8 +25,9 @@ class WebSocketController @Inject constructor(
     internal fun Routing.webSocketRoute() {
         webSocket("/socket") {
             val contactSession = call.sessions.get<ContactSessionPrincipal>()
-            if (contactSession != null) {
-                logger.info("New connection from contact ${contactSession.contactId}")
+            val contact = contactSession?.contactId?.let { contactDAO.findContact(it) }
+            if (contact != null) {
+                logger.info("New connection from contact $contact")
             }
 
             val clientHost = call.request.origin.remoteHost
