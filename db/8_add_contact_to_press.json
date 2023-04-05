@@ -1,0 +1,44 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "8",
+        "author": "zach",
+        "changes": [
+          {
+            "addColumn": {
+              "columns": [
+                {
+                  "column": {
+                    "name": "contact_id",
+                    "type": "int"
+                  }
+                }
+              ],
+              "tableName": "press"
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "baseColumnNames": "contact_id",
+              "baseTableName": "press",
+              "constraintName": "press_contact_id_fk",
+              "onDelete": "CASCADE",
+              "onUpdate": "RESTRICT",
+              "referencedColumnNames": "id",
+              "referencedTableName": "contact",
+              "validate": true
+            }
+          },
+          {
+            "sqlFile": {
+              "path": "8_add_contact_to_press/create_press_contact_idx.sql",
+              "relativeToChangelogFile": true,
+              "stripComments": true
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

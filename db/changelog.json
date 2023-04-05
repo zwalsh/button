@@ -34,6 +34,11 @@
       "include": {
         "file": "7_create_notification.json"
       }
+    },
+    {
+      "include": {
+        "file": "8_add_contact_to_press.json"
+      }
     }
   ]
 }
