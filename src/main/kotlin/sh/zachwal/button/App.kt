@@ -34,7 +34,8 @@ import sh.zachwal.button.roles.RoleAuthorization
 import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.session.DbSessionStorage
 import sh.zachwal.button.session.SessionCleanupTask
-import sh.zachwal.button.session.SessionPrincipal
+import sh.zachwal.button.session.USER_SESSION
+import sh.zachwal.button.session.principals.UserSessionPrincipal
 import sh.zachwal.button.users.UserService
 import kotlin.collections.set
 import kotlin.time.ExperimentalTime
@@ -75,8 +76,8 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Sessions) {
-        cookie<SessionPrincipal>(
-            "AUTH_SESSION",
+        cookie<UserSessionPrincipal>(
+            USER_SESSION,
             storage = dbSessionStorage
         ) {
             cookie.httpOnly = true
