@@ -10,8 +10,11 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import sh.zachwal.button.auth.ContactTokenStore
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
+import sh.zachwal.button.db.jdbi.Contact
+import sh.zachwal.button.home.TOKEN_PARAMETER
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserObserver
 import sh.zachwal.button.sms.ControlledContactMessagingService
@@ -27,6 +30,7 @@ class ContactNotifier @Inject constructor(
     private val notificationDAO: NotificationDAO,
     @Named("host")
     private val host: String,
+    private val contactTokenStore: ContactTokenStore,
 ) : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(ContactNotifier::class.java)
@@ -65,14 +69,20 @@ class ContactNotifier @Inject constructor(
             val contacts = contactDAO.selectActiveContacts()
             logger.info("Sending a notification to ${contacts.size} contacts.")
             contacts.forEach { c ->
+                val linkForContact = linkForContact(c)
                 controlledContactMessagingService.sendMessage(
                     contact = c,
-                    body = "Someone's pressing The Button! Join in: $link"
+                    body = "Someone's pressing The Button! Join in: $linkForContact"
                 )
                 // Don't get our number blocked
                 delay(1000)
             }
         }
+    }
+
+    private fun linkForContact(contact: Contact): String {
+        val token = contactTokenStore.createToken(contact.id)
+        return "$link?$TOKEN_PARAMETER=$token"
     }
 
     override suspend fun released(presser: Presser) {}
