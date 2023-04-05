@@ -1,11 +1,7 @@
 package sh.zachwal.button.presshistory
 
-import io.mockk.Runs
-import io.mockk.andThenJust
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test

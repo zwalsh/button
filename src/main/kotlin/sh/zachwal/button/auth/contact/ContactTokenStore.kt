@@ -5,7 +5,6 @@ import sh.zachwal.button.db.dao.ContactTokenDAO
 import java.security.SecureRandom
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.streams.toList

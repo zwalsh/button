@@ -12,7 +12,6 @@ interface SessionPrincipal {
      */
     val expiration: Long
 
-
     fun isValid(): Boolean {
         val curEpochMilli = Instant.now().toEpochMilli()
         logger.info(

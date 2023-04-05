@@ -31,8 +31,8 @@ import kotlinx.html.submitInput
 import kotlinx.html.textInput
 import kotlinx.html.title
 import sh.zachwal.button.controller.Controller
-import sh.zachwal.button.session.principals.UserSessionPrincipal
 import sh.zachwal.button.session.SessionService
+import sh.zachwal.button.session.principals.UserSessionPrincipal
 import sh.zachwal.button.shared_html.headSetup
 import javax.inject.Inject
 

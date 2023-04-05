@@ -31,7 +31,7 @@ internal class ContactNotifierTest {
     private val notificationDAO: NotificationDAO = mockk()
     private val messagingService: ControlledContactMessagingService = mockk()
     private val contactTokenStore = mockk<ContactTokenStore> {
-        every { createToken(any())  } returns "123"
+        every { createToken(any()) } returns "123"
         every { checkToken(any()) } returns 1
     }
     private val notifier = ContactNotifier(
