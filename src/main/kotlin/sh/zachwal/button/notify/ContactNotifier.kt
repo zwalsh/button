@@ -10,7 +10,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
-import sh.zachwal.button.auth.ContactTokenStore
+import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.jdbi.Contact

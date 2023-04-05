@@ -11,7 +11,6 @@ import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
 import io.ktor.features.StatusPages
 import io.ktor.features.XForwardedHeaderSupport
-import io.ktor.features.maxAge
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.jackson.jackson
@@ -22,6 +21,7 @@ import io.ktor.websocket.WebSockets
 import org.slf4j.event.Level
 import sh.zachwal.button.auth.configureFormAuth
 import sh.zachwal.button.auth.configureSessionAuth
+import sh.zachwal.button.auth.contact.ContactTokenCleanupTask
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.createControllers
 import sh.zachwal.button.features.configureRoleAuthorization
@@ -127,4 +127,8 @@ fun Application.module(testing: Boolean = false) {
     // clean up expired sessions every hour
     val cleanupTask = injector.getInstance(SessionCleanupTask::class.java)
     cleanupTask.repeatCleanup()
+
+    // clean up expired contact tokens every hour
+    val contactTokenCleanupTask = injector.getInstance(ContactTokenCleanupTask::class.java)
+    contactTokenCleanupTask.repeatCleanup()
 }

@@ -9,6 +9,7 @@ import org.jdbi.v3.postgres.PostgresPlugin
 import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import sh.zachwal.button.db.dao.ContactDAO
+import sh.zachwal.button.db.dao.ContactTokenDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.dao.PressDAO
 import sh.zachwal.button.db.dao.SentMessageDAO
@@ -47,4 +48,7 @@ class JdbiModule : AbstractModule() {
 
     @Provides
     fun notificationDao(jdbi: Jdbi): NotificationDAO = jdbi.onDemand()
+
+    @Provides
+    fun contactTokenDao(jdbi: Jdbi): ContactTokenDAO = jdbi.onDemand()
 }

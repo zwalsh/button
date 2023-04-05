@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import sh.zachwal.button.auth.ContactTokenStore
+import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.jdbi.Contact
@@ -30,7 +30,10 @@ internal class ContactNotifierTest {
     private val contactDao: ContactDAO = mockk()
     private val notificationDAO: NotificationDAO = mockk()
     private val messagingService: ControlledContactMessagingService = mockk()
-    private val contactTokenStore = ContactTokenStore()
+    private val contactTokenStore = mockk<ContactTokenStore> {
+        every { createToken(any())  } returns "123"
+        every { checkToken(any()) } returns 1
+    }
     private val notifier = ContactNotifier(
         contactDao, messagingService, notificationDAO,
         "example.com",

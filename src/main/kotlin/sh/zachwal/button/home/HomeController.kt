@@ -33,7 +33,7 @@ import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
 import sh.zachwal.button.admin.config.isSpecial
-import sh.zachwal.button.auth.ContactTokenStore
+import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.session.SessionService
