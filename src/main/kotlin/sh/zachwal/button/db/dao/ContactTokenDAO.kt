@@ -28,7 +28,7 @@ interface ContactTokenDAO {
     @SqlQuery(
         """
             delete from public.contact_token
-            where expiration > ?
+            where expiration < ?
             returning *;
         """
     )
