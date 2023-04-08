@@ -16,6 +16,15 @@ interface ContactDAO {
 
     @SqlQuery(
         """
+            select * 
+            from public.contact
+            where id = ?
+        """
+    )
+    fun findContact(contactId: Int): Contact?
+
+    @SqlQuery(
+        """
             select * from public.contact where active order by created_date;
         """
     )

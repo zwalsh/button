@@ -12,7 +12,7 @@ import kotlinx.html.h2
 import kotlinx.html.head
 import kotlinx.html.title
 import sh.zachwal.button.controller.Controller
-import sh.zachwal.button.presshistory.PressHistoryService
+import sh.zachwal.button.db.dao.PressDAO
 import sh.zachwal.button.roles.adminRoute
 import sh.zachwal.button.shared_html.card
 import sh.zachwal.button.shared_html.headSetup
@@ -21,7 +21,7 @@ import java.time.temporal.ChronoUnit
 
 @Controller
 class AdminStatsController @Inject constructor(
-    private val pressHistoryService: PressHistoryService
+    private val pressDAO: PressDAO
 ) {
 
     internal fun Routing.stats() {
@@ -30,9 +30,9 @@ class AdminStatsController @Inject constructor(
                 val now = Instant.now()
                 val thirtyDaysAgo = now.minus(30, ChronoUnit.DAYS)
                 val todayMidnight = now.truncatedTo(ChronoUnit.DAYS)
-                val pressCountToday = pressHistoryService.countPresses(since = todayMidnight)
-                val pressCount30Days = pressHistoryService.countPresses(since = thirtyDaysAgo)
-                val pressCountForever = pressHistoryService.countPresses()
+                val pressCountToday = pressDAO.countSince(time = todayMidnight)
+                val pressCount30Days = pressDAO.countSince(time = thirtyDaysAgo)
+                val pressCountForever = pressDAO.countSince(time = Instant.EPOCH)
 
                 call.respondHtml {
                     head {

@@ -1,0 +1,72 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "9",
+        "author": "zach",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "contact_token",
+              "columns": [
+                {
+                  "column": {
+                    "name": "token",
+                    "type": "varchar(64)",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "contact_id",
+                    "type": "int",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "expiration",
+                    "type": "TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "columns": [
+                {
+                  "column": {
+                    "name": "token"
+                  }
+                }
+              ],
+              "indexName": "contact_token_token_idx",
+              "tableName": "contact_token"
+            }
+          },
+          {
+            "createIndex": {
+              "columns": [
+                {
+                  "column": {
+                    "name": "expiration"
+                  }
+                }
+              ],
+              "indexName": "contact_token_expiration_idx",
+              "tableName": "contact_token"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

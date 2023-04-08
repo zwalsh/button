@@ -12,7 +12,7 @@ import io.ktor.sessions.sessions
 import io.ktor.util.AttributeKey
 import io.ktor.util.pipeline.PipelinePhase
 import org.slf4j.LoggerFactory
-import sh.zachwal.button.session.SessionPrincipal
+import sh.zachwal.button.session.principals.UserSessionPrincipal
 
 // taken from https://medium.com/@shrikantjagtap99/role-based-authorization-feature-in-ktor-web-framework-in-kotlin-dda88262a86a
 class RoleAuthorization internal constructor(config: Configuration) {
@@ -29,10 +29,10 @@ class RoleAuthorization internal constructor(config: Configuration) {
     class RoleBasedAuthorizer {
         internal lateinit var authorizationFunction: suspend ApplicationCall.(
             Set<Role>,
-            SessionPrincipal
+            UserSessionPrincipal
         ) -> Role?
 
-        fun validate(body: suspend ApplicationCall.(Set<Role>, SessionPrincipal) -> Role?) {
+        fun validate(body: suspend ApplicationCall.(Set<Role>, UserSessionPrincipal) -> Role?) {
             authorizationFunction = body
         }
     }
@@ -41,7 +41,7 @@ class RoleAuthorization internal constructor(config: Configuration) {
         pipeline.insertPhaseAfter(ApplicationCallPipeline.Features, authorizationPhase)
         pipeline.intercept(authorizationPhase) {
             val call = call
-            val session = call.sessions.get<SessionPrincipal>() ?: run {
+            val session = call.sessions.get<UserSessionPrincipal>() ?: run {
                 logger.info("Blocking access; unauthenticated")
                 call.respond(HttpStatusCode.Unauthorized)
                 finish()

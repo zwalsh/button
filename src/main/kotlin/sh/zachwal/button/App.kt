@@ -21,6 +21,7 @@ import io.ktor.websocket.WebSockets
 import org.slf4j.event.Level
 import sh.zachwal.button.auth.configureFormAuth
 import sh.zachwal.button.auth.configureSessionAuth
+import sh.zachwal.button.auth.contact.ContactTokenCleanupTask
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.createControllers
 import sh.zachwal.button.features.configureRoleAuthorization
@@ -32,9 +33,12 @@ import sh.zachwal.button.guice.JdbiModule
 import sh.zachwal.button.guice.MessagingModule
 import sh.zachwal.button.roles.RoleAuthorization
 import sh.zachwal.button.roles.RoleService
+import sh.zachwal.button.session.CONTACT_SESSION
 import sh.zachwal.button.session.DbSessionStorage
 import sh.zachwal.button.session.SessionCleanupTask
-import sh.zachwal.button.session.SessionPrincipal
+import sh.zachwal.button.session.USER_SESSION
+import sh.zachwal.button.session.principals.ContactSessionPrincipal
+import sh.zachwal.button.session.principals.UserSessionPrincipal
 import sh.zachwal.button.users.UserService
 import kotlin.collections.set
 import kotlin.time.ExperimentalTime
@@ -75,8 +79,16 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Sessions) {
-        cookie<SessionPrincipal>(
-            "AUTH_SESSION",
+        cookie<UserSessionPrincipal>(
+            USER_SESSION,
+            storage = dbSessionStorage
+        ) {
+            cookie.httpOnly = true
+            cookie.secure = config.env != "DEV"
+            cookie.extensions["SameSite"] = "lax"
+        }
+        cookie<ContactSessionPrincipal>(
+            CONTACT_SESSION,
             storage = dbSessionStorage
         ) {
             cookie.httpOnly = true
@@ -115,4 +127,8 @@ fun Application.module(testing: Boolean = false) {
     // clean up expired sessions every hour
     val cleanupTask = injector.getInstance(SessionCleanupTask::class.java)
     cleanupTask.repeatCleanup()
+
+    // clean up expired contact tokens every hour
+    val contactTokenCleanupTask = injector.getInstance(ContactTokenCleanupTask::class.java)
+    contactTokenCleanupTask.repeatCleanup()
 }

@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
+import sh.zachwal.button.db.dao.PressDAO
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserObserver
 import java.util.concurrent.Executors
@@ -14,7 +15,7 @@ import kotlin.concurrent.thread
 
 @Singleton
 class PressHistoryObserver @Inject constructor(
-    private val pressHistoryService: PressHistoryService
+    private val pressDAO: PressDAO
 ) : PresserObserver {
 
     private val threadPool = Executors.newFixedThreadPool(
@@ -38,7 +39,7 @@ class PressHistoryObserver @Inject constructor(
     override suspend fun pressed(presser: Presser) {
         scope.launch {
             // Create the press in the background - don't block the caller
-            pressHistoryService.createPress(presser.remoteHost)
+            pressDAO.createPress(presser.remoteHost, presser.contact?.id)
         }
     }
 

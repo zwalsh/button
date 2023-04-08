@@ -34,6 +34,16 @@
       "include": {
         "file": "7_create_notification.json"
       }
+    },
+    {
+      "include": {
+        "file": "8_add_contact_to_press.json"
+      }
+    },
+    {
+      "include": {
+        "file": "9_create_contact_token.json"
+      }
     }
   ]
 }

@@ -31,8 +31,8 @@ import kotlinx.html.submitInput
 import kotlinx.html.textInput
 import kotlinx.html.title
 import sh.zachwal.button.controller.Controller
-import sh.zachwal.button.session.SessionPrincipal
 import sh.zachwal.button.session.SessionService
+import sh.zachwal.button.session.principals.UserSessionPrincipal
 import sh.zachwal.button.shared_html.headSetup
 import javax.inject.Inject
 
@@ -44,11 +44,11 @@ class UserController @Inject constructor(
     internal fun Routing.loginRoutes() {
         route("/login") {
             get {
-                val session = call.sessions.get<SessionPrincipal>()
+                val session = call.sessions.get<UserSessionPrincipal>()
                 if (session?.isValid() == true) {
                     return@get call.respondRedirect("/profile")
                 } else if (session?.isValid() == false) {
-                    call.sessions.clear<SessionPrincipal>()
+                    call.sessions.clear<UserSessionPrincipal>()
                 }
 
                 val failed = call.request.queryParameters["failed"]?.equals("true") ?: false
@@ -115,7 +115,7 @@ class UserController @Inject constructor(
                             HttpStatusCode.InternalServerError,
                             "No User principal found after post"
                         )
-                    sessionService.createSession(call, p.name)
+                    sessionService.createUserSession(call, p.name)
                     call.respondRedirect("/profile")
                 }
             }
@@ -135,7 +135,7 @@ class UserController @Inject constructor(
         route("/profile") {
             authenticate {
                 get {
-                    val p = call.sessions.get<SessionPrincipal>()
+                    val p = call.sessions.get<UserSessionPrincipal>()
                     call.respondHtml {
                         head {
                             title {
@@ -163,7 +163,7 @@ class UserController @Inject constructor(
         route("/logout") {
             authenticate {
                 get {
-                    call.sessions.clear<SessionPrincipal>()
+                    call.sessions.clear<UserSessionPrincipal>()
                     call.respondRedirect("/login")
                 }
             }
@@ -208,7 +208,7 @@ class UserController @Inject constructor(
                 )
 
                 if (user != null) {
-                    sessionService.createSession(call, user.username)
+                    sessionService.createUserSession(call, user.username)
                     call.respondRedirect("/profile")
                 } else {
                     call.respond(HttpStatusCode.Conflict, "User already exists")
