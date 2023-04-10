@@ -18,6 +18,7 @@ import io.ktor.routing.routing
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.websocket.WebSockets
+import kotlinx.coroutines.runBlocking
 import org.slf4j.event.Level
 import sh.zachwal.button.auth.configureFormAuth
 import sh.zachwal.button.auth.configureSessionAuth
@@ -39,6 +40,7 @@ import sh.zachwal.button.session.SessionCleanupTask
 import sh.zachwal.button.session.USER_SESSION
 import sh.zachwal.button.session.principals.ContactSessionPrincipal
 import sh.zachwal.button.session.principals.UserSessionPrincipal
+import sh.zachwal.button.sms.TwilioMessagingService
 import sh.zachwal.button.users.UserService
 import kotlin.collections.set
 import kotlin.time.ExperimentalTime

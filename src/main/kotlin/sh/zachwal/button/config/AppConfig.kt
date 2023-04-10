@@ -29,7 +29,7 @@ data class AppConfig(
             TwilioConfig(
                 config.property("ktor.twilio.account").getString(),
                 config.property("ktor.twilio.authToken").getString(),
-                config.property("ktor.twilio.fromNumber").getString(),
+                config.property("ktor.twilio.messagingServiceSid").getString(),
             )
         },
         messagingConfig = MessagingConfig(
