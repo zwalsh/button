@@ -5,7 +5,6 @@ import kotlinx.html.link
 import kotlinx.html.meta
 import kotlinx.html.script
 import kotlinx.html.unsafe
-import sh.zachwal.button.config.SentryConfig
 import sh.zachwal.button.sentry.jsDsn
 import sh.zachwal.button.sentry.jsEnv
 
@@ -29,7 +28,7 @@ fun HEAD.mobileUI() {
 }
 
 fun HEAD.sentryScript() {
-    script(src = "https://js.sentry-cdn.com/${jsDsn}.min.js") {
+    script(src = "https://js.sentry-cdn.com/$jsDsn.min.js") {
         attributes["crossorigin"] = "anonymous"
     }
     script {
