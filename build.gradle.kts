@@ -42,6 +42,9 @@ dependencies {
     // Logging
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
+    // Observability
+    implementation("io.sentry:sentry:6.17.0")
+
     // Reflection (for @Controller annotation inspection)
     implementation("org.reflections:reflections:0.10.2")
 

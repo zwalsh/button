@@ -18,6 +18,7 @@ import io.ktor.routing.routing
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.websocket.WebSockets
+import io.sentry.Sentry
 import org.slf4j.event.Level
 import sh.zachwal.button.auth.configureFormAuth
 import sh.zachwal.button.auth.configureSessionAuth
@@ -33,6 +34,7 @@ import sh.zachwal.button.guice.JdbiModule
 import sh.zachwal.button.guice.MessagingModule
 import sh.zachwal.button.roles.RoleAuthorization
 import sh.zachwal.button.roles.RoleService
+import sh.zachwal.button.sentry.initSentry
 import sh.zachwal.button.session.CONTACT_SESSION
 import sh.zachwal.button.session.DbSessionStorage
 import sh.zachwal.button.session.SessionCleanupTask
@@ -60,6 +62,8 @@ fun Application.module(testing: Boolean = false) {
 
     val config = injector.getInstance(AppConfig::class.java)
     log.info("Starting app in ${config.env}")
+
+    initSentry(config.sentryConfig, config.env)
 
     val userService = injector.getInstance(UserService::class.java)
     val roleService = injector.getInstance(RoleService::class.java)
