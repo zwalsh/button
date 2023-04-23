@@ -39,6 +39,7 @@ import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.session.SessionService
 import sh.zachwal.button.shared_html.favicon
 import sh.zachwal.button.shared_html.mobileUI
+import sh.zachwal.button.shared_html.sentryScript
 import javax.inject.Inject
 import kotlin.IllegalArgumentException
 
@@ -74,6 +75,7 @@ class HomeController @Inject constructor(
                     title("button.")
                     mobileUI()
                     favicon()
+                    sentryScript()
 
                     link(href = "static/src/style.css", rel = "stylesheet")
                     if (buttonShape.isSpecial()) {
