@@ -5,6 +5,7 @@ import com.google.inject.Singleton
 import com.twilio.Twilio
 import com.twilio.exception.ApiException
 import com.twilio.rest.api.v2010.account.Message
+import com.twilio.rest.api.v2010.account.Message.Status.ACCEPTED
 import com.twilio.rest.api.v2010.account.Message.Status.FAILED
 import com.twilio.rest.api.v2010.account.Message.Status.QUEUED
 import com.twilio.rest.lookups.v1.PhoneNumber
@@ -19,10 +20,9 @@ import kotlin.concurrent.thread
 
 @Singleton
 class TwilioMessagingService constructor(
-    twilioConfig: TwilioConfig
+    private val twilioConfig: TwilioConfig
 ) : MessagingService {
 
-    private val fromNumber = com.twilio.type.PhoneNumber(twilioConfig.fromNumber)
     private val logger = LoggerFactory.getLogger(TwilioMessagingService::class.java)
     private val threadPool = Executors.newFixedThreadPool(
         1,
@@ -68,12 +68,12 @@ class TwilioMessagingService constructor(
         withContext(scope.coroutineContext) {
             val message: Message = Message.creator(
                 com.twilio.type.PhoneNumber(toPhoneNumber),
-                fromNumber,
+                twilioConfig.messagingServiceSid,
                 body
             ).createAsync().await()
 
             when (message.status) {
-                QUEUED -> {
+                QUEUED, ACCEPTED -> {
                     logger.info("Sent message to $toPhoneNumber with id ${message.sid}.")
 
                     MessageQueued(
