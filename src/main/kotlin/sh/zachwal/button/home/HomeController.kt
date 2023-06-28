@@ -29,6 +29,7 @@ import sh.zachwal.button.admin.config.ButtonShape
 import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
+import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
@@ -58,6 +59,7 @@ class HomeController @Inject constructor(
         return when (shape) {
             CIRCLE -> throw IllegalArgumentException("No svg for circle")
             CUBE -> throw IllegalArgumentException("No svg for cube")
+            FIREWORKS -> throw IllegalArgumentException("No svg for fireworks")
             SHAMROCK -> "static/special/shamrock.svg"
             HEART -> "static/special/heart.svg"
             CHRISTMAS_TREE -> "static/special/christmas-tree.svg"
