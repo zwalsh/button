@@ -77,12 +77,12 @@ class HomeController @Inject constructor(
                     favicon()
                     sentryScript()
 
-                    link(href = "static/src/style.css", rel = "stylesheet")
+                    link(href = "static/src/css/style.css", rel = "stylesheet")
                     if (buttonShape.isSpecial()) {
-                        link(href = "static/src/special.css", rel = "stylesheet")
+                        link(href = "static/src/css/special.css", rel = "stylesheet")
                     }
                     if (buttonShape == CUBE) {
-                        link(href = "static/src/cube.css", rel = "stylesheet")
+                        link(href = "static/src/css/cube.css", rel = "stylesheet")
                     }
 
                     script {
