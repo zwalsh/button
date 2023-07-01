@@ -86,6 +86,12 @@ class HomeController @Inject constructor(
                     if (buttonShape == CUBE) {
                         link(href = "static/src/css/cube.css", rel = "stylesheet")
                     }
+                    if (buttonShape == FIREWORKS) {
+                        link(href = "static/src/css/fireworks.css", rel = "stylesheet")
+                        script {
+                            src = "static/src/js/fireworks.js"
+                        }
+                    }
 
                     script {
                         unsafe {
@@ -93,11 +99,18 @@ class HomeController @Inject constructor(
                         }
                     }
                     script {
-                        src = "static/src/main.js"
+                        src = "static/src/js/main.js"
                     }
                 }
                 body {
                     div(classes = "container") {
+                        // must go first
+                        if (buttonShape == FIREWORKS) {
+                            div(classes = "fw") { }
+                            div(classes = "fw") { }
+                            div(classes = "fw") { }
+                        }
+
                         if (buttonShape.isSpecial()) {
                             div(classes = "specialContainer") {
                                 img(src = svgForShape(buttonShape)) {
@@ -126,6 +139,7 @@ class HomeController @Inject constructor(
                             id = "buttonPressCountWhite"
                             +"BUTTON PRESSERS: 0"
                         }
+
                         div {
                             id = "signup"
                             +"Love the button? "

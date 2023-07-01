@@ -37,6 +37,7 @@ class ButtonConfigService @Inject constructor(
         logger.info("Set override to $shape")
     }
 
+    // This is in memory but should eventually probably go in the database
     fun getOverride(): ButtonShape? = buttonShapeOverride
 
     fun currentShape(): ButtonShape {
