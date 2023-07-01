@@ -69,8 +69,8 @@ class ButtonConfigServiceTest {
     }
 
     @Test
-    fun `shape is FIREWORKS within 1 day of the fourth`() {
-        val dateTimes = (4 - 1..4 + 1).map { day ->
+    fun `shape is FIREWORKS within 2 days of the fourth`() {
+        val dateTimes = (4 - 2..4 + 2).map { day ->
             LocalDateTime.of(2023, 7, day, 0, 1)
         }
         dateTimes.forEach { dateTime ->

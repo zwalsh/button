@@ -53,7 +53,7 @@ class ButtonConfigService @Inject constructor(
             SHAMROCK
         } else if (withinDays(date, valentinesDay, 3)) {
             HEART
-        } else if (withinDays(date, fourthOfJuly, 1)) {
+        } else if (withinDays(date, fourthOfJuly, 2)) {
             FIREWORKS
         } else if (withinDays(date, christmas, 1)) {
             CHRISTMAS_TREE
