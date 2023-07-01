@@ -29,6 +29,7 @@ import sh.zachwal.button.admin.config.ButtonShape
 import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
+import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
@@ -58,6 +59,7 @@ class HomeController @Inject constructor(
         return when (shape) {
             CIRCLE -> throw IllegalArgumentException("No svg for circle")
             CUBE -> throw IllegalArgumentException("No svg for cube")
+            FIREWORKS -> throw IllegalArgumentException("No svg for fireworks")
             SHAMROCK -> "static/special/shamrock.svg"
             HEART -> "static/special/heart.svg"
             CHRISTMAS_TREE -> "static/special/christmas-tree.svg"
@@ -77,12 +79,18 @@ class HomeController @Inject constructor(
                     favicon()
                     sentryScript()
 
-                    link(href = "static/src/style.css", rel = "stylesheet")
+                    link(href = "static/src/css/style.css", rel = "stylesheet")
                     if (buttonShape.isSpecial()) {
-                        link(href = "static/src/special.css", rel = "stylesheet")
+                        link(href = "static/src/css/special.css", rel = "stylesheet")
                     }
                     if (buttonShape == CUBE) {
-                        link(href = "static/src/cube.css", rel = "stylesheet")
+                        link(href = "static/src/css/cube.css", rel = "stylesheet")
+                    }
+                    if (buttonShape == FIREWORKS) {
+                        link(href = "static/src/css/fireworks.css", rel = "stylesheet")
+                        script {
+                            src = "static/src/js/fireworks.js"
+                        }
                     }
 
                     script {
@@ -91,11 +99,18 @@ class HomeController @Inject constructor(
                         }
                     }
                     script {
-                        src = "static/src/main.js"
+                        src = "static/src/js/main.js"
                     }
                 }
                 body {
                     div(classes = "container") {
+                        // must go first
+                        if (buttonShape == FIREWORKS) {
+                            div(classes = "fw") { }
+                            div(classes = "fw") { }
+                            div(classes = "fw") { }
+                        }
+
                         if (buttonShape.isSpecial()) {
                             div(classes = "specialContainer") {
                                 img(src = svgForShape(buttonShape)) {
@@ -124,6 +139,7 @@ class HomeController @Inject constructor(
                             id = "buttonPressCountWhite"
                             +"BUTTON PRESSERS: 0"
                         }
+
                         div {
                             id = "signup"
                             +"Love the button? "

@@ -3,6 +3,7 @@ package sh.zachwal.button.admin.config
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
+import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
@@ -10,6 +11,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month.DECEMBER
 import java.time.Month.FEBRUARY
+import java.time.Month.JULY
 import java.time.Month.MARCH
 import java.time.MonthDay
 import java.time.temporal.TemporalAdjusters
@@ -19,6 +21,7 @@ import kotlin.math.abs
 
 private val valentinesDay = MonthDay.of(FEBRUARY, 14)
 private val stPatricksDay = MonthDay.of(MARCH, 17)
+private val fourthOfJuly = MonthDay.of(JULY, 4)
 private val christmas = MonthDay.of(DECEMBER, 25)
 
 @Singleton
@@ -34,6 +37,7 @@ class ButtonConfigService @Inject constructor(
         logger.info("Set override to $shape")
     }
 
+    // This is in memory but should eventually probably go in the database
     fun getOverride(): ButtonShape? = buttonShapeOverride
 
     fun currentShape(): ButtonShape {
@@ -49,6 +53,8 @@ class ButtonConfigService @Inject constructor(
             SHAMROCK
         } else if (withinDays(date, valentinesDay, 3)) {
             HEART
+        } else if (withinDays(date, fourthOfJuly, 2)) {
+            FIREWORKS
         } else if (withinDays(date, christmas, 1)) {
             CHRISTMAS_TREE
         } else if (withinDays(date, thanksgivingDay, 1)) {

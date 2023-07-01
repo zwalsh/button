@@ -145,7 +145,7 @@ class PhoneController @Inject constructor(private val phoneBookService: PhoneBoo
                         title {
                             +"Yay!"
                         }
-                        link(href = "/static/src/button.css", rel = "stylesheet")
+                        link(href = "/static/src/css/button.css", rel = "stylesheet")
                         headSetup()
                     }
                     body {

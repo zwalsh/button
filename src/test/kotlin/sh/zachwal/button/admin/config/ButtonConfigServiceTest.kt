@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
+import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import java.time.LocalDateTime
@@ -64,6 +65,19 @@ class ButtonConfigServiceTest {
             val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
 
             assertEquals(SHAMROCK, buttonConfigService.currentShape())
+        }
+    }
+
+    @Test
+    fun `shape is FIREWORKS within 2 days of the fourth`() {
+        val dateTimes = (4 - 2..4 + 2).map { day ->
+            LocalDateTime.of(2023, 7, day, 0, 1)
+        }
+        dateTimes.forEach { dateTime ->
+            val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
+            val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
+
+            assertEquals(FIREWORKS, buttonConfigService.currentShape())
         }
     }
 
