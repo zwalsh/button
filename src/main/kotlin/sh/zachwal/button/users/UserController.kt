@@ -26,11 +26,16 @@ import kotlinx.html.form
 import kotlinx.html.h1
 import kotlinx.html.head
 import kotlinx.html.label
+import kotlinx.html.li
 import kotlinx.html.passwordInput
 import kotlinx.html.submitInput
 import kotlinx.html.textInput
 import kotlinx.html.title
+import kotlinx.html.ul
+import sh.zachwal.button.auth.currentUser
 import sh.zachwal.button.controller.Controller
+import sh.zachwal.button.roles.Role.ADMIN
+import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.session.SessionService
 import sh.zachwal.button.session.principals.UserSessionPrincipal
 import sh.zachwal.button.shared_html.headSetup
@@ -40,6 +45,7 @@ import javax.inject.Inject
 class UserController @Inject constructor(
     private val sessionService: SessionService,
     private val userService: UserService,
+    private val roleService: RoleService,
 ) {
     internal fun Routing.loginRoutes() {
         route("/login") {
@@ -133,23 +139,41 @@ class UserController @Inject constructor(
 
     internal fun Routing.profileRoute() {
         route("/profile") {
+            // not approvedUserRoute because registered (& not "approved") users can see this
             authenticate {
                 get {
                     val p = call.sessions.get<UserSessionPrincipal>()
+                    if (p == null) {
+                        call.respondRedirect("/login")
+                        return@get
+                    }
+                    val user = currentUser(call, userService)
+
                     call.respondHtml {
                         head {
                             title {
-                                +"${p?.user}'s Profile"
+                                +"${p.user}'s Profile"
                             }
                             headSetup()
                         }
                         body {
                             div(classes = "container") {
                                 h1 {
-                                    +"${greeting()}, ${p?.user}!"
+                                    +"${greeting()}, ${user.username}!"
                                 }
-                                a(href = "/logout") {
-                                    +"Log out"
+                                ul {
+                                    if (roleService.hasRole(user, ADMIN)) {
+                                        li {
+                                            a(href = "/admin") {
+                                                +"Admin Page"
+                                            }
+                                        }
+                                    }
+                                    li {
+                                        a(href = "/logout") {
+                                            +"Log out"
+                                        }
+                                    }
                                 }
                             }
                         }

@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class RoleService @Inject constructor(private val userRoleDAO: UserRoleDAO, private val userDAO: UserDAO) {
 
-    private fun hasRole(user: User, role: Role): Boolean = userRoleDAO.rolesForUser(user).any { it.role == role }
+    fun hasRole(user: User, role: Role): Boolean = userRoleDAO.rolesForUser(user).any { it.role == role }
 
     fun firstRoleOrNull(user: User, roles: Set<Role>): Role? = roles.firstOrNull { r ->
         hasRole(user, r)

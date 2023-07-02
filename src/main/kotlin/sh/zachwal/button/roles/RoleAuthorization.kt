@@ -59,6 +59,7 @@ class RoleAuthorization internal constructor(config: Configuration) {
                 logger.info("Passing user ${session.user} with role $it")
                 return@intercept
             } ?: run {
+                logger.info("Failing user ${session.user} for roles $roles")
                 call.respond(HttpStatusCode.Forbidden)
                 finish()
             }
