@@ -128,6 +128,11 @@ class AdminController @Inject constructor(
                                         +"Press Stats"
                                     }
                                 }
+                                li {
+                                    a(href = "/admin/recent-presses") {
+                                        +"Recent Presses"
+                                    }
+                                }
                             }
                             h2 {
                                 +"Config"
