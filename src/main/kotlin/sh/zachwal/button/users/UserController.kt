@@ -36,7 +36,6 @@ import sh.zachwal.button.auth.currentUser
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.roles.Role.ADMIN
 import sh.zachwal.button.roles.RoleService
-import sh.zachwal.button.roles.approvedUserRoute
 import sh.zachwal.button.session.SessionService
 import sh.zachwal.button.session.principals.UserSessionPrincipal
 import sh.zachwal.button.shared_html.headSetup

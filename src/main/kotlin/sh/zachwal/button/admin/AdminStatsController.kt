@@ -3,7 +3,6 @@ package sh.zachwal.button.admin
 import com.google.inject.Inject
 import io.ktor.application.call
 import io.ktor.html.respondHtml
-import io.ktor.routing.Route
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import kotlinx.html.TBODY
