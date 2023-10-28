@@ -31,6 +31,7 @@ import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
 import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
+import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
 import sh.zachwal.button.admin.config.isSpecial
@@ -64,6 +65,7 @@ class HomeController @Inject constructor(
             HEART -> "static/special/heart.svg"
             CHRISTMAS_TREE -> "static/special/christmas-tree.svg"
             TURKEY -> "static/special/turkey.svg"
+            PUMPKIN -> "static/special/pumpkin.svg"
         }
     }
 
