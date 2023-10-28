@@ -8,6 +8,7 @@ import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
 import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
+import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import java.time.LocalDateTime
 
@@ -78,6 +79,26 @@ class ButtonConfigServiceTest {
             val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
 
             assertEquals(FIREWORKS, buttonConfigService.currentShape())
+        }
+    }
+
+    @Test
+    fun `shape is PUMPKIN within 3 days of halloween`() {
+        val dateTimes = listOf(
+            LocalDateTime.of(2023, 10, 28, 0, 1),
+            LocalDateTime.of(2023, 10, 29, 0, 1),
+            LocalDateTime.of(2023, 10, 30, 0, 1),
+            LocalDateTime.of(2023, 10, 31, 0, 1),
+            LocalDateTime.of(2023, 11, 1, 0, 1),
+            LocalDateTime.of(2023, 11, 2, 0, 1),
+            LocalDateTime.of(2023, 11, 3, 0, 1),
+        )
+
+        dateTimes.forEach { dateTime ->
+            val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
+            val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
+
+            assertEquals(PUMPKIN, buttonConfigService.currentShape())
         }
     }
 

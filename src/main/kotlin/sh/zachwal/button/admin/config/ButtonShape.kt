@@ -11,6 +11,7 @@ enum class ButtonShape {
     HEART,
     CHRISTMAS_TREE,
     TURKEY,
+    PUMPKIN,
     FIREWORKS,
 }
 

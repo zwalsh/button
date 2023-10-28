@@ -5,6 +5,7 @@ import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
+import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
 import java.time.DayOfWeek
@@ -13,6 +14,7 @@ import java.time.Month.DECEMBER
 import java.time.Month.FEBRUARY
 import java.time.Month.JULY
 import java.time.Month.MARCH
+import java.time.Month.OCTOBER
 import java.time.MonthDay
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
@@ -22,6 +24,7 @@ import kotlin.math.abs
 private val valentinesDay = MonthDay.of(FEBRUARY, 14)
 private val stPatricksDay = MonthDay.of(MARCH, 17)
 private val fourthOfJuly = MonthDay.of(JULY, 4)
+private val halloween = MonthDay.of(OCTOBER, 31)
 private val christmas = MonthDay.of(DECEMBER, 25)
 
 @Singleton
@@ -59,6 +62,8 @@ class ButtonConfigService @Inject constructor(
             CHRISTMAS_TREE
         } else if (withinDays(date, thanksgivingDay, 1)) {
             TURKEY
+        } else if (withinDays(date, halloween, 3)) {
+            PUMPKIN
         } else {
             CIRCLE
         }
