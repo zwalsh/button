@@ -17,11 +17,19 @@ class WrappedService @Inject constructor(
         val end = LocalDate.of(year, Month.DECEMBER, 15).atStartOfDay(easternTime).toInstant()
 
         val presses = pressDAO.selectBetweenForContact(start, end, id.toInt())
+        val countByDay = presses.groupBy {
+            LocalDate.ofInstant(it.time, easternTime).dayOfWeek
+        }
+        val favoriteDay = countByDay.entries.maxByOrNull {
+            it.value.count()
+        }!!
 
         return Wrapped(
             year = year,
             id = id,
-            count = presses.count()
+            count = presses.count(),
+            favoriteDay = favoriteDay.key,
+            favoriteDayCount = favoriteDay.value.count()
         )
     }
 }

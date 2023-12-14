@@ -1,0 +1,7 @@
+body, html {
+  scroll-snap-type: y mandatory;
+}
+
+.snapChild {
+  scroll-snap-align: start;
+}
