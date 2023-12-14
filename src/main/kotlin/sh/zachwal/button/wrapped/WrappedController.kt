@@ -47,7 +47,7 @@ class WrappedController @Inject constructor(
                     }
                     body {
                         div(classes = "container") {
-                            wrappedSection {
+                            wrappedSection(cardClasses = "card vw-100 m-3 p-3 d-flex justify-content-center") {
                                 h1 {
                                     +"Hello, ${wrapped.id}!"
                                 }
@@ -77,9 +77,12 @@ class WrappedController @Inject constructor(
         }
     }
 
-    private fun DIV.wrappedSection(content: DIV.() -> Unit) {
+    private fun DIV.wrappedSection(
+        cardClasses: String = "card vw-100 m-3 p-3",
+        content: DIV.() -> Unit
+    ) {
         div(classes = "row vh-75 snapChild") {
-            div(classes = "card vw-100 m-3 p-3") {
+            div(classes = cardClasses) {
                 content()
             }
         }
