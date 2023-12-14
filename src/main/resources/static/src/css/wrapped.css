@@ -1,5 +1,6 @@
 body, html {
   scroll-snap-type: y mandatory;
+  background-color: #121444;
 }
 
 .snapChild {
@@ -8,4 +9,12 @@ body, html {
 
 .vh-90 {
   height: 90vh;
+}
+
+.welcome h1 {
+  font-size: 35vw;
+}
+
+.count h1 {
+  font-size: 35vw;
 }

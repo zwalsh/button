@@ -11,6 +11,7 @@ import kotlinx.html.body
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.h2
+import kotlinx.html.h3
 import kotlinx.html.head
 import kotlinx.html.link
 import kotlinx.html.p
@@ -47,20 +48,29 @@ class WrappedController @Inject constructor(
                     }
                     body {
                         div(classes = "container") {
-                            wrappedSection(cardClasses = "card vw-100 m-3 p-3 d-flex justify-content-center") {
+                            wrappedSection(cardClasses = "welcome d-flex justify-content-center") {
                                 h1 {
-                                    +"Hello, ${wrapped.id}!"
+                                    +"${wrapped.year}"
                                 }
                                 h2 {
+                                    +"Hello, ${wrapped.id}!"
+                                }
+                                h3 {
                                     +"Welcome to your Button Wrapped, ${wrapped.year}."
                                 }
                             }
-                            wrappedSection {
-                                p {
-                                    +"You pressed the Button ${wrapped.count} times this year."
+                            wrappedSection(cardClasses = "count d-flex justify-content-between") {
+                                h3 {
+                                    +"You pressed the Button"
+                                }
+                                h1(classes = "text-center") {
+                                    +"${wrapped.count}"
+                                }
+                                h3(classes = "text-right") {
+                                    +"times this year."
                                 }
                             }
-                            wrappedSection {
+                            wrappedSection(cardClasses = "dayOfWeek") {
                                 p {
                                     +"You really loved ${favoriteDayString}!"
                                 }
@@ -78,11 +88,11 @@ class WrappedController @Inject constructor(
     }
 
     private fun DIV.wrappedSection(
-        cardClasses: String = "card vw-100 m-3 p-3",
+        cardClasses: String = "",
         content: DIV.() -> Unit
     ) {
         div(classes = "row vh-90 snapChild") {
-            div(classes = cardClasses) {
+            div(classes = "card vw-100 m-3 p-3 $cardClasses") {
                 content()
             }
         }
