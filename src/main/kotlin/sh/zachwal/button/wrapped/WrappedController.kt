@@ -5,6 +5,7 @@ import io.ktor.html.respondHtml
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.route
+import io.ktor.util.getOrFail
 import kotlinx.html.body
 import kotlinx.html.div
 import kotlinx.html.h1
@@ -17,18 +18,22 @@ import javax.inject.Inject
 
 
 @Controller
-class WrappedController @Inject constructor() {
+class WrappedController @Inject constructor(
+    private val wrappedService: WrappedService
+) {
 
     internal fun Routing.wrappedRoute() {
         route("/wrapped/{year}/{id}") {
             get {
-                val year = call.parameters["year"]
-                val id = call.parameters["id"]
+                val year = call.parameters.getOrFail("year").toInt()
+                val id = call.parameters.getOrFail("id")
+
+                val wrapped = wrappedService.wrapped(year, id)
 
                 call.respondHtml {
                     head {
                         title {
-                            +"Wrapped"
+                            +"${wrapped.year} Wrapped"
                         }
                         headSetup()
                     }
@@ -36,10 +41,10 @@ class WrappedController @Inject constructor() {
                         div(classes = "container") {
                             div(classes = "row justify-content-center") {
                                 h1 {
-                                    +"Hello, $id!"
+                                    +"Hello, ${wrapped.id}!"
                                 }
                                 h2 {
-                                    +"Welcome to your Button Wrapped, $year."
+                                    +"Welcome to your Button Wrapped, ${wrapped.year}."
                                 }
                             }
                         }
