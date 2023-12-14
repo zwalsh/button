@@ -5,3 +5,7 @@ body, html {
 .snapChild {
   scroll-snap-align: start;
 }
+
+.vh-90 {
+  height: 90vh;
+}

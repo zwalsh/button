@@ -81,7 +81,7 @@ class WrappedController @Inject constructor(
         cardClasses: String = "card vw-100 m-3 p-3",
         content: DIV.() -> Unit
     ) {
-        div(classes = "row vh-75 snapChild") {
+        div(classes = "row vh-90 snapChild") {
             div(classes = cardClasses) {
                 content()
             }
