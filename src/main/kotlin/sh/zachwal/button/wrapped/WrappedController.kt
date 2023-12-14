@@ -11,6 +11,7 @@ import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.h2
 import kotlinx.html.head
+import kotlinx.html.p
 import kotlinx.html.title
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.shared_html.headSetup
@@ -45,6 +46,10 @@ class WrappedController @Inject constructor(
                                 }
                                 h2 {
                                     +"Welcome to your Button Wrapped, ${wrapped.year}."
+                                }
+
+                                p {
+                                    +"You pressed the Button ${wrapped.count} times this year."
                                 }
                             }
                         }

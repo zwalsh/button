@@ -21,6 +21,11 @@ interface PressDAO {
     fun selectSince(time: Instant): List<Press>
 
     @SqlQuery(
+        "select * from public.press where time > ? and time < ? and contact_id = ? order by time"
+    )
+    fun selectBetweenForContact(begin: Instant, end: Instant, contactId: Int): List<Press>
+
+    @SqlQuery(
         "select count(*) from public.press where time > ?"
     )
     fun countSince(time: Instant): Long
