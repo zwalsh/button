@@ -49,7 +49,7 @@ class WrappedController @Inject constructor(
                     body {
                         div(classes = "container") {
                             wrappedSection(cardClasses = "welcome d-flex justify-content-center") {
-                                h1 {
+                                h1(classes = "year") {
                                     +"${wrapped.year}"
                                 }
                                 h2 {
@@ -60,21 +60,21 @@ class WrappedController @Inject constructor(
                                 }
                             }
                             wrappedSection(cardClasses = "count d-flex justify-content-between") {
-                                h3 {
-                                    +"You pressed the Button"
+                                h3(classes = "top-text") {
+                                    +"You pressed the Button..."
                                 }
                                 h1(classes = "text-center") {
                                     +"${wrapped.count}"
                                 }
-                                h3(classes = "text-right") {
-                                    +"times this year."
+                                h3(classes = "bottom-text") {
+                                    +"...times this year."
                                 }
                             }
                             wrappedSection(cardClasses = "dayOfWeek") {
-                                p {
+                                h3(classes = "top-text") {
                                     +"You really loved ${favoriteDayString}!"
                                 }
-                                p {
+                                h3(classes = "bottom-text") {
                                     +("You pressed the Button ${wrapped.favoriteDayCount} times " +
                                         "on" +
                                         " ${favoriteDayString}s.")

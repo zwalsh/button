@@ -13,8 +13,18 @@ body, html {
 
 .welcome h1 {
   font-size: 35vw;
+  text-shadow: 3px 3px 1px gray;
 }
 
 .count h1 {
   font-size: 35vw;
+}
+
+.top-text {
+  margin-top: 20px;
+}
+
+.bottom-text {
+  margin-bottom: 20px;
+  text-align: right;
 }
