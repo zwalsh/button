@@ -48,7 +48,7 @@ class WrappedController @Inject constructor(
                 call.respondHtml {
                     head {
                         title {
-                            +"${wrapped.year} Wrapped"
+                            +"${wrapped.name}'s ${wrapped.year} Wrapped"
                         }
                         headSetup()
                         link(href = "/static/src/css/wrapped.css", rel = "stylesheet")
