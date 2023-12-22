@@ -16,6 +16,7 @@ import kotlinx.html.h3
 import kotlinx.html.head
 import kotlinx.html.id
 import kotlinx.html.link
+import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.title
 import sh.zachwal.button.controller.Controller
@@ -50,6 +51,9 @@ class WrappedController @Inject constructor(
                         }
                         headSetup()
                         link(href = "/static/src/css/wrapped.css", rel = "stylesheet")
+                        script {
+                            src = "/static/src/js/wrapped.js"
+                        }
                     }
                     body {
                         div(classes = "container") {
