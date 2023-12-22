@@ -21,11 +21,7 @@ import kotlinx.html.span
 import kotlinx.html.title
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.shared_html.headSetup
-import java.time.format.TextStyle.FULL
-import java.util.Locale
 import javax.inject.Inject
-
-
 
 @Controller
 class WrappedController @Inject constructor(
@@ -100,7 +96,6 @@ class WrappedController @Inject constructor(
                                     }
                                 }
                                 h3 {
-
                                 }
                             }
                             wrappedSection(cardClasses = "day-count justify-content-between") {
@@ -137,7 +132,6 @@ class WrappedController @Inject constructor(
                                     }
                                 }
                                 h3 {
-
                                 }
                             }
                             wrappedSection(cardClasses = "time-count justify-content-between") {

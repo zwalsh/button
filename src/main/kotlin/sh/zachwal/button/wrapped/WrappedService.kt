@@ -9,7 +9,6 @@ import java.time.format.TextStyle.FULL
 import java.util.Locale
 import javax.inject.Inject
 
-
 class WrappedService @Inject constructor(
     private val pressDAO: PressDAO
 ) {
@@ -34,14 +33,13 @@ class WrappedService @Inject constructor(
             it.value.count()
         }!!
         val hour = favoriteHour.key
-        val favoriteHour12Hour = if (hour % 12 == 0) 12 else hour % 12;
+        val favoriteHour12Hour = if (hour % 12 == 0) 12 else hour % 12
         val favoriteHourAmPm = if (favoriteHour.key < 12) {
             "AM"
         } else {
             "PM"
         }
         val favoriteHourString = "$favoriteHour12Hour$favoriteHourAmPm"
-
 
         return Wrapped(
             year = year,
