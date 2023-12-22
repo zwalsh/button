@@ -76,7 +76,7 @@ class WrappedController @Inject constructor(
                                             +"PRESS"
                                         }
                                     }
-                                    h1(classes = "d-none") {
+                                    h1(classes = "d-none animate-count-up") {
                                         +"${wrapped.count}"
                                     }
                                 }
@@ -113,7 +113,7 @@ class WrappedController @Inject constructor(
                                             +"PRESS"
                                         }
                                     }
-                                    h1(classes = "d-none") {
+                                    h1(classes = "d-none animate-count-up") {
                                         +"${wrapped.favoriteDayCount}"
                                     }
                                 }
