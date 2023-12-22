@@ -20,6 +20,10 @@ body, html {
   font-size: 35vw;
 }
 
+.day-count h1 {
+  font-size: 35vw;
+}
+
 .top-text {
   margin-top: 20px;
 }

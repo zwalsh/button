@@ -4,6 +4,8 @@ import sh.zachwal.button.db.dao.PressDAO
 import java.time.LocalDate
 import java.time.Month
 import java.time.ZoneId
+import java.time.format.TextStyle.FULL
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -28,7 +30,7 @@ class WrappedService @Inject constructor(
             year = year,
             id = id,
             count = presses.count(),
-            favoriteDay = favoriteDay.key,
+            favoriteDay = favoriteDay.key.getDisplayName(FULL, Locale.US),
             favoriteDayCount = favoriteDay.value.count()
         )
     }

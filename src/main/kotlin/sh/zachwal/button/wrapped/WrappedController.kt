@@ -42,8 +42,6 @@ class WrappedController @Inject constructor(
 
                 val wrapped = wrappedService.wrapped(year, wrappedId)
 
-                val favoriteDayString = wrapped.favoriteDay.getDisplayName(FULL, Locale.US)
-
                 call.respondHtml {
                     head {
                         title {
@@ -57,7 +55,7 @@ class WrappedController @Inject constructor(
                     }
                     body {
                         div(classes = "container") {
-                            wrappedSection(cardClasses = "welcome d-flex justify-content-center") {
+                            wrappedSection(cardClasses = "welcome justify-content-center") {
                                 h1(classes = "year") {
                                     +"${wrapped.year}"
                                 }
@@ -68,11 +66,10 @@ class WrappedController @Inject constructor(
                                     +"Welcome to your Button Wrapped, ${wrapped.year}."
                                 }
                             }
-                            wrappedSection(cardClasses = "count d-flex justify-content-between") {
+                            wrappedSection(cardClasses = "count justify-content-between") {
                                 h3(classes = "top-text") {
                                     +"You pressed the Button..."
                                 }
-
                                 div(classes = "d-flex flex-row justify-content-center") {
                                     button(classes = "pressMePls") {
                                         span {
@@ -83,23 +80,45 @@ class WrappedController @Inject constructor(
                                         +"${wrapped.count}"
                                     }
                                 }
-
-
-//                                h1(classes = "text-center") {
-//                                    +"${wrapped.count}"
-//                                }
                                 h3(classes = "bottom-text") {
                                     +"...times this year."
                                 }
                             }
-                            wrappedSection(cardClasses = "dayOfWeek") {
+                            wrappedSection(cardClasses = "day justify-content-between") {
                                 h3(classes = "top-text") {
-                                    +"You really loved ${favoriteDayString}!"
+                                    +"Your favorite day was..."
+                                }
+
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none") {
+                                        +"${wrapped.favoriteDay}!"
+                                    }
+                                }
+                                h3 {
+
+                                }
+                            }
+                            wrappedSection(cardClasses = "day-count justify-content-between") {
+                                h3(classes = "top-text") {
+                                    +"You pressed the Button..."
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none") {
+                                        +"${wrapped.favoriteDayCount}"
+                                    }
                                 }
                                 h3(classes = "bottom-text") {
-                                    +("You pressed the Button ${wrapped.favoriteDayCount} times " +
-                                        "on" +
-                                        " ${favoriteDayString}s.")
+                                    +"...times on ${wrapped.favoriteDay}."
                                 }
                             }
                         }
@@ -114,7 +133,7 @@ class WrappedController @Inject constructor(
         content: DIV.() -> Unit
     ) {
         div(classes = "row vh-90 snapChild") {
-            div(classes = "card vw-100 m-3 p-3 $cardClasses") {
+            div(classes = "card vw-100 m-3 p-3 d-flex $cardClasses") {
                 content()
             }
         }

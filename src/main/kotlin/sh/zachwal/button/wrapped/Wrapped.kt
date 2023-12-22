@@ -6,6 +6,6 @@ data class Wrapped(
     val year: Int,
     val id: String,
     val count: Int,
-    val favoriteDay: DayOfWeek,
+    val favoriteDay: String,
     val favoriteDayCount: Int
 )
