@@ -8,13 +8,15 @@ import io.ktor.routing.route
 import io.ktor.util.getOrFail
 import kotlinx.html.DIV
 import kotlinx.html.body
+import kotlinx.html.button
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.h2
 import kotlinx.html.h3
 import kotlinx.html.head
+import kotlinx.html.id
 import kotlinx.html.link
-import kotlinx.html.p
+import kotlinx.html.span
 import kotlinx.html.title
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.shared_html.headSetup
@@ -23,18 +25,21 @@ import java.util.Locale
 import javax.inject.Inject
 
 
+
 @Controller
 class WrappedController @Inject constructor(
     private val wrappedService: WrappedService
 ) {
 
     internal fun Routing.wrappedRoute() {
-        route("/wrapped/{year}/{id}") {
+        val wrappedIdParam = "wrappedId"
+        val yearParam = "year"
+        route("/wrapped/{$yearParam}/{$wrappedIdParam}") {
             get {
-                val year = call.parameters.getOrFail("year").toInt()
-                val id = call.parameters.getOrFail("id")
+                val year = call.parameters.getOrFail(yearParam).toInt()
+                val wrappedId = call.parameters.getOrFail(wrappedIdParam)
 
-                val wrapped = wrappedService.wrapped(year, id)
+                val wrapped = wrappedService.wrapped(year, wrappedId)
 
                 val favoriteDayString = wrapped.favoriteDay.getDisplayName(FULL, Locale.US)
 
@@ -63,9 +68,22 @@ class WrappedController @Inject constructor(
                                 h3(classes = "top-text") {
                                     +"You pressed the Button..."
                                 }
-                                h1(classes = "text-center") {
-                                    +"${wrapped.count}"
+
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none") {
+                                        +"${wrapped.count}"
+                                    }
                                 }
+
+
+//                                h1(classes = "text-center") {
+//                                    +"${wrapped.count}"
+//                                }
                                 h3(classes = "bottom-text") {
                                     +"...times this year."
                                 }
