@@ -17,8 +17,10 @@ class WrappedService @Inject constructor(
 ) {
 
     fun wrapped(year: Int, id: String): Wrapped {
-        val contact = contactDAO.findContact(id.toInt()) ?: throw NotFoundException("Could not " +
-            "find contact with id $id.")
+        val contact = contactDAO.findContact(id.toInt()) ?: throw NotFoundException(
+            "Could not " +
+                "find contact with id $id."
+        )
 
         val easternTime = ZoneId.of("America/New_York")
         val start = LocalDate.of(year, Month.JANUARY, 1).atStartOfDay(easternTime).toInstant()

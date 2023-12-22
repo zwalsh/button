@@ -43,7 +43,6 @@ class WrappedController @Inject constructor(
                     return@get
                 }
 
-
                 val wrapped = wrappedService.wrapped(year, wrappedId)
 
                 call.respondHtml {
