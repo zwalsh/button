@@ -121,6 +121,43 @@ class WrappedController @Inject constructor(
                                     +"...times on ${wrapped.favoriteDay}."
                                 }
                             }
+                            wrappedSection(cardClasses = "time-of-day justify-content-between") {
+                                h3(classes = "top-text") {
+                                    +"Your favorite time of day was..."
+                                }
+
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none") {
+                                        +"${wrapped.favoriteHourString}!"
+                                    }
+                                }
+                                h3 {
+
+                                }
+                            }
+                            wrappedSection(cardClasses = "time-count justify-content-between") {
+                                h3(classes = "top-text") {
+                                    +"You pressed the Button..."
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none animate-count-up") {
+                                        +"${wrapped.favoriteHourCount}"
+                                    }
+                                }
+                                h3(classes = "bottom-text") {
+                                    +"...times at ${wrapped.favoriteHourString}."
+                                }
+                            }
                         }
                     }
                 }

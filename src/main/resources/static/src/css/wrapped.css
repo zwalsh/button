@@ -20,7 +20,22 @@ body, html {
   font-size: 35vw;
 }
 
+
+/* Day of week could be 10 characters */
+.day h1 {
+  font-size: 12vw;
+}
+
 .day-count h1 {
+  font-size: 35vw;
+}
+
+/* time of day could be 5 characters */
+.time-of-day h1 {
+  font-size: 25vw;
+}
+
+.time-count h1 {
   font-size: 35vw;
 }
 
