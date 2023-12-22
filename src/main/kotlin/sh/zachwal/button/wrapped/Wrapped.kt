@@ -2,7 +2,7 @@ package sh.zachwal.button.wrapped
 
 data class Wrapped(
     val year: Int,
-    val id: String,
+    val name: String,
     val count: Int,
     val favoriteDay: String,
     val favoriteDayCount: Int,

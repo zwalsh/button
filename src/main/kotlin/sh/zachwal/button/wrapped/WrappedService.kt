@@ -1,5 +1,7 @@
 package sh.zachwal.button.wrapped
 
+import io.ktor.features.NotFoundException
+import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.PressDAO
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -10,10 +12,14 @@ import java.util.Locale
 import javax.inject.Inject
 
 class WrappedService @Inject constructor(
-    private val pressDAO: PressDAO
+    private val pressDAO: PressDAO,
+    private val contactDAO: ContactDAO,
 ) {
 
     fun wrapped(year: Int, id: String): Wrapped {
+        val contact = contactDAO.findContact(id.toInt()) ?: throw NotFoundException("Could not " +
+            "find contact with id $id.")
+
         val easternTime = ZoneId.of("America/New_York")
         val start = LocalDate.of(year, Month.JANUARY, 1).atStartOfDay(easternTime).toInstant()
         val end = LocalDate.of(year, Month.DECEMBER, 15).atStartOfDay(easternTime).toInstant()
@@ -43,7 +49,7 @@ class WrappedService @Inject constructor(
 
         return Wrapped(
             year = year,
-            id = id,
+            name = contact.name,
             count = presses.size,
             favoriteDay = favoriteDay.key.getDisplayName(FULL, Locale.US),
             favoriteDayCount = favoriteDay.value.size,

@@ -2,6 +2,8 @@ package sh.zachwal.button.wrapped
 
 import io.ktor.application.call
 import io.ktor.html.respondHtml
+import io.ktor.http.HttpStatusCode
+import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.route
@@ -14,7 +16,6 @@ import kotlinx.html.h1
 import kotlinx.html.h2
 import kotlinx.html.h3
 import kotlinx.html.head
-import kotlinx.html.id
 import kotlinx.html.link
 import kotlinx.html.script
 import kotlinx.html.span
@@ -36,6 +37,13 @@ class WrappedController @Inject constructor(
                 val year = call.parameters.getOrFail(yearParam).toInt()
                 val wrappedId = call.parameters.getOrFail(wrappedIdParam)
 
+                // for testing
+                if (wrappedId.toInt() !in setOf(1, 2, 3, 9)) {
+                    call.respond(HttpStatusCode.NotFound, "Wrapped with id $wrappedId not found.")
+                    return@get
+                }
+
+
                 val wrapped = wrappedService.wrapped(year, wrappedId)
 
                 call.respondHtml {
@@ -56,7 +64,7 @@ class WrappedController @Inject constructor(
                                     +"${wrapped.year}"
                                 }
                                 h2 {
-                                    +"Hello, ${wrapped.id}!"
+                                    +"Hello, ${wrapped.name}!"
                                 }
                                 h3 {
                                     +"Welcome to your Button Wrapped, ${wrapped.year}."
