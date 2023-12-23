@@ -87,6 +87,11 @@ class WrappedController @Inject constructor(
                                     +"...times this year."
                                 }
                             }
+                            // Rank
+                            // Percent
+
+                            // Unique Days
+                            // Unique Days Rank
                             wrappedSection(cardClasses = "day justify-content-between") {
                                 h3(classes = "top-text") {
                                     +"Your favorite day was..."

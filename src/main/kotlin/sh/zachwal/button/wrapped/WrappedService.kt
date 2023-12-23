@@ -16,6 +16,10 @@ class WrappedService @Inject constructor(
     private val contactDAO: ContactDAO,
 ) {
 
+
+    /**
+     *  select count(*), name, rank() over (order by count(*) desc), percent_rank() over (order by count(*) desc) from contact c left join press p on p.contact_id = c.id where p.time > '2023-01-01' OR p is null group by c.name order by count desc;
+     */
     fun wrapped(year: Int, id: String): Wrapped {
         val contact = contactDAO.findContact(id.toInt()) ?: throw NotFoundException(
             "Could not " +
