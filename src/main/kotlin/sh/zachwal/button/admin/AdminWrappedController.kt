@@ -15,6 +15,7 @@ import kotlinx.html.div
 import kotlinx.html.form
 import kotlinx.html.h1
 import kotlinx.html.head
+import kotlinx.html.li
 import kotlinx.html.submitInput
 import kotlinx.html.tbody
 import kotlinx.html.td
@@ -22,6 +23,7 @@ import kotlinx.html.th
 import kotlinx.html.thead
 import kotlinx.html.title
 import kotlinx.html.tr
+import kotlinx.html.ul
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.db.jdbi.WrappedLink
 import sh.zachwal.button.roles.adminRoute
@@ -44,15 +46,25 @@ class AdminWrappedController @Inject constructor(
                 call.respondHtml {
                     head {
                         title {
-                            +"Wrapped"
+                            +"Wrapped Admin"
                         }
                         headSetup()
                     }
                     body {
                         div(classes = "container") {
                             h1(classes = "mt-4 text-center") {
-                                a(href = "/admin/wrapped/generate") {
-                                    +"Generate Page"
+                                +"Wrapped Admin"
+                            }
+                            ul {
+                                li {
+                                    a(href = "/admin/wrapped/generate") {
+                                        +"Generate Page"
+                                    }
+                                }
+                                li {
+                                    a(href = "/admin/wrapped/notify") {
+                                        +"Notify Page"
+                                    }
                                 }
                             }
                             h1(classes = "mt-4 text-center") {
@@ -112,6 +124,33 @@ class AdminWrappedController @Inject constructor(
             }
         }
     }
+
+    internal fun Routing.wrappedNotify() {
+        adminRoute("/admin/wrapped/notify") {
+            get {
+                call.respondHtml {
+                    head {
+                        title {
+                            +"Wrapped Notification"
+                        }
+                        headSetup()
+                    }
+                    body {
+                        form(method = FormMethod.post, classes = "mb-1") {
+                            submitInput(classes = "btn btn-primary") {
+                                value = "Send Links"
+                            }
+                        }
+                    }
+                }
+            }
+            post {
+                wrappedService.sendWrappedNotification()
+                call.respondRedirect("/admin/wrapped")
+            }
+        }
+    }
+
 
     private fun TBODY.wrappedLinkRow(wrappedLink: WrappedLink) {
         tr {

@@ -9,6 +9,7 @@ import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.Press
 import sh.zachwal.button.db.jdbi.WrappedLink
 import sh.zachwal.button.db.jdbi.WrappedRank
+import sh.zachwal.button.sms.ControlledContactMessagingService
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -44,7 +45,8 @@ class WrappedServiceTest {
             active = true
         )
     }
-    private val service = WrappedService(contactDao, wrappedDao)
+    private val messagingService: ControlledContactMessagingService = mockk()
+    private val service = WrappedService(contactDao, wrappedDao, messagingService, "localhost")
 
     @Test
     fun `includes count of presses`() {
