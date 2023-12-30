@@ -3,6 +3,7 @@ package sh.zachwal.button.wrapped
 import io.ktor.features.NotFoundException
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.PressDAO
+import sh.zachwal.button.db.dao.WrappedDAO
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
@@ -14,12 +15,9 @@ import javax.inject.Inject
 class WrappedService @Inject constructor(
     private val pressDAO: PressDAO,
     private val contactDAO: ContactDAO,
+    private val wrappedDAO: WrappedDAO
 ) {
 
-
-    /**
-     *  select count(*), name, rank() over (order by count(*) desc), percent_rank() over (order by count(*) desc) from contact c left join press p on p.contact_id = c.id where p.time > '2023-01-01' OR p is null group by c.name order by count desc;
-     */
     fun wrapped(year: Int, id: String): Wrapped {
         val contact = contactDAO.findContact(id.toInt()) ?: throw NotFoundException(
             "Could not " +
@@ -53,6 +51,14 @@ class WrappedService @Inject constructor(
         }
         val favoriteHourString = "$favoriteHour12Hour$favoriteHourAmPm"
 
+        val thisYear = LocalDate.of(year, 1, 1)
+        val nextYear = LocalDate.of(year + 1, 1, 1)
+        val wrappedRanks = wrappedDAO.wrappedRanks(
+            fromInstant = thisYear.atStartOfDay(easternTime).toInstant(),
+            toInstant = nextYear.atStartOfDay(easternTime).toInstant()
+        )
+        val wrappedRank = wrappedRanks.find { it.contactId == contact.id }!!
+
         return Wrapped(
             year = year,
             name = contact.name,
@@ -60,7 +66,8 @@ class WrappedService @Inject constructor(
             favoriteDay = favoriteDay.key.getDisplayName(FULL, Locale.US),
             favoriteDayCount = favoriteDay.value.size,
             favoriteHourString = favoriteHourString,
-            favoriteHourCount = favoriteHour.value.size
+            favoriteHourCount = favoriteHour.value.size,
+            rank = wrappedRank.rank
         )
     }
 }

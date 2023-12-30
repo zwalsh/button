@@ -16,6 +16,7 @@ import sh.zachwal.button.db.dao.SentMessageDAO
 import sh.zachwal.button.db.dao.SessionDAO
 import sh.zachwal.button.db.dao.UserDAO
 import sh.zachwal.button.db.dao.UserRoleDAO
+import sh.zachwal.button.db.dao.WrappedDAO
 import javax.sql.DataSource
 
 class JdbiModule : AbstractModule() {
@@ -51,4 +52,7 @@ class JdbiModule : AbstractModule() {
 
     @Provides
     fun contactTokenDao(jdbi: Jdbi): ContactTokenDAO = jdbi.onDemand()
+
+    @Provides
+    fun wrappedDao(jdbi: Jdbi): WrappedDAO = jdbi.onDemand()
 }

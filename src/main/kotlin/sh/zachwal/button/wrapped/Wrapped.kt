@@ -7,5 +7,6 @@ data class Wrapped(
     val favoriteDay: String,
     val favoriteDayCount: Int,
     val favoriteHourString: String,
-    val favoriteHourCount: Int
+    val favoriteHourCount: Int,
+    val rank: Int
 )

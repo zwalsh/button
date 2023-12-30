@@ -87,6 +87,24 @@ class WrappedController @Inject constructor(
                                     +"...times this year."
                                 }
                             }
+                            wrappedSection(cardClasses = "rank justify-content-between") {
+                                h3(classes = "top-text") {
+                                    +"You are the number..."
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none animate-count-up") {
+                                        +"${wrapped.rank}"
+                                    }
+                                }
+                                h3(classes = "bottom-text") {
+                                    +"...Button presser overall!"
+                                }
+                            }
                             // Rank
                             // Percent
 
