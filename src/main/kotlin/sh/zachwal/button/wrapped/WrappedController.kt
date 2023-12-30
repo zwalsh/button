@@ -266,7 +266,8 @@ class WrappedController @Inject constructor(
     }
 
     private fun DIV.wrappedSection(
-        cardClasses: String = "", content: DIV.() -> Unit
+        cardClasses: String = "",
+        content: DIV.() -> Unit
     ) {
         div(classes = "row vh-90 snapChild") {
             div(classes = "card vw-100 m-3 p-3 d-flex $cardClasses") {
