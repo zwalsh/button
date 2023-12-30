@@ -44,6 +44,11 @@
       "include": {
         "file": "9_create_contact_token.json"
       }
+    },
+    {
+      "include": {
+        "file": "10_create_wrapped_link.json"
+      }
     }
   ]
 }

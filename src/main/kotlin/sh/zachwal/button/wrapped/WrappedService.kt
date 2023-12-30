@@ -17,6 +17,10 @@ class WrappedService @Inject constructor(
     private val wrappedDAO: WrappedDAO
 ) {
 
+    fun createWrappedLinks() {
+
+    }
+
     fun wrapped(year: Int, id: String): Wrapped {
         val contact = contactDAO.findContact(id.toInt()) ?: throw NotFoundException(
             "Could not " +

@@ -1,0 +1,46 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "10",
+        "author": "zach",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "wrapped_link",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "varchar(64)",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "contact_id",
+                    "type": "int",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "year",
+                    "type": "int",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
