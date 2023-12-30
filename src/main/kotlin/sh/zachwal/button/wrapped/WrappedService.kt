@@ -58,10 +58,6 @@ class WrappedService @Inject constructor(
         )
         val wrappedRank = wrappedRanks.find { it.contactId == contact.id }!!
 
-        val percentile = (wrappedRank.percentile * 100)
-            .roundToInt()
-            .takeIf { it != 0 }
-            ?: 1 // round 0% to 1%
         return Wrapped(
             year = year,
             name = contact.name,
@@ -71,7 +67,16 @@ class WrappedService @Inject constructor(
             favoriteHourString = favoriteHourString,
             favoriteHourCount = favoriteHour.value.size,
             rank = wrappedRank.rank,
-            percentile = percentile
+            percentile = percentileAsInt(wrappedRank.percentile),
+            uniqueDaysCount = wrappedRank.uniqueDays,
+            uniqueDaysRank = wrappedRank.uniqueDaysRank,
+            uniqueDaysPercentile = percentileAsInt(wrappedRank.uniqueDaysPercentile)
         )
     }
+
+    private fun percentileAsInt(percentile: Double) =
+        (percentile * 100)
+            .roundToInt()
+            .takeIf { it != 0 }
+            ?: 1 // round 0% to 1%
 }

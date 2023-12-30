@@ -115,7 +115,7 @@ class WrappedController @Inject constructor(
                                             +"PRESS"
                                         }
                                     }
-                                    h1(classes = "d-none animate-count-up") {
+                                    h1(classes = "d-none") {
                                         +"${wrapped.percentile}%"
                                     }
                                 }
@@ -123,9 +123,66 @@ class WrappedController @Inject constructor(
                                     +"...of Button pressers!"
                                 }
                             }
-
-                            // Unique Days
-                            // Unique Days Rank
+                            wrappedSection(
+                                cardClasses = "uniqueDaysCount " +
+                                    "justify-content-between"
+                            ) {
+                                h3(classes = "top-text") {
+                                    +"You pressed the Button on..."
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none animate-count-up") {
+                                        +"${wrapped.uniqueDaysCount}"
+                                    }
+                                }
+                                h3(classes = "bottom-text") {
+                                    +"...different days!"
+                                }
+                            }
+                            wrappedSection(cardClasses = "uniqueDaysRank justify-content-between") {
+                                h3(classes = "top-text") {
+                                    +"That's number..."
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none animate-count-up") {
+                                        +"${wrapped.uniqueDaysRank}"
+                                    }
+                                }
+                                h3(classes = "bottom-text") {
+                                    +"...of all pressers!"
+                                }
+                            }
+                            wrappedSection(
+                                cardClasses = "uniqueDaysPercentile " +
+                                    "justify-content-between"
+                            ) {
+                                h3(classes = "top-text") {
+                                    +"You pressed on more days than..."
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none") {
+                                        +"${100 - wrapped.uniqueDaysPercentile}%"
+                                    }
+                                }
+                                h3(classes = "bottom-text") {
+                                    +"...of Button pressers!"
+                                }
+                            }
                             wrappedSection(cardClasses = "day justify-content-between") {
                                 h3(classes = "top-text") {
                                     +"Your favorite day was..."

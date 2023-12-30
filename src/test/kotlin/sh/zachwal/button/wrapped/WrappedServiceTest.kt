@@ -19,7 +19,14 @@ class WrappedServiceTest {
         every {
             wrappedRanks(any(), any())
         } returns listOf(
-            WrappedRank(1, 1, 0.01)
+            WrappedRank(
+                contactId = 1,
+                uniqueDays = 10,
+                uniqueDaysRank = 1,
+                uniqueDaysPercentile = 0.01,
+                rank = 1,
+                percentile = 0.01
+            )
         )
     }
     private val contactDao: ContactDAO = mockk {
