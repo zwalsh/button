@@ -105,8 +105,24 @@ class WrappedController @Inject constructor(
                                     +"...Button presser overall!"
                                 }
                             }
-                            // Rank
-                            // Percent
+                            wrappedSection(cardClasses = "percentile justify-content-between") {
+                                h3(classes = "top-text") {
+                                    +"You are in the top..."
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none animate-count-up") {
+                                        +"${wrapped.percentile}%"
+                                    }
+                                }
+                                h3(classes = "bottom-text") {
+                                    +"...of Button pressers!"
+                                }
+                            }
 
                             // Unique Days
                             // Unique Days Rank

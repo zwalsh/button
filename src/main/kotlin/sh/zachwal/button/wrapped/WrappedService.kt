@@ -11,6 +11,7 @@ import java.time.ZoneId
 import java.time.format.TextStyle.FULL
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 class WrappedService @Inject constructor(
     private val pressDAO: PressDAO,
@@ -59,6 +60,10 @@ class WrappedService @Inject constructor(
         )
         val wrappedRank = wrappedRanks.find { it.contactId == contact.id }!!
 
+        val percentile = (wrappedRank.percentile * 100)
+            .roundToInt()
+            .takeIf { it != 0 }
+            ?: 1 // round 0% to 1%
         return Wrapped(
             year = year,
             name = contact.name,
@@ -67,7 +72,8 @@ class WrappedService @Inject constructor(
             favoriteDayCount = favoriteDay.value.size,
             favoriteHourString = favoriteHourString,
             favoriteHourCount = favoriteHour.value.size,
-            rank = wrappedRank.rank
+            rank = wrappedRank.rank,
+            percentile = percentile
         )
     }
 }
