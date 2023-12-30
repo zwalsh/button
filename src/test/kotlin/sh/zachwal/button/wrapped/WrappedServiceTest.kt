@@ -7,6 +7,7 @@ import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.Press
+import sh.zachwal.button.db.jdbi.WrappedRank
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -14,7 +15,13 @@ import kotlin.test.assertEquals
 
 class WrappedServiceTest {
 
-    private val wrappedDao: WrappedDAO = mockk()
+    private val wrappedDao: WrappedDAO = mockk {
+        every {
+            wrappedRanks(any(), any())
+        } returns listOf(
+            WrappedRank(1, 1, 0.01)
+        )
+    }
     private val contactDao: ContactDAO = mockk {
         every { findContact(any()) } returns Contact(
             1,
