@@ -151,7 +151,6 @@ class AdminWrappedController @Inject constructor(
         }
     }
 
-
     private fun TBODY.wrappedLinkRow(wrappedLink: WrappedLink) {
         tr {
             th {

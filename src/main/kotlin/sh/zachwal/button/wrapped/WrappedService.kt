@@ -8,13 +8,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
-import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.WrappedLink
-import sh.zachwal.button.home.TOKEN_PARAMETER
 import sh.zachwal.button.random.RandomStringGenerator
 import sh.zachwal.button.sms.ControlledContactMessagingService
 import java.time.Instant
@@ -44,7 +41,6 @@ class WrappedService @Inject constructor(
     )
     private val scope = CoroutineScope(threadPool.asCoroutineDispatcher() + SupervisorJob())
     private val link = "https://$host"
-
 
     private val easternTime = ZoneId.of("America/New_York")
     private val randomStringGenerator = RandomStringGenerator()
@@ -108,7 +104,7 @@ class WrappedService @Inject constructor(
                 val contact = contactDAO.findContact(l.contactId)!!
                 val linkForContact = "$link/wrapped/$year/${l.wrappedId}"
                 val message = "What a year, ${contact.name}!" +
-                    " Check out your Button Wrapped, ${year}: $linkForContact"
+                    " Check out your Button Wrapped, $year: $linkForContact"
                 controlledContactMessagingService.sendMessage(
                     contact = contact,
                     body = message
