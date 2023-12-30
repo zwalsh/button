@@ -2,7 +2,6 @@ package sh.zachwal.button.wrapped
 
 import io.ktor.features.NotFoundException
 import sh.zachwal.button.db.dao.ContactDAO
-import sh.zachwal.button.db.dao.PressDAO
 import sh.zachwal.button.db.dao.WrappedDAO
 import java.time.LocalDate
 import java.time.LocalDateTime

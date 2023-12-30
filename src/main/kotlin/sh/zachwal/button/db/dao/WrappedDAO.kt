@@ -30,10 +30,8 @@ interface WrappedDAO {
     )
     fun wrappedRanks(fromInstant: Instant, toInstant: Instant): List<WrappedRank>
 
-
     @SqlQuery(
         "select * from public.press where time > ? and time < ? and contact_id = ? order by time"
     )
     fun selectBetweenForContact(begin: Instant, end: Instant, contactId: Int): List<Press>
-
 }
