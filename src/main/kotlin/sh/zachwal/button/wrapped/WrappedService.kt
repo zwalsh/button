@@ -3,6 +3,9 @@ package sh.zachwal.button.wrapped
 import io.ktor.features.NotFoundException
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
+import sh.zachwal.button.db.jdbi.WrappedLink
+import sh.zachwal.button.random.RandomStringGenerator
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
@@ -17,17 +20,63 @@ class WrappedService @Inject constructor(
     private val wrappedDAO: WrappedDAO
 ) {
 
+    private val randomStringGenerator = RandomStringGenerator()
+    private fun startOfYearInstant(year: Int): Instant =
+        LocalDate.of(year, Month.JANUARY, 1)
+            .atStartOfDay(easternTime)
+            .toInstant()
+
+    private fun endOfYearInstant(year: Int): Instant =
+        LocalDate.of(year + 1, Month.JANUARY, 1)
+            .atStartOfDay(easternTime)
+            .toInstant()
+
+    fun createWrappedLinks() {
+        val year = LocalDate.now().year
+        val links = wrappedDAO.wrappedLinks()
+
+        if (links.any { it.year == year }) {
+            throw RuntimeException("Links have already been generated for $year!")
+        }
+
+        val contactIds = wrappedDAO.contactsWithPresses(
+            fromInstant = startOfYearInstant(year),
+            toInstant = endOfYearInstant(year)
+        )
+
+        contactIds.forEach { contactId ->
+            val wrappedId = randomStringGenerator.newToken(20)
+            val wrappedLink = WrappedLink(
+                wrappedId,
+                year,
+                contactId
+            )
+
+            wrappedDAO.insertWrappedLink(wrappedLink)
+        }
+    }
+
+    fun listWrappedLinks(): List<WrappedLink> {
+        return wrappedDAO.wrappedLinks()
+    }
+
+    private val easternTime = ZoneId.of("America/New_York")
+
     fun wrapped(year: Int, id: String): Wrapped {
-        val contact = contactDAO.findContact(id.toInt()) ?: throw NotFoundException(
+        val wrappedLink = wrappedDAO.wrappedLinks()
+            .find { it.wrappedId == id }
+            ?: throw NotFoundException("Could not find Wrapped with id $id")
+
+        val contact = contactDAO.findContact(wrappedLink.contactId) ?: throw NotFoundException(
             "Could not " +
                 "find contact with id $id."
         )
 
-        val easternTime = ZoneId.of("America/New_York")
-        val start = LocalDate.of(year, Month.JANUARY, 1).atStartOfDay(easternTime).toInstant()
-        val end = LocalDate.of(year, Month.DECEMBER, 15).atStartOfDay(easternTime).toInstant()
-
-        val presses = wrappedDAO.selectBetweenForContact(start, end, id.toInt())
+        val presses = wrappedDAO.selectBetweenForContact(
+            begin = startOfYearInstant(year),
+            end = endOfYearInstant(year),
+            contactId = contact.id
+        )
         val countByDay = presses.groupBy {
             LocalDate.ofInstant(it.time, easternTime).dayOfWeek
         }
@@ -50,11 +99,9 @@ class WrappedService @Inject constructor(
         }
         val favoriteHourString = "$favoriteHour12Hour$favoriteHourAmPm"
 
-        val thisYear = LocalDate.of(year, 1, 1)
-        val nextYear = LocalDate.of(year + 1, 1, 1)
         val wrappedRanks = wrappedDAO.wrappedRanks(
-            fromInstant = thisYear.atStartOfDay(easternTime).toInstant(),
-            toInstant = nextYear.atStartOfDay(easternTime).toInstant()
+            fromInstant = startOfYearInstant(year),
+            toInstant = endOfYearInstant(year)
         )
         val wrappedRank = wrappedRanks.find { it.contactId == contact.id }!!
 
