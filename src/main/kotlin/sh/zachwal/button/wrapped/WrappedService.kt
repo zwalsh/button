@@ -1,10 +1,19 @@
 package sh.zachwal.button.wrapped
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder
+import com.google.inject.name.Named
 import io.ktor.features.NotFoundException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
 import sh.zachwal.button.db.jdbi.WrappedLink
 import sh.zachwal.button.random.RandomStringGenerator
+import sh.zachwal.button.sms.ControlledContactMessagingService
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -12,15 +21,39 @@ import java.time.Month
 import java.time.ZoneId
 import java.time.format.TextStyle.FULL
 import java.util.Locale
+import java.util.concurrent.Executors
 import javax.inject.Inject
+import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
 class WrappedService @Inject constructor(
     private val contactDAO: ContactDAO,
-    private val wrappedDAO: WrappedDAO
+    private val wrappedDAO: WrappedDAO,
+    private val controlledContactMessagingService: ControlledContactMessagingService,
+    @Named("host")
+    private val host: String,
 ) {
+    private val threadPool = Executors.newFixedThreadPool(
+        1,
+        ThreadFactoryBuilder()
+            .setNameFormat("wrapped-notifier-thread-%d")
+            .build()
+    )
+    private val scope = CoroutineScope(threadPool.asCoroutineDispatcher() + SupervisorJob())
+    private val link = "https://$host"
 
+    private val easternTime = ZoneId.of("America/New_York")
     private val randomStringGenerator = RandomStringGenerator()
+    private val logger = LoggerFactory.getLogger(WrappedService::class.java)
+
+    init {
+        Runtime.getRuntime().addShutdownHook(
+            thread(start = false) {
+                threadPool.shutdownNow()
+            }
+        )
+    }
+
     private fun startOfYearInstant(year: Int): Instant =
         LocalDate.of(year, Month.JANUARY, 1)
             .atStartOfDay(easternTime)
@@ -45,13 +78,14 @@ class WrappedService @Inject constructor(
         )
 
         contactIds.forEach { contactId ->
+            logger.info("Generating link for $contactId")
             val wrappedId = randomStringGenerator.newToken(20)
             val wrappedLink = WrappedLink(
                 wrappedId,
                 year,
                 contactId
             )
-
+            logger.info("Generated link with id $wrappedId for year $year.")
             wrappedDAO.insertWrappedLink(wrappedLink)
         }
     }
@@ -60,7 +94,27 @@ class WrappedService @Inject constructor(
         return wrappedDAO.wrappedLinks()
     }
 
-    private val easternTime = ZoneId.of("America/New_York")
+    fun sendWrappedNotification() {
+        val year = LocalDate.now().year
+        val links = wrappedDAO.wrappedLinks().filter { it.year == year }
+        logger.info("Sending ${links.size} wrapped notifications for year $year.")
+
+        scope.launch {
+            links.forEach { l ->
+                val contact = contactDAO.findContact(l.contactId)!!
+                val linkForContact = "$link/wrapped/$year/${l.wrappedId}"
+                val message = "What a year, ${contact.name}!" +
+                    " Check out your Button Wrapped, $year: $linkForContact"
+                logger.info("Sending message to ${contact.id}: $message")
+                controlledContactMessagingService.sendMessage(
+                    contact = contact,
+                    body = message
+                )
+                // Don't get our number blocked
+                delay(1000)
+            }
+        }
+    }
 
     fun wrapped(year: Int, id: String): Wrapped {
         val wrappedLink = wrappedDAO.wrappedLinks()

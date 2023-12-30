@@ -7,6 +7,7 @@ import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.util.getOrFail
 import kotlinx.html.DIV
+import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
@@ -115,8 +116,7 @@ class WrappedController @Inject constructor(
                                 }
                             }
                             wrappedSection(
-                                cardClasses = "uniqueDaysCount " +
-                                    "justify-content-between"
+                                cardClasses = "uniqueDaysCount " + "justify-content-between"
                             ) {
                                 h3(classes = "top-text") {
                                     +"You pressed the Button on..."
@@ -154,8 +154,7 @@ class WrappedController @Inject constructor(
                                 }
                             }
                             wrappedSection(
-                                cardClasses = "uniqueDaysPercentile " +
-                                    "justify-content-between"
+                                cardClasses = "uniqueDaysPercentile " + "justify-content-between"
                             ) {
                                 h3(classes = "top-text") {
                                     +"You pressed on more days than..."
@@ -189,8 +188,7 @@ class WrappedController @Inject constructor(
                                         +"${wrapped.favoriteDay}!"
                                     }
                                 }
-                                h3 {
-                                }
+                                h3 {}
                             }
                             wrappedSection(cardClasses = "day-count justify-content-between") {
                                 h3(classes = "top-text") {
@@ -225,8 +223,7 @@ class WrappedController @Inject constructor(
                                         +"${wrapped.favoriteHourString}!"
                                     }
                                 }
-                                h3 {
-                                }
+                                h3 {}
                             }
                             wrappedSection(cardClasses = "time-count justify-content-between") {
                                 h3(classes = "top-text") {
@@ -245,6 +242,21 @@ class WrappedController @Inject constructor(
                                 h3(classes = "bottom-text") {
                                     +"...times at ${wrapped.favoriteHourString}."
                                 }
+                            }
+                            wrappedSection(cardClasses = "justify-content-between") {
+                                h3(classes = "top-text") {
+                                    +"Thanks for pressing!"
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    a(href = "/") {
+                                        button(classes = "pressMePls") {
+                                            span {
+                                                +"PRESS"
+                                            }
+                                        }
+                                    }
+                                }
+                                h3 {}
                             }
                         }
                     }
