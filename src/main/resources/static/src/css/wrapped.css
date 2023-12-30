@@ -28,6 +28,18 @@ body, html {
   font-size: 35vw;
 }
 
+.uniqueDaysCount h1 {
+  font-size: 35vw;
+}
+
+.uniqueDaysRank h1 {
+  font-size: 35vw;
+}
+
+.uniqueDaysPercentile h1 {
+  font-size: 35vw;
+}
+
 /* Day of week could be 10 characters */
 .day h1 {
   font-size: 12vw;

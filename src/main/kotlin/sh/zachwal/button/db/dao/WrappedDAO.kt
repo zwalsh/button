@@ -14,7 +14,10 @@ interface WrappedDAO {
         """
             select 
               c.id as contactId,
-              rank() over (order by count(*) desc) as rank, 
+              count(distinct date_trunc('day', p.time)) as uniqueDays,
+              rank() over (order by count(distinct date_trunc('day', p.time)) desc) as uniqueDaysRank,
+              percent_rank() over (order by count(distinct date_trunc('day', p.time)) desc) as uniqueDaysPercentile,
+              rank() over (order by count(*) desc) as rank,
               percent_rank() over (order by count(*) desc) as percentile
             from 
               contact c 

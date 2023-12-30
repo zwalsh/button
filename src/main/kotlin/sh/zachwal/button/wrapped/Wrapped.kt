@@ -10,4 +10,7 @@ data class Wrapped(
     val favoriteHourCount: Int,
     val rank: Int,
     val percentile: Int, // 1-100
+    val uniqueDaysCount: Int,
+    val uniqueDaysRank: Int,
+    val uniqueDaysPercentile: Int, // 1-100
 )
