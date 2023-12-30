@@ -115,7 +115,7 @@ class WrappedController @Inject constructor(
                                             +"PRESS"
                                         }
                                     }
-                                    h1(classes = "d-none animate-count-up") {
+                                    h1(classes = "d-none") {
                                         +"${wrapped.percentile}%"
                                     }
                                 }
