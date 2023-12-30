@@ -7,6 +7,7 @@ import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.Press
+import sh.zachwal.button.db.jdbi.WrappedLink
 import sh.zachwal.button.db.jdbi.WrappedRank
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -27,6 +28,11 @@ class WrappedServiceTest {
                 rank = 1,
                 percentile = 0.01
             )
+        )
+        every {
+            wrappedLinks()
+        } returns listOf(
+            WrappedLink("1", 2023, 1)
         )
     }
     private val contactDao: ContactDAO = mockk {
