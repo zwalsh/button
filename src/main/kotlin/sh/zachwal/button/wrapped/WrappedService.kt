@@ -105,6 +105,7 @@ class WrappedService @Inject constructor(
                 val linkForContact = "$link/wrapped/$year/${l.wrappedId}"
                 val message = "What a year, ${contact.name}!" +
                     " Check out your Button Wrapped, $year: $linkForContact"
+                logger.info("Sending message to ${contact.id}: $message")
                 controlledContactMessagingService.sendMessage(
                     contact = contact,
                     body = message
