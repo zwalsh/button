@@ -3,7 +3,6 @@ package sh.zachwal.button.wrapped
 import io.ktor.features.NotFoundException
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
-import sh.zachwal.button.db.jdbi.WrappedRank
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
@@ -58,7 +57,6 @@ class WrappedService @Inject constructor(
             toInstant = nextYear.atStartOfDay(easternTime).toInstant()
         )
         val wrappedRank = wrappedRanks.find { it.contactId == contact.id }!!
-
 
         return Wrapped(
             year = year,
