@@ -14,7 +14,6 @@ import javax.inject.Inject
 import kotlin.math.roundToInt
 
 class WrappedService @Inject constructor(
-    private val pressDAO: PressDAO,
     private val contactDAO: ContactDAO,
     private val wrappedDAO: WrappedDAO
 ) {
@@ -29,7 +28,7 @@ class WrappedService @Inject constructor(
         val start = LocalDate.of(year, Month.JANUARY, 1).atStartOfDay(easternTime).toInstant()
         val end = LocalDate.of(year, Month.DECEMBER, 15).atStartOfDay(easternTime).toInstant()
 
-        val presses = pressDAO.selectBetweenForContact(start, end, id.toInt())
+        val presses = wrappedDAO.selectBetweenForContact(start, end, id.toInt())
         val countByDay = presses.groupBy {
             LocalDate.ofInstant(it.time, easternTime).dayOfWeek
         }

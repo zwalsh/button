@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.dao.ContactDAO
-import sh.zachwal.button.db.dao.PressDAO
+import sh.zachwal.button.db.dao.WrappedDAO
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.Press
 import java.time.Instant
@@ -14,15 +14,21 @@ import kotlin.test.assertEquals
 
 class WrappedServiceTest {
 
-    private val pressDao: PressDAO = mockk()
+    private val wrappedDao: WrappedDAO = mockk()
     private val contactDao: ContactDAO = mockk {
-        every { findContact(any()) } returns Contact(1, Instant.now(), "Zach", "+18001234567", active = true)
+        every { findContact(any()) } returns Contact(
+            1,
+            Instant.now(),
+            "Zach",
+            "+18001234567",
+            active = true
+        )
     }
-    private val service = WrappedService(pressDao, contactDao)
+    private val service = WrappedService(contactDao, wrappedDao)
 
     @Test
     fun `includes count of presses`() {
-        every { pressDao.selectBetweenForContact(any(), any(), any()) } returns listOf(
+        every { wrappedDao.selectBetweenForContact(any(), any(), any()) } returns listOf(
             Press(Instant.now(), "", 1),
             Press(Instant.now(), "", 1),
             Press(Instant.now(), "", 1)
@@ -44,7 +50,7 @@ class WrappedServiceTest {
         val p5 = p2.copy(time = sundayOne.plus(3, ChronoUnit.DAYS))
         val p6 = p2.copy(time = sundayOne.plus(4, ChronoUnit.DAYS))
         val p7 = p2.copy(time = sundayOne.plus(5, ChronoUnit.DAYS))
-        every { pressDao.selectBetweenForContact(any(), any(), any()) } returns listOf(
+        every { wrappedDao.selectBetweenForContact(any(), any(), any()) } returns listOf(
             p1, p2, p3, p4, p5, p6, p7
         )
 
@@ -64,7 +70,7 @@ class WrappedServiceTest {
         val p1 = Press(time = sundayNoon, "", 1)
         val p2 = p1.copy(time = sundayOne)
         val p3 = p1.copy(time = sundayNoon.plus(1, ChronoUnit.DAYS))
-        every { pressDao.selectBetweenForContact(any(), any(), any()) } returns listOf(p1, p2, p3)
+        every { wrappedDao.selectBetweenForContact(any(), any(), any()) } returns listOf(p1, p2, p3)
 
         val wrapped = service.wrapped(2023, "1")
 
@@ -78,7 +84,7 @@ class WrappedServiceTest {
             DateTimeFormatter.ISO_ZONED_DATE_TIME.parse("2023-12-10T00:00:00-05:00")
         )
         val p1 = Press(time = midnight, "", 1)
-        every { pressDao.selectBetweenForContact(any(), any(), any()) } returns listOf(p1)
+        every { wrappedDao.selectBetweenForContact(any(), any(), any()) } returns listOf(p1)
 
         val wrapped = service.wrapped(2023, "1")
 
@@ -91,7 +97,7 @@ class WrappedServiceTest {
             DateTimeFormatter.ISO_ZONED_DATE_TIME.parse("2023-12-10T23:00:00-05:00")
         )
         val p1 = Press(time = midnight, "", 1)
-        every { pressDao.selectBetweenForContact(any(), any(), any()) } returns listOf(p1)
+        every { wrappedDao.selectBetweenForContact(any(), any(), any()) } returns listOf(p1)
 
         val wrapped = service.wrapped(2023, "1")
 
@@ -100,7 +106,7 @@ class WrappedServiceTest {
 
     @Test
     fun `includes contact name`() {
-        every { pressDao.selectBetweenForContact(any(), any(), any()) } returns listOf(
+        every { wrappedDao.selectBetweenForContact(any(), any(), any()) } returns listOf(
             Press(Instant.now(), "", 1),
         )
 
