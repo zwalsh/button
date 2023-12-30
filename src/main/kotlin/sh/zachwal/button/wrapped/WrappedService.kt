@@ -2,7 +2,7 @@ package sh.zachwal.button.wrapped
 
 import io.ktor.features.NotFoundException
 import sh.zachwal.button.db.dao.ContactDAO
-import sh.zachwal.button.db.dao.PressDAO
+import sh.zachwal.button.db.dao.WrappedDAO
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
@@ -10,10 +10,11 @@ import java.time.ZoneId
 import java.time.format.TextStyle.FULL
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 class WrappedService @Inject constructor(
-    private val pressDAO: PressDAO,
     private val contactDAO: ContactDAO,
+    private val wrappedDAO: WrappedDAO
 ) {
 
     fun wrapped(year: Int, id: String): Wrapped {
@@ -26,7 +27,7 @@ class WrappedService @Inject constructor(
         val start = LocalDate.of(year, Month.JANUARY, 1).atStartOfDay(easternTime).toInstant()
         val end = LocalDate.of(year, Month.DECEMBER, 15).atStartOfDay(easternTime).toInstant()
 
-        val presses = pressDAO.selectBetweenForContact(start, end, id.toInt())
+        val presses = wrappedDAO.selectBetweenForContact(start, end, id.toInt())
         val countByDay = presses.groupBy {
             LocalDate.ofInstant(it.time, easternTime).dayOfWeek
         }
@@ -49,6 +50,18 @@ class WrappedService @Inject constructor(
         }
         val favoriteHourString = "$favoriteHour12Hour$favoriteHourAmPm"
 
+        val thisYear = LocalDate.of(year, 1, 1)
+        val nextYear = LocalDate.of(year + 1, 1, 1)
+        val wrappedRanks = wrappedDAO.wrappedRanks(
+            fromInstant = thisYear.atStartOfDay(easternTime).toInstant(),
+            toInstant = nextYear.atStartOfDay(easternTime).toInstant()
+        )
+        val wrappedRank = wrappedRanks.find { it.contactId == contact.id }!!
+
+        val percentile = (wrappedRank.percentile * 100)
+            .roundToInt()
+            .takeIf { it != 0 }
+            ?: 1 // round 0% to 1%
         return Wrapped(
             year = year,
             name = contact.name,
@@ -56,7 +69,9 @@ class WrappedService @Inject constructor(
             favoriteDay = favoriteDay.key.getDisplayName(FULL, Locale.US),
             favoriteDayCount = favoriteDay.value.size,
             favoriteHourString = favoriteHourString,
-            favoriteHourCount = favoriteHour.value.size
+            favoriteHourCount = favoriteHour.value.size,
+            rank = wrappedRank.rank,
+            percentile = percentile
         )
     }
 }

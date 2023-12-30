@@ -20,6 +20,13 @@ body, html {
   font-size: 35vw;
 }
 
+.rank h1 {
+  font-size: 35vw;
+}
+
+.percentile h1 {
+  font-size: 35vw;
+}
 
 /* Day of week could be 10 characters */
 .day h1 {

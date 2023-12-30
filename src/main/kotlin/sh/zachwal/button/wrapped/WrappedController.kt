@@ -48,7 +48,7 @@ class WrappedController @Inject constructor(
                 call.respondHtml {
                     head {
                         title {
-                            +"${wrapped.year} Wrapped"
+                            +"${wrapped.name}'s ${wrapped.year} Wrapped"
                         }
                         headSetup()
                         link(href = "/static/src/css/wrapped.css", rel = "stylesheet")
@@ -87,6 +87,45 @@ class WrappedController @Inject constructor(
                                     +"...times this year."
                                 }
                             }
+                            wrappedSection(cardClasses = "rank justify-content-between") {
+                                h3(classes = "top-text") {
+                                    +"You are the number..."
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none animate-count-up") {
+                                        +"${wrapped.rank}"
+                                    }
+                                }
+                                h3(classes = "bottom-text") {
+                                    +"...Button presser overall!"
+                                }
+                            }
+                            wrappedSection(cardClasses = "percentile justify-content-between") {
+                                h3(classes = "top-text") {
+                                    +"You are in the top..."
+                                }
+                                div(classes = "d-flex flex-row justify-content-center") {
+                                    button(classes = "pressMePls") {
+                                        span {
+                                            +"PRESS"
+                                        }
+                                    }
+                                    h1(classes = "d-none animate-count-up") {
+                                        +"${wrapped.percentile}%"
+                                    }
+                                }
+                                h3(classes = "bottom-text") {
+                                    +"...of Button pressers!"
+                                }
+                            }
+
+                            // Unique Days
+                            // Unique Days Rank
                             wrappedSection(cardClasses = "day justify-content-between") {
                                 h3(classes = "top-text") {
                                     +"Your favorite day was..."
