@@ -34,13 +34,6 @@ class WrappedController @Inject constructor(
             get {
                 val year = call.parameters.getOrFail(yearParam).toInt()
                 val wrappedId = call.parameters.getOrFail(wrappedIdParam)
-
-                // for testing
-//                if (wrappedId.toInt() !in setOf(1, 2, 3, 9)) {
-//                    call.respond(HttpStatusCode.NotFound, "Wrapped with id $wrappedId not found.")
-//                    return@get
-//                }
-
                 val wrapped = wrappedService.wrapped(year, wrappedId)
 
                 call.respondHtml {
