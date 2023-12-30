@@ -144,6 +144,16 @@ class AdminController @Inject constructor(
                                     }
                                 }
                             }
+                            h2 {
+                                +"Wrapped"
+                            }
+                            ul {
+                                li {
+                                    a(href = "/admin/wrapped") {
+                                        +"Wrapped"
+                                    }
+                                }
+                            }
                         }
                     }
                 }
