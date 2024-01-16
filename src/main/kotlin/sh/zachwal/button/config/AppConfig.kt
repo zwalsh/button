@@ -14,6 +14,8 @@ private fun url(config: ApplicationConfig): String {
 data class AppConfig(
     val env: String,
     val host: String,
+    val dbNameOverride: String?,
+    val dbUserOverride: String?,
     val dbPasswordOverride: String?,
     val websocketUrl: String,
     val twilioConfig: TwilioConfig?,
@@ -24,6 +26,8 @@ data class AppConfig(
     constructor(config: ApplicationConfig) : this(
         env = config.property("ktor.deployment.environment").getString(),
         host = config.property("ktor.deployment.ws_host").getString(),
+        dbNameOverride = config.propertyOrNull("ktor.deployment.db_name")?.getString(),
+        dbUserOverride = config.propertyOrNull("ktor.deployment.db_user")?.getString(),
         dbPasswordOverride = config.propertyOrNull("ktor.deployment.db_password")?.getString(),
         websocketUrl = url(config),
         twilioConfig = config.propertyOrNull("ktor.twilio.account")?.let {
