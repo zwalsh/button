@@ -18,6 +18,22 @@ class HikariModule : AbstractModule() {
     fun hikariConfig(appConfig: AppConfig): HikariConfig {
         val hikariConfig = HikariConfig("/hikari.properties")
 
+        appConfig.dbNameOverride?.let { override ->
+            logger.info("Overriding configured db name with value from ktor.deployment.db_name=$override")
+            hikariConfig.dataSourceProperties.setProperty("databaseName", override)
+        } ?: run {
+            logger.info("No db name override. Continuing with value in hikari.properties.")
+        }
+        appConfig.dbUserOverride?.let { override ->
+            logger.info(
+                "Overriding configured db user with value from ktor.deployment" +
+                    ".db_user=$override"
+            )
+            hikariConfig.dataSourceProperties.setProperty("user", override)
+        } ?: run {
+            logger.info("No db user override. Continuing with value in hikari.properties.")
+        }
+
         appConfig.dbPasswordOverride?.let { override ->
             logger.info("Overriding configured db password with value from ktor.deployment.db_password")
             hikariConfig.dataSourceProperties.setProperty("password", override)
