@@ -14,6 +14,20 @@ pipeline {
                 sh './gradlew clean build'
             }
         }
+        stage('test-release') {
+            steps {
+                // Clear testbutton releases
+                sh "rm -rf ~testbutton/releases/*"
+                // Create the release
+                sh "mkdir ~testbutton/releases/$GIT_COMMIT"
+                sh "tar -xvf build/distributions/button.tar -C ~testbutton/releases/$GIT_COMMIT"
+                // Set it as current
+                sh "rm ~testbutton/releases/current"
+                sh "ln -s ~button/releases/$GIT_COMMIT ~button/releases/current"
+                // Restart the button service (only has sudo permissions for this command)
+                sh "sudo systemctl restart testbutton"
+            }
+        }
         stage('release') {
             when {
                 expression { env.GIT_BRANCH == 'origin/main' }
