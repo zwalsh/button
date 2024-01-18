@@ -69,6 +69,7 @@ class ContactNotifier @Inject constructor(
                     "triggered by contact=${presser.contact} " +
                     "at remote=${presser.remote()}"
             )
+            // TODO: Create the notification with the triggering contact id & remote address
             notificationDAO.createNotification()
 
             val contacts = contactDAO.selectActiveContacts()

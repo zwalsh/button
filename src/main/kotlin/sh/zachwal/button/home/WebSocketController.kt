@@ -40,4 +40,3 @@ class WebSocketController @Inject constructor(
         }
     }
 }
-
