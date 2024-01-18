@@ -43,7 +43,6 @@ import sh.zachwal.button.shared_html.favicon
 import sh.zachwal.button.shared_html.mobileUI
 import sh.zachwal.button.shared_html.sentryScript
 import javax.inject.Inject
-import kotlin.IllegalArgumentException
 
 const val TOKEN_PARAMETER = "t"
 
@@ -105,7 +104,7 @@ class HomeController @Inject constructor(
                     }
                 }
                 body {
-                    div(classes = "container") {
+                    div(classes = "container pointerparent") {
                         // must go first
                         if (buttonShape == FIREWORKS) {
                             div(classes = "fw") { }

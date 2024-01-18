@@ -32,26 +32,26 @@ function connect() {
 
 connect();
 
-var currentState = "released";
-function sendMessage() {
+function pressing() {
+    console.log("sending pressing");
     if (socket.readyState !== WebSocket.OPEN) {
         connect();
     }
-
-    if (currentState === "released") {
-        console.log("sending pressing");
-        currentState = "pressing";
-        socket.send("pressing");
-    } else {
-        console.log("sending released")
-        currentState = "released";
-        socket.send("released");
-    }
+    socket.send("pressing");
     count++;
-    if (count > 35) {
+    if (count > 15) {
         let signup = document.getElementById("signup").style.display = 'block';
     }
 }
+
+function released() {
+    console.log("sending released");
+    if (socket.readyState !== WebSocket.OPEN) {
+        connect();
+    }
+    socket.send("released");
+}
+
 
 // prevent right-click weirdness on mobile when holding the button
 document.addEventListener('contextmenu', event => event.preventDefault());
@@ -60,16 +60,7 @@ window.onload = function () {
     let button = document.getElementById("pressMePls");
     console.log(button);
 
-    let events = ["mousedown", "mouseup", "touchstart", "touchend"];
-
-    for (const e of events) {
-        button.addEventListener(
-            e,
-            () => {
-                sendMessage();
-            },
-            false
-        );
-    }
+    button.addEventListener("pointerdown", () => { pressing(); }, false);
+    button.addEventListener("pointerup", () => { released(); }, false);
 };
 
