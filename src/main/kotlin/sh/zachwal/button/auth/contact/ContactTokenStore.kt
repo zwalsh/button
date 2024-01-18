@@ -20,7 +20,7 @@ class ContactTokenStore @Inject constructor(
 
     fun createToken(contactId: Int): String {
         val token = randomStringGenerator.newToken(20)
-        val expiration = Instant.now().plus(7, ChronoUnit.DAYS)
+        val expiration = Instant.now().plus(30, ChronoUnit.DAYS)
         val contactToken = contactTokenDAO.createToken(token, contactId, expiration)
 
         logger.info("Stored contact token $contactToken.")
