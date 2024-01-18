@@ -15,7 +15,7 @@ class PresserManager : PresserObserver {
     private suspend fun update() {
         val pressingCount = currentlyPressing.count()
         logger.info("Pressing count now $pressingCount")
-        pressers.toTypedArray().forEach { presser ->
+        pressers.forEach { presser ->
             presser.updatePressingCount(pressingCount)
         }
     }
