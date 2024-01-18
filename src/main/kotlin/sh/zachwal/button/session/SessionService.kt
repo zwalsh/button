@@ -13,12 +13,12 @@ const val CONTACT_SESSION = "CONTACT_SESSION"
 class SessionService {
 
     fun createUserSession(call: ApplicationCall, username: String) {
-        val oneHourAway = Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
-        call.sessions.set(USER_SESSION, UserSessionPrincipal(username, oneHourAway))
+        val oneWeekAway = Instant.now().plus(1, ChronoUnit.WEEKS).toEpochMilli()
+        call.sessions.set(USER_SESSION, UserSessionPrincipal(username, oneWeekAway))
     }
 
     fun createContactSession(call: ApplicationCall, contactId: Int) {
-        val oneWeekAway = Instant.now().plus(7, ChronoUnit.DAYS).toEpochMilli()
-        call.sessions.set(CONTACT_SESSION, ContactSessionPrincipal(contactId, oneWeekAway))
+        val thirtyDaysAway = Instant.now().plus(30, ChronoUnit.DAYS).toEpochMilli()
+        call.sessions.set(CONTACT_SESSION, ContactSessionPrincipal(contactId, thirtyDaysAway))
     }
 }

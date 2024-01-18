@@ -63,7 +63,12 @@ class ContactNotifier @Inject constructor(
             if (!shouldSendNewNotification) {
                 return@launch
             }
-            logger.info("Last notification was at ${lastNotification?.sentDate}, sending a new one.")
+            logger.info(
+                "Last notification was at ${lastNotification?.sentDate}, " +
+                    "sending a new one " +
+                    "triggered by contact=${presser.contact} " +
+                    "at remote=${presser.remote()}"
+            )
             notificationDAO.createNotification()
 
             val contacts = contactDAO.selectActiveContacts()
