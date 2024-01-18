@@ -42,7 +42,10 @@ internal class ContactNotifierTest {
 
     private val zachContact = Contact(1, Instant.now(), "Zach", "+18001234567", active = true)
     private val jackieContact = Contact(2, Instant.now(), "Jackie", "+18001225555", active = true)
-    private val presser: Presser = mockk()
+    private val presser: Presser = mockk {
+        every { contact } returns null
+        every { remote() } returns "remote"
+    }
 
     @BeforeEach
     fun setup() {
