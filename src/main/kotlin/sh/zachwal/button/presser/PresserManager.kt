@@ -8,8 +8,8 @@ import java.util.concurrent.ConcurrentHashMap
 class PresserManager : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(PresserManager::class.java)
-    private val pressers = mutableSetOf<Presser>()
 
+    private val pressers: MutableSet<Presser> = ConcurrentHashMap.newKeySet()
     private val currentlyPressing: MutableSet<Presser> = ConcurrentHashMap.newKeySet()
 
     private suspend fun update() {
