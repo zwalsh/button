@@ -77,3 +77,7 @@ button:active {
     border-radius: 0.25rem;
     display: none;
 }
+
+.pointerparent {
+    touch-action: none;
+}
