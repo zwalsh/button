@@ -2,19 +2,20 @@ package sh.zachwal.button.presser
 
 import com.google.inject.Singleton
 import org.slf4j.LoggerFactory
+import java.util.concurrent.ConcurrentHashMap
 
 @Singleton
 class PresserManager : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(PresserManager::class.java)
-    private val pressers = mutableSetOf<Presser>()
 
-    private val currentlyPressing = mutableSetOf<Presser>()
+    private val pressers: MutableSet<Presser> = ConcurrentHashMap.newKeySet()
+    private val currentlyPressing: MutableSet<Presser> = ConcurrentHashMap.newKeySet()
 
     private suspend fun update() {
         val pressingCount = currentlyPressing.count()
         logger.info("Pressing count now $pressingCount")
-        pressers.toTypedArray().forEach { presser ->
+        pressers.forEach { presser ->
             presser.updatePressingCount(pressingCount)
         }
     }

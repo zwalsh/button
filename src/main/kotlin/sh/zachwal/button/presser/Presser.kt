@@ -15,6 +15,7 @@ import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.jdbi.Contact
+import sh.zachwal.button.ktorutils.remote
 
 private val logger = LoggerFactory.getLogger(Presser::class.java)
 
@@ -77,4 +78,6 @@ class Presser constructor(
     suspend fun updatePressingCount(count: Int) {
         countUpdateChannel.send(count)
     }
+
+    fun remote(): String = socketSession.call.request.remote()
 }
