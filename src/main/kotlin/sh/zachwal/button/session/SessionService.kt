@@ -13,7 +13,7 @@ const val CONTACT_SESSION = "CONTACT_SESSION"
 class SessionService {
 
     fun createUserSession(call: ApplicationCall, username: String) {
-        val oneWeekAway = Instant.now().plus(1, ChronoUnit.WEEKS).toEpochMilli()
+        val oneWeekAway = Instant.now().plus(7, ChronoUnit.DAYS).toEpochMilli()
         call.sessions.set(USER_SESSION, UserSessionPrincipal(username, oneWeekAway))
     }
 
