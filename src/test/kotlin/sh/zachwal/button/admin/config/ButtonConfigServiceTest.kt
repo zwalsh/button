@@ -6,11 +6,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
+import sh.zachwal.button.admin.config.ButtonShape.DEREK
 import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import java.time.LocalDateTime
+import java.time.Month.JUNE
 
 class ButtonConfigServiceTest {
 
@@ -99,6 +101,19 @@ class ButtonConfigServiceTest {
             val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
 
             assertEquals(PUMPKIN, buttonConfigService.currentShape())
+        }
+    }
+
+    @Test
+    fun `shape is DEREK on derek bachelor party`() {
+        val dateTimes = listOf(6, 7, 8, 9).map {
+            LocalDateTime.of(2024, JUNE, it, 0, 1)
+        }
+        dateTimes.forEach { dateTime ->
+            val currentDateTime = mockk<CurrentDateTime> { every { now() } returns dateTime }
+            val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
+
+            assertEquals(DEREK, buttonConfigService.currentShape())
         }
     }
 

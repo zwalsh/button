@@ -34,6 +34,7 @@ import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
+import sh.zachwal.button.admin.config.ButtonShape.DEREK
 import sh.zachwal.button.admin.config.isSpecial
 import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.config.AppConfig
@@ -65,6 +66,7 @@ class HomeController @Inject constructor(
             CHRISTMAS_TREE -> "static/special/christmas-tree.svg"
             TURKEY -> "static/special/turkey.svg"
             PUMPKIN -> "static/special/pumpkin.svg"
+            DEREK -> "static/special/derek.png"
         }
     }
 

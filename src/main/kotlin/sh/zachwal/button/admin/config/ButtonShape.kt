@@ -13,6 +13,7 @@ enum class ButtonShape {
     TURKEY,
     PUMPKIN,
     FIREWORKS,
+    DEREK,
 }
 
 fun ButtonShape.isSpecial(): Boolean {
