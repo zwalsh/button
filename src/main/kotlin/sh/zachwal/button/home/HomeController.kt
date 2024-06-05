@@ -29,12 +29,12 @@ import sh.zachwal.button.admin.config.ButtonShape
 import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
+import sh.zachwal.button.admin.config.ButtonShape.DEREK
 import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
-import sh.zachwal.button.admin.config.ButtonShape.DEREK
 import sh.zachwal.button.admin.config.isSpecial
 import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.config.AppConfig
