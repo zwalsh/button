@@ -3,6 +3,7 @@ package sh.zachwal.button.admin.config
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
+import sh.zachwal.button.admin.config.ButtonShape.DEREK
 import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
@@ -13,6 +14,7 @@ import java.time.LocalDate
 import java.time.Month.DECEMBER
 import java.time.Month.FEBRUARY
 import java.time.Month.JULY
+import java.time.Month.JUNE
 import java.time.Month.MARCH
 import java.time.Month.OCTOBER
 import java.time.MonthDay
@@ -26,6 +28,12 @@ private val stPatricksDay = MonthDay.of(MARCH, 17)
 private val fourthOfJuly = MonthDay.of(JULY, 4)
 private val halloween = MonthDay.of(OCTOBER, 31)
 private val christmas = MonthDay.of(DECEMBER, 25)
+private val derekBachelorParty = listOf(
+    LocalDate.of(2024, JUNE, 6),
+    LocalDate.of(2024, JUNE, 7),
+    LocalDate.of(2024, JUNE, 8),
+    LocalDate.of(2024, JUNE, 9),
+)
 
 @Singleton
 class ButtonConfigService @Inject constructor(
@@ -64,6 +72,8 @@ class ButtonConfigService @Inject constructor(
             TURKEY
         } else if (withinDays(date, halloween, 3)) {
             PUMPKIN
+        } else if (date in derekBachelorParty) {
+            DEREK
         } else {
             CIRCLE
         }
