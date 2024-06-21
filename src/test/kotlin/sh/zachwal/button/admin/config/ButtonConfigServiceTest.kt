@@ -10,6 +10,7 @@ import sh.zachwal.button.admin.config.ButtonShape.DEREK
 import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
+import sh.zachwal.button.admin.config.ButtonShape.RINGS
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import java.time.LocalDateTime
 import java.time.Month.JUNE
@@ -126,5 +127,13 @@ class ButtonConfigServiceTest {
 
         buttonConfigService.setOverride(CIRCLE)
         assertEquals(CIRCLE, buttonConfigService.currentShape())
+    }
+
+    @Test
+    fun `picks rings for my wedding`() {
+        val date = LocalDateTime.of(2024, 6, 22, 17, 0, 0)
+        val currentDateTime = mockk<CurrentDateTime> { every { now() } returns date }
+        val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
+        assertEquals(RINGS, buttonConfigService.currentShape())
     }
 }

@@ -7,6 +7,7 @@ import sh.zachwal.button.admin.config.ButtonShape.DEREK
 import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
+import sh.zachwal.button.admin.config.ButtonShape.RINGS
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
 import java.time.DayOfWeek
@@ -34,6 +35,7 @@ private val derekBachelorParty = listOf(
     LocalDate.of(2024, JUNE, 8),
     LocalDate.of(2024, JUNE, 9),
 )
+private val myWedding = LocalDate.of(2024, JUNE, 22)
 
 @Singleton
 class ButtonConfigService @Inject constructor(
@@ -74,6 +76,8 @@ class ButtonConfigService @Inject constructor(
             PUMPKIN
         } else if (date in derekBachelorParty) {
             DEREK
+        } else if (date == myWedding) {
+            RINGS
         } else {
             CIRCLE
         }

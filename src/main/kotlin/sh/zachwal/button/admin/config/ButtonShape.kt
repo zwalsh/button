@@ -14,6 +14,7 @@ enum class ButtonShape {
     PUMPKIN,
     FIREWORKS,
     DEREK,
+    RINGS,
 }
 
 fun ButtonShape.isSpecial(): Boolean {
