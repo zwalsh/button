@@ -33,6 +33,7 @@ import sh.zachwal.button.admin.config.ButtonShape.DEREK
 import sh.zachwal.button.admin.config.ButtonShape.FIREWORKS
 import sh.zachwal.button.admin.config.ButtonShape.HEART
 import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
+import sh.zachwal.button.admin.config.ButtonShape.RINGS
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
 import sh.zachwal.button.admin.config.isSpecial
@@ -67,6 +68,7 @@ class HomeController @Inject constructor(
             TURKEY -> "static/special/turkey.svg"
             PUMPKIN -> "static/special/pumpkin.svg"
             DEREK -> "static/special/derek.png"
+            RINGS -> "static/special/rings.svg"
         }
     }
 
