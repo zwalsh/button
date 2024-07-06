@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import sh.zachwal.button.admin.config.ButtonShape.ALPACA
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
 import sh.zachwal.button.admin.config.ButtonShape.DEREK
@@ -135,5 +136,13 @@ class ButtonConfigServiceTest {
         val currentDateTime = mockk<CurrentDateTime> { every { now() } returns date }
         val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
         assertEquals(RINGS, buttonConfigService.currentShape())
+    }
+
+    @Test
+    fun `shape is alpaca for lindsay and derek's wedding`() {
+        val date = LocalDateTime.of(2024, 7, 6, 17, 0, 0)
+        val currentDateTime = mockk<CurrentDateTime> { every { now() } returns date }
+        val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
+        assertEquals(ALPACA, buttonConfigService.currentShape())
     }
 }

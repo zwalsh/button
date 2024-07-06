@@ -26,6 +26,7 @@ import kotlinx.html.unsafe
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.admin.config.ButtonConfigService
 import sh.zachwal.button.admin.config.ButtonShape
+import sh.zachwal.button.admin.config.ButtonShape.ALPACA
 import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
@@ -69,6 +70,7 @@ class HomeController @Inject constructor(
             PUMPKIN -> "static/special/pumpkin.svg"
             DEREK -> "static/special/derek.png"
             RINGS -> "static/special/rings.svg"
+            ALPACA -> "static/special/alpaca.png"
         }
     }
 

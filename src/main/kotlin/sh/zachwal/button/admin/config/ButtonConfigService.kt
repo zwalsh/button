@@ -1,6 +1,7 @@
 package sh.zachwal.button.admin.config
 
 import org.slf4j.LoggerFactory
+import sh.zachwal.button.admin.config.ButtonShape.ALPACA
 import sh.zachwal.button.admin.config.ButtonShape.CHRISTMAS_TREE
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.DEREK
@@ -36,6 +37,7 @@ private val derekBachelorParty = listOf(
     LocalDate.of(2024, JUNE, 9),
 )
 private val myWedding = LocalDate.of(2024, JUNE, 22)
+private val derekAndLindsayWedding = LocalDate.of(2024, JULY, 6)
 
 @Singleton
 class ButtonConfigService @Inject constructor(
@@ -66,6 +68,9 @@ class ButtonConfigService @Inject constructor(
             SHAMROCK
         } else if (withinDays(date, valentinesDay, 3)) {
             HEART
+        } else if (date == derekAndLindsayWedding) {
+            // check 7/6/24 before fourth of July
+            ALPACA
         } else if (withinDays(date, fourthOfJuly, 2)) {
             FIREWORKS
         } else if (withinDays(date, christmas, 1)) {
