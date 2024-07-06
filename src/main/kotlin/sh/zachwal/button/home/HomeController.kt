@@ -70,7 +70,7 @@ class HomeController @Inject constructor(
             PUMPKIN -> "static/special/pumpkin.svg"
             DEREK -> "static/special/derek.png"
             RINGS -> "static/special/rings.svg"
-            ALPACA -> "static/special/alpaca.jpg"
+            ALPACA -> "static/special/alpaca.png"
         }
     }
 
