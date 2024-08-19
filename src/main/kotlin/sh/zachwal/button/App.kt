@@ -35,10 +35,7 @@ import sh.zachwal.button.guice.MessagingModule
 import sh.zachwal.button.roles.RoleAuthorization
 import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.sentry.initSentry
-import sh.zachwal.button.session.CONTACT_SESSION
-import sh.zachwal.button.session.DbSessionStorage
-import sh.zachwal.button.session.SessionCleanupTask
-import sh.zachwal.button.session.USER_SESSION
+import sh.zachwal.button.session.*
 import sh.zachwal.button.session.principals.ContactSessionPrincipal
 import sh.zachwal.button.session.principals.UserSessionPrincipal
 import sh.zachwal.button.users.UserService
@@ -91,6 +88,7 @@ fun Application.module(testing: Boolean = false) {
             cookie.httpOnly = true
             cookie.secure = config.env != "DEV"
             cookie.extensions["SameSite"] = "lax"
+            cookie.maxAgeInSeconds = USER_SESSION_LENGTH.toSeconds()
         }
         cookie<ContactSessionPrincipal>(
             CONTACT_SESSION,
@@ -99,7 +97,7 @@ fun Application.module(testing: Boolean = false) {
             cookie.httpOnly = true
             cookie.secure = config.env != "DEV"
             cookie.extensions["SameSite"] = "lax"
-            cookie.maxAge = 30.days
+            cookie.maxAgeInSeconds = CONTACT_SESSION_LENGTH.toSeconds()
         }
     }
 
