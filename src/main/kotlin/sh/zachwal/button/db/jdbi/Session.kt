@@ -11,7 +11,7 @@ import java.time.Instant
  * but we add it to the DB to be able to remove those rows in the background.
  *
  * This expiration value will be updated every time the session is touched, so we will
- * delete it at least one hour after it is last used, when it's guaranteed to be expired.
+ * delete it at least one $SESSION_LENGTH after it is last used, when it's guaranteed to be expired.
  */
 data class Session(
     val id: String,

@@ -11,7 +11,6 @@ import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
 import io.ktor.features.StatusPages
 import io.ktor.features.XForwardedHeaderSupport
-import io.ktor.features.maxAge
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.jackson.jackson
@@ -36,14 +35,15 @@ import sh.zachwal.button.roles.RoleAuthorization
 import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.sentry.initSentry
 import sh.zachwal.button.session.CONTACT_SESSION
+import sh.zachwal.button.session.CONTACT_SESSION_LENGTH
 import sh.zachwal.button.session.DbSessionStorage
 import sh.zachwal.button.session.SessionCleanupTask
 import sh.zachwal.button.session.USER_SESSION
+import sh.zachwal.button.session.USER_SESSION_LENGTH
 import sh.zachwal.button.session.principals.ContactSessionPrincipal
 import sh.zachwal.button.session.principals.UserSessionPrincipal
 import sh.zachwal.button.users.UserService
 import kotlin.collections.set
-import kotlin.time.Duration.Companion.days
 import kotlin.time.ExperimentalTime
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -91,6 +91,7 @@ fun Application.module(testing: Boolean = false) {
             cookie.httpOnly = true
             cookie.secure = config.env != "DEV"
             cookie.extensions["SameSite"] = "lax"
+            cookie.maxAgeInSeconds = USER_SESSION_LENGTH.toSeconds()
         }
         cookie<ContactSessionPrincipal>(
             CONTACT_SESSION,
@@ -99,7 +100,7 @@ fun Application.module(testing: Boolean = false) {
             cookie.httpOnly = true
             cookie.secure = config.env != "DEV"
             cookie.extensions["SameSite"] = "lax"
-            cookie.maxAge = 30.days
+            cookie.maxAgeInSeconds = CONTACT_SESSION_LENGTH.toSeconds()
         }
     }
 
