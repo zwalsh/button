@@ -14,7 +14,6 @@ import kotlinx.html.body
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.head
-import kotlinx.html.p
 import kotlinx.html.table
 import kotlinx.html.td
 import kotlinx.html.th
@@ -27,7 +26,6 @@ import sh.zachwal.button.session.principals.ContactSessionPrincipal
 import sh.zachwal.button.shared_html.headSetup
 import javax.inject.Inject
 import javax.inject.Singleton
-
 
 @Controller
 @Singleton
