@@ -9,6 +9,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.RoutingResolveContext
 import io.ktor.routing.application
 import io.ktor.routing.createRouteFromPath
+import sh.zachwal.button.auth.CONTACT_SESSION_AUTH
 import sh.zachwal.button.roles.Role.ADMIN
 import sh.zachwal.button.roles.Role.USER
 
@@ -34,7 +35,15 @@ internal fun Routing.protectedRoute(path: String, roles: List<Role>, build: Rout
     }
 }
 
-internal fun Routing.adminRoute(path: String, build: Route.() -> Unit): Route = protectedRoute(path, listOf(ADMIN), build)
+internal fun Routing.adminRoute(path: String, build: Route.() -> Unit): Route =
+    protectedRoute(path, listOf(ADMIN), build)
 
 internal fun Routing.approvedUserRoute(path: String, build: Route.() -> Unit): Route =
     protectedRoute(path, listOf(USER), build)
+
+internal fun Routing.contactRoute(path: String, build: Route.() -> Unit): Route =
+    createRouteFromPath(path).apply {
+        authenticate(CONTACT_SESSION_AUTH) {
+            build()
+        }
+    }
