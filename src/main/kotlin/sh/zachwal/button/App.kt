@@ -19,8 +19,9 @@ import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.websocket.WebSockets
 import org.slf4j.event.Level
+import sh.zachwal.button.auth.configureContactSessionAuth
 import sh.zachwal.button.auth.configureFormAuth
-import sh.zachwal.button.auth.configureSessionAuth
+import sh.zachwal.button.auth.configureUserSessionAuth
 import sh.zachwal.button.auth.contact.ContactTokenCleanupTask
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.createControllers
@@ -106,7 +107,8 @@ fun Application.module(testing: Boolean = false) {
 
     install(Authentication) {
         configureFormAuth(userService)
-        configureSessionAuth()
+        configureUserSessionAuth()
+        configureContactSessionAuth()
     }
 
     install(RoleAuthorization) {
