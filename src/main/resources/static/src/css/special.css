@@ -1,6 +1,6 @@
 /* For when the button is some SVG image */
 #pressMePls {
-    width: 400px;
+    width: 350px;
     filter: drop-shadow(2px 20px 2px rgb(0 0 0 / 0.4));
 
     outline: none;
