@@ -37,6 +37,7 @@ import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
 import sh.zachwal.button.admin.config.ButtonShape.RINGS
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
+import sh.zachwal.button.admin.config.ButtonShape.WIGWAM
 import sh.zachwal.button.admin.config.isSpecial
 import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.config.AppConfig
@@ -71,6 +72,7 @@ class HomeController @Inject constructor(
             DEREK -> "static/special/derek.png"
             RINGS -> "static/special/rings.svg"
             ALPACA -> "static/special/alpaca.png"
+            WIGWAM -> "static/special/wigwam.png"
         }
     }
 

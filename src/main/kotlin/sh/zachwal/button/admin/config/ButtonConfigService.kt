@@ -11,6 +11,7 @@ import sh.zachwal.button.admin.config.ButtonShape.PUMPKIN
 import sh.zachwal.button.admin.config.ButtonShape.RINGS
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
+import sh.zachwal.button.admin.config.ButtonShape.WIGWAM
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month.DECEMBER
@@ -19,6 +20,7 @@ import java.time.Month.JULY
 import java.time.Month.JUNE
 import java.time.Month.MARCH
 import java.time.Month.OCTOBER
+import java.time.Month.SEPTEMBER
 import java.time.MonthDay
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
@@ -38,6 +40,11 @@ private val derekBachelorParty = listOf(
 )
 private val myWedding = LocalDate.of(2024, JUNE, 22)
 private val derekAndLindsayWedding = LocalDate.of(2024, JULY, 6)
+private val wigwam2024 = listOf(
+    LocalDate.of(2024, SEPTEMBER, 27),
+    LocalDate.of(2024, SEPTEMBER, 28),
+    LocalDate.of(2024, SEPTEMBER, 29),
+)
 
 @Singleton
 class ButtonConfigService @Inject constructor(
@@ -83,6 +90,8 @@ class ButtonConfigService @Inject constructor(
             DEREK
         } else if (date == myWedding) {
             RINGS
+        } else if (date in wigwam2024) {
+            WIGWAM
         } else {
             CIRCLE
         }

@@ -67,6 +67,7 @@ dependencies {
 
     // Use the Kotlin test library.
     testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
 
     // For testing Ktor & websockets
     testImplementation("io.ktor:ktor-client-core:$ktorVersion")
