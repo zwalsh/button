@@ -4,6 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import sh.zachwal.button.admin.config.ButtonShape.ALPACA
 import sh.zachwal.button.admin.config.ButtonShape.CIRCLE
 import sh.zachwal.button.admin.config.ButtonShape.CUBE
@@ -144,5 +146,14 @@ class ButtonConfigServiceTest {
         val currentDateTime = mockk<CurrentDateTime> { every { now() } returns date }
         val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
         assertEquals(ALPACA, buttonConfigService.currentShape())
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [27, 28, 29])
+    fun `shape is wigwam for wigwam weekend 2024`(dayOfMonth: Int) {
+        val date = LocalDateTime.of(2024, 9, dayOfMonth, 17, 0, 0)
+        val currentDateTime = mockk<CurrentDateTime> { every { now() } returns date }
+        val buttonConfigService = ButtonConfigService(currentDateTime = currentDateTime)
+        assertEquals(ButtonShape.WIGWAM, buttonConfigService.currentShape())
     }
 }
