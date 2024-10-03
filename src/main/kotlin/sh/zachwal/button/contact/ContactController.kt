@@ -11,9 +11,12 @@ import io.ktor.sessions.sessions
 import kotlinx.css.td
 import kotlinx.html.ThScope
 import kotlinx.html.body
+import kotlinx.html.button
 import kotlinx.html.div
 import kotlinx.html.h1
+import kotlinx.html.h2
 import kotlinx.html.head
+import kotlinx.html.p
 import kotlinx.html.table
 import kotlinx.html.td
 import kotlinx.html.th
@@ -69,6 +72,55 @@ class ContactController @Inject constructor(
                                     }
                                     td { +contact.phoneNumber }
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    internal fun Routing.dataManagement() {
+        contactRoute("/contact/data") {
+            get {
+                val contactSession = call.sessions.get<ContactSessionPrincipal>()!!
+                val contact = contactDAO.findContact(contactSession.contactId) ?: run {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        "Contact not found"
+                    )
+                    return@get
+                }
+                call.respondHtml {
+                    head {
+                        title { +"Data Management" }
+                        headSetup()
+                    }
+                    body {
+                        div(classes = "container") {
+                            h1(classes = "mt-4 mx-2") {
+                                +"Data Management"
+                            }
+                            h2(classes = "mt-4 mx-2") {
+                                +"Export your data."
+                            }
+                            p {
+                                +"""
+                                    You can export your Button data in a CSV format. This will include the time of each
+                                    press.
+                                """.trimIndent()
+                            }
+                            button(classes = "btn btn-success") {
+                                +"Export Data"
+                            }
+                            h2(classes = "mt-4 mx-2") {
+                                +"Delete your data."
+                            }
+                            p {
+                                +"You can delete your data from the Button database. This is permanent."
+                            }
+                            button(classes = "btn btn-danger") {
+                                +"Delete Data"
                             }
                         }
                     }
