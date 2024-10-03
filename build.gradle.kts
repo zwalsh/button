@@ -65,6 +65,9 @@ dependencies {
     // Twilio
     implementation("com.twilio.sdk:twilio:8.32.0")
 
+    // CSV
+    implementation("com.opencsv:opencsv:5.9")
+
     // Use the Kotlin test library.
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
