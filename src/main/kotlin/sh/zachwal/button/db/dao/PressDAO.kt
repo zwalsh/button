@@ -4,6 +4,7 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery
 import sh.zachwal.button.db.jdbi.Press
 import sh.zachwal.button.db.jdbi.RecentPressCount
 import java.time.Instant
+import java.util.stream.Stream
 
 interface PressDAO {
 
@@ -31,4 +32,15 @@ interface PressDAO {
         """
     )
     fun recentPresses(): List<RecentPressCount>
+
+
+    @SqlQuery(
+        """
+            select * 
+            from public.press 
+            where contact_id = :contactId 
+            order by time;
+        """
+    )
+    fun allPressesForContact(contactId: Int): Stream<Press>
 }

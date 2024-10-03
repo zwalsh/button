@@ -2,14 +2,20 @@ package sh.zachwal.button.contact
 
 import io.ktor.application.call
 import io.ktor.html.respondHtml
+import io.ktor.http.ContentDisposition
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.response.header
 import io.ktor.response.respond
+import io.ktor.response.respondOutputStream
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
 import kotlinx.css.td
 import kotlinx.html.ThScope
+import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
@@ -33,7 +39,8 @@ import javax.inject.Singleton
 @Controller
 @Singleton
 class ContactController @Inject constructor(
-    private val contactDAO: ContactDAO
+    private val contactDAO: ContactDAO,
+    private val contactDataService: ContactDataService,
 ) {
 
     internal fun Routing.contactInfo() {
@@ -110,7 +117,8 @@ class ContactController @Inject constructor(
                                     press.
                                 """.trimIndent()
                             }
-                            button(classes = "btn btn-success") {
+                            a(classes = "btn btn-success", href = "/contact/download") {
+                                attributes["download"] = "button-data.csv"
                                 +"Export Data"
                             }
                             h2(classes = "mt-4 mx-2") {
@@ -124,6 +132,33 @@ class ContactController @Inject constructor(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    internal fun Routing.downloadData() {
+        contactRoute("/contact/download") {
+            get {
+                val contactSession = call.sessions.get<ContactSessionPrincipal>()!!
+                val contact = contactDAO.findContact(contactSession.contactId) ?: run {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        "Contact not found"
+                    )
+                    return@get
+                }
+
+                call.response.header(
+                    name = HttpHeaders.ContentDisposition,
+                    value = ContentDisposition.Attachment.withParameter(
+                        ContentDisposition.Parameters.FileName,
+                        "button-data.csv"
+                    ).toString()
+                )
+
+                call.respondOutputStream {
+                    contactDataService.writeAllPressesToStream(contact.id, this@respondOutputStream)
                 }
             }
         }
