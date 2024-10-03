@@ -33,7 +33,6 @@ interface PressDAO {
     )
     fun recentPresses(): List<RecentPressCount>
 
-
     @SqlQuery(
         """
             select * 

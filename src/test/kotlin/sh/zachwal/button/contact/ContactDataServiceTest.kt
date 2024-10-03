@@ -29,7 +29,6 @@ class ContactDataServiceTest {
 
     private val contactDataService = ContactDataService(jdbi = jdbi)
 
-
     @Test
     fun `writes returned press data to an output stream`() {
         val press = Press(
