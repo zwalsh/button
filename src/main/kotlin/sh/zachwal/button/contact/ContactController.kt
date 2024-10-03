@@ -117,7 +117,7 @@ class ContactController @Inject constructor(
                                 """.trimIndent()
                             }
                             a(classes = "btn btn-success", href = "/contact/download") {
-                                attributes["download"] = "button-data.csv"
+                                attributes["download"] = "button-data.zip"
                                 +"Export Data"
                             }
                             h2(classes = "mt-4 mx-2") {
@@ -152,7 +152,7 @@ class ContactController @Inject constructor(
                     name = HttpHeaders.ContentDisposition,
                     value = ContentDisposition.Attachment.withParameter(
                         ContentDisposition.Parameters.FileName,
-                        "button-data.csv"
+                        "button-data.zip"
                     ).toString()
                 )
 

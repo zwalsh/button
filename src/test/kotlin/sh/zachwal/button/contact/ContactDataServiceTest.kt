@@ -14,6 +14,8 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
 import java.time.Instant
 import java.util.stream.Stream
+import java.util.zip.GZIPInputStream
+import java.util.zip.ZipInputStream
 
 class ContactDataServiceTest {
 
@@ -47,7 +49,11 @@ class ContactDataServiceTest {
 
         contactDataService.writeAllPressesToStream(1, outputStream)
 
-        val reader = InputStreamReader(ByteArrayInputStream(outputStream.toByteArray()))
+        val zipInputStream = ZipInputStream(ByteArrayInputStream(outputStream.toByteArray()))
+        val entry = zipInputStream.nextEntry!!
+        assertEquals("button-data.csv", entry.name)
+
+        val reader = InputStreamReader(zipInputStream)
 
         val csvReader = CSVReaderBuilder(reader)
             .build()

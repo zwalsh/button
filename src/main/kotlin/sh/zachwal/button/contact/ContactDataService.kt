@@ -5,6 +5,8 @@ import org.jdbi.v3.core.Jdbi
 import sh.zachwal.button.db.dao.PressDAO
 import java.io.OutputStream
 import java.io.OutputStreamWriter
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,15 +19,21 @@ class ContactDataService @Inject constructor(
         val pressDAO = handle.attach(PressDAO::class.java)
         val presses = pressDAO.allPressesForContact(contactId)
 
-        val csvWriter = CSVWriterBuilder(OutputStreamWriter(outputStream))
-            .withSeparator(',')
-            .build()
+        ZipOutputStream(outputStream).use { stream ->
+            stream.putNextEntry(ZipEntry("button-data.csv"))
 
-        csvWriter.writeNext(arrayOf("Time"))
+            val csvWriter = CSVWriterBuilder(OutputStreamWriter(stream))
+                .withSeparator(',')
+                .build()
 
-        presses.forEach { press ->
-            csvWriter.writeNext(arrayOf(press.time.toString()))
+            csvWriter.writeNext(arrayOf("Time"))
+
+            presses.forEach { press ->
+                csvWriter.writeNext(arrayOf(press.time.toString()))
+            }
+            csvWriter.flush()
+
+            stream.closeEntry()
         }
-        csvWriter.flush()
     }
 }
