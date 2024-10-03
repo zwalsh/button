@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
 import java.time.Instant
 import java.util.stream.Stream
-import java.util.zip.GZIPInputStream
 import java.util.zip.ZipInputStream
 
 class ContactDataServiceTest {
