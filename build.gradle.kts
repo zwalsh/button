@@ -68,6 +68,9 @@ dependencies {
     // CSV
     implementation("com.opencsv:opencsv:5.9")
 
+    // Guava cache
+    implementation("com.google.guava:guava:33.4.0-jre")
+
     // Use the Kotlin test library.
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")

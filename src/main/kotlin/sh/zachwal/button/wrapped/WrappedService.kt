@@ -1,5 +1,6 @@
 package sh.zachwal.button.wrapped
 
+import com.google.common.cache.CacheBuilder
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.inject.name.Named
 import io.ktor.features.NotFoundException
@@ -11,7 +12,9 @@ import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
+import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.WrappedLink
+import sh.zachwal.button.db.jdbi.WrappedRank
 import sh.zachwal.button.random.RandomStringGenerator
 import sh.zachwal.button.sms.ControlledContactMessagingService
 import java.time.Instant
@@ -22,10 +25,13 @@ import java.time.ZoneId
 import java.time.format.TextStyle.FULL
 import java.util.Locale
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
+@Singleton
 class WrappedService @Inject constructor(
     private val contactDAO: ContactDAO,
     private val wrappedDAO: WrappedDAO,
@@ -45,6 +51,16 @@ class WrappedService @Inject constructor(
     private val easternTime = ZoneId.of("America/New_York")
     private val randomStringGenerator = RandomStringGenerator()
     private val logger = LoggerFactory.getLogger(WrappedService::class.java)
+
+    private val wrappedRanksCache = CacheBuilder.newBuilder()
+        .maximumSize(1)
+        .expireAfterWrite(1, TimeUnit.DAYS)
+        .build<Pair<Instant, Instant>, List<WrappedRank>>()
+
+    private val wrappedCache = CacheBuilder.newBuilder()
+        .maximumSize(100)
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .build<String, Wrapped>()
 
     init {
         Runtime.getRuntime().addShutdownHook(
@@ -116,6 +132,13 @@ class WrappedService @Inject constructor(
         }
     }
 
+    private fun wrappedRanks(fromInstant: Instant, toInstant: Instant): List<WrappedRank> {
+        return wrappedRanksCache.get(fromInstant to toInstant) {
+            logger.info("Fetching wrapped ranks for $fromInstant to $toInstant.")
+            wrappedDAO.wrappedRanks(fromInstant, toInstant)
+        }
+    }
+
     fun wrapped(year: Int, id: String): Wrapped {
         val wrappedLink = wrappedDAO.wrappedLinks()
             .find { it.wrappedId == id }
@@ -126,6 +149,13 @@ class WrappedService @Inject constructor(
                 "find contact with id $id."
         )
 
+        return wrappedCache.get(id) {
+            buildWrapped(year, contact)
+        }
+    }
+
+    private fun buildWrapped(year: Int, contact: Contact): Wrapped {
+        logger.info("Building wrapped for $year and contact=$contact")
         val presses = wrappedDAO.selectBetweenForContact(
             begin = startOfYearInstant(year),
             end = endOfYearInstant(year),
@@ -153,10 +183,11 @@ class WrappedService @Inject constructor(
         }
         val favoriteHourString = "$favoriteHour12Hour$favoriteHourAmPm"
 
-        val wrappedRanks = wrappedDAO.wrappedRanks(
+        val wrappedRanks = wrappedRanks(
             fromInstant = startOfYearInstant(year),
             toInstant = endOfYearInstant(year)
         )
+
         val wrappedRank = wrappedRanks.find { it.contactId == contact.id }!!
 
         return Wrapped(

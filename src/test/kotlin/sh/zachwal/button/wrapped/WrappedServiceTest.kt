@@ -2,6 +2,7 @@ package sh.zachwal.button.wrapped
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
@@ -135,5 +136,29 @@ class WrappedServiceTest {
         val wrapped = service.wrapped(2023, "1")
 
         assertEquals("Zach", wrapped.name)
+    }
+
+    @Test
+    fun `caches wrapped ranks`() {
+        every { wrappedDao.selectBetweenForContact(any(), any(), any()) } returns listOf(
+            Press(Instant.now(), "", 1),
+        )
+
+        service.wrapped(2023, "1")
+        service.wrapped(2023, "1")
+
+        verify(exactly = 1) { wrappedDao.wrappedRanks(any(), any()) }
+    }
+
+    @Test
+    fun `caches wrapped`() {
+        every { wrappedDao.selectBetweenForContact(any(), any(), any()) } returns listOf(
+            Press(Instant.now(), "", 1),
+        )
+
+        service.wrapped(2023, "1")
+        service.wrapped(2023, "1")
+
+        verify(exactly = 1) { wrappedDao.selectBetweenForContact(any(), any(), any()) }
     }
 }
