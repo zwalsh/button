@@ -2,6 +2,7 @@ package sh.zachwal.button.sms
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import org.slf4j.LoggerFactory
 import sh.zachwal.button.config.MessagingConfig
 import sh.zachwal.button.db.dao.SentMessageDAO
 import sh.zachwal.button.db.jdbi.Contact
@@ -23,7 +24,14 @@ class ControlledContactMessagingService @Inject constructor(
     private val sentMessageDAO: SentMessageDAO,
     private val messagingConfig: MessagingConfig,
 ) {
+    private val logger = LoggerFactory.getLogger(ControlledContactMessagingService::class.java)
+
     suspend fun sendMessage(contact: Contact, body: String): MessageStatus {
+        if (contact.active.not()) {
+            logger.info("Contact ${contact.id} is not active, not sending message")
+            return MessageFailed("Contact is not active")
+        }
+
         val currentCount = sentMessageDAO.countSentSince(Instant.now().minus(30, ChronoUnit.DAYS))
         if (currentCount >= messagingConfig.monthlyLimit) {
             throw MessageLimitExceededException(messagesSent = currentCount)

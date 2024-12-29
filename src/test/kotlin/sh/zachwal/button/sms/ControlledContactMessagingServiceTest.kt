@@ -71,4 +71,19 @@ internal class ControlledContactMessagingServiceTest {
             messagingService.sendMessage(any(), any())
         }
     }
+
+    @Test
+    fun `does not send if the contact is not active`() {
+        val inactiveContact = contact.copy(active = false)
+
+        val messageResult = runBlocking {
+            service.sendMessage(inactiveContact, "body")
+        }
+
+        assertThat(messageResult).isInstanceOf(MessageFailed::class.java)
+
+        coVerify(exactly = 0) {
+            messagingService.sendMessage(any(), any())
+        }
+    }
 }
