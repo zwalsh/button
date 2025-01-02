@@ -80,8 +80,7 @@ class WrappedService @Inject constructor(
             .atStartOfDay(easternTime)
             .toInstant()
 
-    fun createWrappedLinks() {
-        val year = LocalDate.now().year
+    fun createWrappedLinks(year: Int) {
         val links = wrappedDAO.wrappedLinks()
 
         if (links.any { it.year == year }) {
@@ -110,8 +109,7 @@ class WrappedService @Inject constructor(
         return wrappedDAO.wrappedLinks()
     }
 
-    fun sendWrappedNotification() {
-        val year = LocalDate.now().year
+    fun sendWrappedNotification(year: Int) {
         val links = wrappedDAO.wrappedLinks().filter { it.year == year }
         logger.info("Sending ${links.size} wrapped notifications for year $year.")
 

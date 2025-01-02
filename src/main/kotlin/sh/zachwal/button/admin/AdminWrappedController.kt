@@ -3,10 +3,14 @@ package sh.zachwal.button.admin
 import com.google.inject.Inject
 import io.ktor.application.call
 import io.ktor.html.respondHtml
+import io.ktor.request.receiveParameters
 import io.ktor.response.respondRedirect
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
+import io.ktor.util.getOrFail
+import kotlinx.html.BODY
+import kotlinx.html.DIV
 import kotlinx.html.FormMethod
 import kotlinx.html.TBODY
 import kotlinx.html.a
@@ -15,7 +19,10 @@ import kotlinx.html.div
 import kotlinx.html.form
 import kotlinx.html.h1
 import kotlinx.html.head
+import kotlinx.html.label
 import kotlinx.html.li
+import kotlinx.html.numberInput
+import kotlinx.html.small
 import kotlinx.html.submitInput
 import kotlinx.html.tbody
 import kotlinx.html.td
@@ -110,16 +117,34 @@ class AdminWrappedController @Inject constructor(
                         headSetup()
                     }
                     body {
-                        form(method = FormMethod.post, classes = "mb-1") {
-                            submitInput(classes = "btn btn-primary") {
-                                value = "Generate Links"
+                        card {
+                            form(method = FormMethod.post, classes = "mb-1") {
+                                div(classes = "form-group") {
+                                    h1 {
+                                        +"Generate Wrapped Links"
+                                    }
+                                    small {
+                                        +"""
+                                        This will generate a wrapped link for each contact that has pressed the button 
+                                        in the given year. This is a one-time operation and cannot be undone.
+                                        """.trimIndent()
+                                    }
+                                }
+                                div(classes = "form-group") {
+                                    label { +"Year" }
+                                    numberInput(classes = "form-control") { name = "year" }
+                                }
+                                submitInput(classes = "btn btn-primary") {
+                                    value = "Generate Links"
+                                }
                             }
                         }
                     }
                 }
             }
             post {
-                wrappedService.createWrappedLinks()
+                val year = call.receiveParameters().getOrFail("year").toInt()
+                wrappedService.createWrappedLinks(year)
                 call.respondRedirect("/admin/wrapped")
             }
         }
@@ -128,6 +153,11 @@ class AdminWrappedController @Inject constructor(
     internal fun Routing.wrappedNotify() {
         adminRoute("/admin/wrapped/notify") {
             get {
+                val wrappedLinks = wrappedService.listWrappedLinks()
+                val countByYear = wrappedLinks
+                    .groupBy { it.year }
+                    .mapValues { it.value.size }
+
                 call.respondHtml {
                     head {
                         title {
@@ -136,16 +166,34 @@ class AdminWrappedController @Inject constructor(
                         headSetup()
                     }
                     body {
-                        form(method = FormMethod.post, classes = "mb-1") {
-                            submitInput(classes = "btn btn-primary") {
-                                value = "Send Links"
+                        card {
+                            form(method = FormMethod.post, classes = "mb-1") {
+                                div(classes = "form-group") {
+                                    h1 {
+                                        +"Send Wrapped Links"
+                                    }
+                                    small {
+                                        +"""
+                                        This will send a text message to all contacts with a wrapped link for the given 
+                                        year. ($countByYear). This is cannot be undone and should only be done once.
+                                        """.trimIndent()
+                                    }
+                                }
+                                div(classes = "form-group") {
+                                    label { +"Year" }
+                                    numberInput(classes = "form-control") { name = "year" }
+                                }
+                                submitInput(classes = "btn btn-danger") {
+                                    value = "Send Links"
+                                }
                             }
                         }
                     }
                 }
             }
             post {
-                wrappedService.sendWrappedNotification()
+                val year = call.receiveParameters().getOrFail("year").toInt()
+                wrappedService.sendWrappedNotification(year)
                 call.respondRedirect("/admin/wrapped")
             }
         }
@@ -163,6 +211,18 @@ class AdminWrappedController @Inject constructor(
             }
             td {
                 +"${wrappedLink.contactId}"
+            }
+        }
+    }
+
+    private fun BODY.card(cardBody: DIV.() -> Unit) {
+        div(classes = "container") {
+            div(classes = "row justify-content-center") {
+                div(classes = "card mt-4") {
+                    div(classes = "card-body") {
+                        cardBody()
+                    }
+                }
             }
         }
     }
