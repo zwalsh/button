@@ -15,13 +15,16 @@ import kotlinx.html.FormMethod
 import kotlinx.html.TBODY
 import kotlinx.html.a
 import kotlinx.html.body
+import kotlinx.html.dataList
 import kotlinx.html.div
 import kotlinx.html.form
 import kotlinx.html.h1
 import kotlinx.html.head
+import kotlinx.html.id
 import kotlinx.html.label
 import kotlinx.html.li
 import kotlinx.html.numberInput
+import kotlinx.html.option
 import kotlinx.html.small
 import kotlinx.html.submitInput
 import kotlinx.html.tbody
@@ -37,6 +40,7 @@ import sh.zachwal.button.roles.adminRoute
 import sh.zachwal.button.shared_html.headSetup
 import sh.zachwal.button.shared_html.responsiveTable
 import sh.zachwal.button.wrapped.WrappedService
+import java.time.LocalDate
 
 @Controller
 class AdminWrappedController @Inject constructor(
@@ -109,6 +113,7 @@ class AdminWrappedController @Inject constructor(
     internal fun Routing.wrappedGenerate() {
         adminRoute("/admin/wrapped/generate") {
             get {
+                val currentYear = LocalDate.now().year
                 call.respondHtml {
                     head {
                         title {
@@ -132,7 +137,10 @@ class AdminWrappedController @Inject constructor(
                                 }
                                 div(classes = "form-group") {
                                     label { +"Year" }
-                                    numberInput(classes = "form-control") { name = "year" }
+                                    numberInput(classes = "form-control") {
+                                        name = "year"
+                                        value = currentYear.toString()
+                                    }
                                 }
                                 submitInput(classes = "btn btn-primary") {
                                     value = "Generate Links"
@@ -157,6 +165,7 @@ class AdminWrappedController @Inject constructor(
                 val countByYear = wrappedLinks
                     .groupBy { it.year }
                     .mapValues { it.value.size }
+                val maxYear = countByYear.keys.maxOrNull() ?: 0
 
                 call.respondHtml {
                     head {
@@ -175,13 +184,25 @@ class AdminWrappedController @Inject constructor(
                                     small {
                                         +"""
                                         This will send a text message to all contacts with a wrapped link for the given 
-                                        year. ($countByYear). This is cannot be undone and should only be done once.
+                                        year. ($countByYear). This cannot be undone and should only be done once.
                                         """.trimIndent()
                                     }
                                 }
                                 div(classes = "form-group") {
                                     label { +"Year" }
-                                    numberInput(classes = "form-control") { name = "year" }
+                                    numberInput(classes = "form-control") {
+                                        name = "year"
+                                        list = "availableYears"
+                                        placeholder = maxYear.toString()
+                                    }
+                                    dataList {
+                                        id = "availableYears"
+                                        countByYear.keys.forEach {
+                                            option {
+                                                value = it.toString()
+                                            }
+                                        }
+                                    }
                                 }
                                 submitInput(classes = "btn btn-danger") {
                                     value = "Send Links"
