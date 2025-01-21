@@ -9,9 +9,19 @@ pipeline {
                 setBuildStatus('pending')
             }
         }
+        stage('assemble') {
+            steps {
+                sh './gradlew assemble testClasses'
+            }
+        }
+        stage('lint') {
+            steps {
+                sh './gradlew ktlintCheck'
+            }
+        }
         stage('test') {
             steps {
-                sh './gradlew clean build'
+                sh './gradlew build'
             }
         }
         stage('test-release') {
@@ -27,11 +37,44 @@ pipeline {
                 sh "sudo systemctl restart testbutton"
             }
         }
+        stage('migrate database - testbutton') {
+            when {
+                expression { env.GIT_BRANCH == 'origin/main' }
+            }
+            steps {
+                // Copy migrations & script into ~testbutton
+                sh "rm -rf ~testbutton/migrations/*"
+                sh "cp -r db ~testbutton/migrations"
+
+                // Run migrations as testbutton
+                dir("/home/testbutton/migrations/db") {
+                    sh "sudo -u testbutton ./migrate.sh"
+                }
+            }
+        }
+        stage('migrate database - button') {
+            when {
+                expression { env.GIT_BRANCH == 'origin/main' }
+            }
+            steps {
+                // Copy migrations & script into ~testbutton
+                sh "rm -rf ~button/migrations/*"
+                sh "cp -r db ~button/migrations"
+
+                // Run migrations as testbutton
+                dir("/home/button/migrations/db") {
+                    sh "sudo -u button ./migrate.sh"
+                }
+            }
+        }
         stage('release') {
             when {
                 expression { env.GIT_BRANCH == 'origin/main' }
             }
             steps {
+                // Delete all but the three most recent releases
+                sh "ls -t ~button/releases | tail -n +4 | xargs -I {} rm -rf ~button/releases/{}"
+
                 // Create the release
                 sh "mkdir ~button/releases/$GIT_COMMIT"
                 sh "tar -xvf build/distributions/button.tar -C ~button/releases/$GIT_COMMIT"
