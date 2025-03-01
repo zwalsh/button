@@ -5,8 +5,8 @@ import kotlinx.html.link
 import kotlinx.html.meta
 import kotlinx.html.script
 import kotlinx.html.unsafe
-import sh.zachwal.button.sentry.jsDsn
-import sh.zachwal.button.sentry.jsEnv
+import sh.zachwal.button.config.jsDsn
+import sh.zachwal.button.config.jsEnv
 
 fun HEAD.bootstrapCss() {
     link(
