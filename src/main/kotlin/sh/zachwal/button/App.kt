@@ -25,6 +25,7 @@ import sh.zachwal.button.auth.configureUserSessionAuth
 import sh.zachwal.button.auth.contact.ContactTokenCleanupTask
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.config.initSentry
+import sh.zachwal.button.config.initUmami
 import sh.zachwal.button.controller.createControllers
 import sh.zachwal.button.features.configureRoleAuthorization
 import sh.zachwal.button.features.configureStatusPages
@@ -66,6 +67,7 @@ fun Application.module(testing: Boolean = false) {
     log.info("Starting app in ${config.env}")
 
     initSentry(config.sentryConfig, config.env)
+    initUmami(config.umamiConfig)
 
     val userService = injector.getInstance(UserService::class.java)
     val roleService = injector.getInstance(RoleService::class.java)

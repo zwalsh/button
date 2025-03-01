@@ -7,6 +7,7 @@ import kotlinx.html.script
 import kotlinx.html.unsafe
 import sh.zachwal.button.config.jsDsn
 import sh.zachwal.button.config.jsEnv
+import sh.zachwal.button.config.umamiConfig
 
 fun HEAD.bootstrapCss() {
     link(
@@ -42,9 +43,22 @@ fun HEAD.sentryScript() {
     }
 }
 
+// Points at my personal Umami instance for anonymized site analytics
+// See https://umami.is
+fun HEAD.umamiScript() {
+    if (umamiConfig.umamiUrl.isNotBlank()) {
+        script {
+            defer = true
+            src = "https://${umamiConfig.umamiUrl}/script.js"
+            attributes["data-website-id"] = umamiConfig.websiteId
+        }
+    }
+}
+
 fun HEAD.headSetup() {
     bootstrapCss()
     favicon()
     mobileUI()
     sentryScript()
+    umamiScript()
 }

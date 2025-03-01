@@ -31,3 +31,5 @@ Requires a `button.env` environment file in the user's home directory (loaded by
 | ADMIN_PHONE        | The phone number to send admin texts to.                                                     | 
 | SENTRY_KOTLIN_DSN  | The Sentry DSN to send Kotlin exceptions to.                                                 | 
 | SENTRY_JS_DSN      | The Sentry DSN to send Javascript exceptions to.                                             | 
+| UMAMI_URL          | The URL of the Umami host to send analytics to.                                              |
+| UMAMI_WEBSITE_ID   | The website id of this deploy of the Button configured in Umami.                             |
