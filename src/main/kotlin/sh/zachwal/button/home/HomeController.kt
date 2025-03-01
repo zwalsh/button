@@ -46,6 +46,7 @@ import sh.zachwal.button.session.SessionService
 import sh.zachwal.button.shared_html.favicon
 import sh.zachwal.button.shared_html.mobileUI
 import sh.zachwal.button.shared_html.sentryScript
+import sh.zachwal.button.shared_html.umamiScript
 import javax.inject.Inject
 
 const val TOKEN_PARAMETER = "t"
@@ -87,6 +88,7 @@ class HomeController @Inject constructor(
                     mobileUI()
                     favicon()
                     sentryScript()
+                    umamiScript()
 
                     link(href = "static/src/css/style.css", rel = "stylesheet")
                     if (buttonShape.isSpecial()) {
