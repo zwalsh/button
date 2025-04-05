@@ -17,6 +17,7 @@ enum class ButtonShape {
     RINGS,
     ALPACA,
     WIGWAM,
+    OWEN_CARL,
 }
 
 fun ButtonShape.isSpecial(): Boolean {

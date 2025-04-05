@@ -38,6 +38,7 @@ import sh.zachwal.button.admin.config.ButtonShape.RINGS
 import sh.zachwal.button.admin.config.ButtonShape.SHAMROCK
 import sh.zachwal.button.admin.config.ButtonShape.TURKEY
 import sh.zachwal.button.admin.config.ButtonShape.WIGWAM
+import sh.zachwal.button.admin.config.ButtonShape.OWEN_CARL
 import sh.zachwal.button.admin.config.isSpecial
 import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.config.AppConfig
@@ -74,6 +75,7 @@ class HomeController @Inject constructor(
             RINGS -> "static/special/rings.svg"
             ALPACA -> "static/special/alpaca.png"
             WIGWAM -> "static/special/wigwam.png"
+            OWEN_CARL -> "static/special/owen_carl.png"
         }
     }
 
@@ -102,6 +104,9 @@ class HomeController @Inject constructor(
                         script {
                             src = "static/src/js/fireworks.js"
                         }
+                    }
+                    if (buttonShape == OWEN_CARL) {
+                        link(href = "static/src/css/owen_carl.css", rel = "stylesheet")
                     }
 
                     script {
