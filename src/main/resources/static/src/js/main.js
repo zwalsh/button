@@ -13,10 +13,25 @@ function connect() {
         console.log(event);
     }
     socket.onmessage = function (event) {
-    	let buttonPressDiv = document.getElementById("buttonPressCount");
-    	let buttonPressDivWhite = document.getElementById("buttonPressCountWhite");
-    	buttonPressDiv.innerText = "BUTTON PRESSERS: " + event.data;
-    	buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + event.data;
+        let msg;
+        try {
+            msg = JSON.parse(event.data);
+        } catch {
+            console.error('Bad JSON from server: ' + event.data);
+            return;
+        }
+        switch (msg.type) {
+            case 'CurrentCount': {
+                let buttonPressDiv = document.getElementById("buttonPressCount");
+                let buttonPressDivWhite = document.getElementById("buttonPressCountWhite");
+                if (buttonPressDiv) buttonPressDiv.innerText = "BUTTON PRESSERS: " + msg.count;
+                if (buttonPressDivWhite) buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + msg.count;
+                break;
+            }
+            default:
+                console.error("Unknown message type received from server: ", msg.type)
+                break;
+        }
     }
 
     socket.onclose = function (event) {
@@ -32,24 +47,24 @@ function connect() {
 
 connect();
 
-function pressing() {
-    console.log("sending pressing");
+function sendPressState(state) {
     if (socket.readyState !== WebSocket.OPEN) {
         connect();
     }
-    socket.send("pressing");
+    socket.send(JSON.stringify({ type: "PressStateChanged", state: state }));
+}
+
+function pressing() {
+    sendPressState("PRESSING");
     count++;
     if (count > 15) {
-        let signup = document.getElementById("signup").style.display = 'block';
+        let signup = document.getElementById("signup");
+        if (signup) signup.style.display = 'block';
     }
 }
 
 function released() {
-    console.log("sending released");
-    if (socket.readyState !== WebSocket.OPEN) {
-        connect();
-    }
-    socket.send("released");
+    sendPressState("RELEASED");
 }
 
 

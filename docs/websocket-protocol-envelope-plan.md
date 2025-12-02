@@ -12,14 +12,14 @@ Status: Proposal (v2 protocol)
 - Shape (minimum):
   {
     "type": "<PascalCaseMessageName>",
-    "body": { ... }
+    ...
   }
 - Optional extensions (future-friendly):
   - "requestId": "<string>" (correlate request/response, idempotency)
   - "ts": "<ISO-8601>" (producer timestamp)
 
 Notes:
-- Only "type" and "body" are required.
+- Only "type" and "ts" are required.
 - Message names are unique per direction; server and client may share some (e.g., Ping/Pong).
 
 ## Message taxonomy (initial set)
