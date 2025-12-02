@@ -1,6 +1,6 @@
 # WebSocket JSON Envelope Protocol Plan
 
-Date: 2025-12-02T02:19:57.096Z
+Date: 2025-12-02T02:35:33.502Z
 Status: Proposal (v2 protocol)
 
 ## Goals
@@ -15,12 +15,11 @@ Status: Proposal (v2 protocol)
     "body": { ... }
   }
 - Optional extensions (future-friendly):
-  - "version": 2 (integer protocol version; default 2 when omitted on v2 channel)
   - "requestId": "<string>" (correlate request/response, idempotency)
   - "ts": "<ISO-8601>" (producer timestamp)
 
 Notes:
-- Only "type" and "body" are required for v2.
+- Only "type" and "body" are required.
 - Message names are unique per direction; server and client may share some (e.g., Ping/Pong).
 
 ## Message taxonomy (initial set)
@@ -30,22 +29,16 @@ Client → Server
   body: { "state": "pressing" | "released" }
 - Ping
   body: { }
-- Auth (optional future)
-  body: { "token": "<jwt|opaque>" }
 
 Server → Client
 - CurrentCount
   body: { "count": <int> }
 - PersonPressing
-  body: { "id": "<string>", "displayName"?: "<string>" }
+  body: { "displayName": "<string>" }
 - TodaysHigh
   body: { "count": <int>, "at": "<ISO-8601>" }
 - Snapshot (coalesced state)
-  body: { "count": <int>, "pressingIds": ["<string>", ...], "todaysHigh": { "count": <int>, "at": "<ISO-8601>" } }
-- Error
-  body: { "code": "<string>", "message": "<string>", "details"?: object }
-- Ack (when requestId is used)
-  body: { "requestId": "<string>", "ok": true }
+  body: { "count": <int>, "pressingNames": ["<string>", ...], "todaysHigh": { "count": <int> } }
 - Pong
   body: { }
 
@@ -61,26 +54,18 @@ Server → Client
 
 ## Kotlin implementation sketch
 - Data model
-  - data class Envelope<T>(val type: String, val body: T, val version: Int? = null, val requestId: String? = null, val ts: Instant? = null)
+  - data class ServerEnvelope<T : ServerMessage>(val type: String, val body: T, val ts: Instant? = null)
+  - data class ClientEnvelope<T : ClientMessage>(val type: String, val body: T, val ts: Instant? = null)
   - sealed interface ClientMessage; sealed interface ServerMessage
   - data classes for each body type (PressStateChangedBody, CurrentCountBody, ...)
 - Serialization
-  - Prefer kotlinx.serialization with a custom polymorphic deserializer keyed by "type" to map to body class.
-  - Alternatively, Jackson @JsonTypeInfo(use = Id.NAME, property = "type") with @JsonSubTypes.
+  - Jackson @JsonTypeInfo(use = Id.NAME, property = "type") with @JsonSubTypes.
 - Controller
-  - Decode incoming Text frames as Envelope<Any>, dispatch by type to handlers.
-  - Produce Envelope<...> responses; centralize send via a small serializer helper.
+  - Decode incoming Text frames as ClientEnvelope<Any>, dispatch by type to handlers.
+  - Produce ServerEnvelope<...> responses; centralize send via a small serializer helper.
 
 ## Backward compatibility and rollout
-- Handshake opt-in: /ws?proto=2 (clients pass proto=2 to receive/send v2 envelopes).
-- Server accepts both:
-  - v1 inbound: raw strings "pressing"/"released" → map to PressStateChanged.
-  - v1 outbound: if client did not opt-in, continue sending integer count frames only.
-- Phases
-  1) Add v2 support behind proto=2; keep v1 default.
-  2) Update official clients to v2; monitor.
-  3) Flip default to v2, keep v1 behind proto=1 for a deprecation window.
-  4) Remove v1.
+- None. Volume is low, we can directly update to the new version.
 
 ## Concurrency, flow control, and performance
 - Maintain current coroutine/WS lifecycle; coalesce high-frequency updates (e.g., send Snapshot or CurrentCount on a throttle/debounce) to reduce fan-out.
@@ -89,17 +74,47 @@ Server → Client
 
 ## Testing
 - Unit tests: envelope encode/decode, unknown type handling, error mapping.
-- Integration: WebSocketController end-to-end (v1 and v2), migration flag, throttling behavior.
-- Load/soak: existing LoadTest updated to v2; verify throughput and memory.
+- Integration: WebSocketController end-to-end, throttling behavior.
+- Load/soak: existing LoadTest updated; verify throughput and memory.
 
 ## Observability
 - Add counters by message type (in/out), deserialization failures, dropped sends, and throttle metrics.
-- Log unknown "type" at warn with rate limiting; include requestId when present.
+- Log unknown "type" at error with rate limiting; include requestId when present.
 
 ## Security
 - Validate envelope sizes and body fields; cap message length.
-- If Auth is used, require before accepting state-changing messages; tie to session.
 
 ## Open questions
 - Do we need request/response correlation now (requestId) or later? Proposed: optional now, required for future RPC-like ops.
-- Should server emit both CurrentCount and Snapshot, or only Snapshot after clients migrate? Proposed: keep both during transition.
+
+## Frontend adaptation (minimal JS)
+- Replace legacy string protocol entirely; frontend now only sends/receives JSON envelopes.
+- Receiving:
+  - socket.onmessage: JSON.parse(event.data) (wrapped in try/catch). If parsing fails, log and return.
+  - Switch on msg.type:
+    - CurrentCount: update count display elements (#buttonPressCount, #buttonPressCountWhite).
+    - Snapshot: update count, pressing list (#pressersList if present), today's high (#todaysHigh if present).
+    - TodaysHigh: update high display.
+    - PersonPressing: optional visual feedback (flash name, future enhancement).
+    - Pong: ignore.
+  - Unknown type: log (rate limited) and ignore.
+- Sending:
+  - pressing(): socket.send(JSON.stringify({ type: "PressStateChanged", body: { state: "pressing" } }))
+  - released(): socket.send(JSON.stringify({ type: "PressStateChanged", body: { state: "released" } }))
+  - Optionally factor sendPressState(state) helper.
+- HTML/CSS:
+  - Keep purely static lightweight markup. Add optional elements (#todaysHigh, #pressersList) guarded by existence checks before updating.
+- Resilience:
+  - Wrap JSON.parse in try/catch; ignore messages > 4KB.
+- Example updated onmessage:
+  ```js
+  socket.onmessage = (event) => {
+    let msg; try { msg = JSON.parse(event.data); } catch { console.warn('Bad JSON'); return; }
+    switch (msg.type) {
+      case 'CurrentCount': updateCount(msg.body.count); break;
+      case 'Snapshot': updateSnapshot(msg.body); break;
+      case 'TodaysHigh': updateHigh(msg.body); break;
+      default: /* ignore */ break;
+    }
+  };
+  ```
