@@ -25,7 +25,6 @@ import sh.zachwal.button.presser.protocol.client.PressState
 import sh.zachwal.button.presser.protocol.client.PressStateChanged
 import sh.zachwal.button.presser.protocol.server.CurrentCount
 
-
 class Presser constructor(
     private val socketSession: WebSocketServerSession,
     private val observer: PresserObserver,
