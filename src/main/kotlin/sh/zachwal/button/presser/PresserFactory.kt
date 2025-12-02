@@ -1,5 +1,6 @@
 package sh.zachwal.button.presser
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.google.inject.name.Named
@@ -16,6 +17,7 @@ class PresserFactory @Inject constructor(
     private val contactNotifier: ContactNotifier,
     @Named("presserDispatcher")
     private val presserDispatcher: CoroutineDispatcher,
+    private val mapper: ObjectMapper,
 ) {
 
     fun createPresser(
@@ -28,6 +30,13 @@ class PresserFactory @Inject constructor(
                 presserManager, presserHistoryObserver, contactNotifier
             )
         )
-        return Presser(socketSession, observer, remoteHost, contact, presserDispatcher)
+        return Presser(
+            socketSession = socketSession,
+            observer = observer,
+            remoteHost = remoteHost,
+            contact = contact,
+            objectMapper = mapper,
+            dispatcher = presserDispatcher,
+        )
     }
 }

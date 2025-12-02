@@ -1,5 +1,8 @@
 package sh.zachwal.button.presser
 
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.CloseReason.Codes
 import io.ktor.http.cio.websocket.CloseReason.Codes.PROTOCOL_ERROR
@@ -10,22 +13,28 @@ import io.ktor.http.cio.websocket.readText
 import io.ktor.websocket.WebSocketServerSession
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.ktorutils.remote
-
-private val logger = LoggerFactory.getLogger(Presser::class.java)
+import sh.zachwal.button.presser.protocol.client.ClientMessage
+import sh.zachwal.button.presser.protocol.client.PressState
+import sh.zachwal.button.presser.protocol.client.PressStateChanged
+import sh.zachwal.button.presser.protocol.server.CurrentCount
 
 class Presser constructor(
     private val socketSession: WebSocketServerSession,
     private val observer: PresserObserver,
     val remoteHost: String,
     val contact: Contact?,
+    private val objectMapper: ObjectMapper,
     dispatcher: CoroutineDispatcher
 ) {
+    private val logger = LoggerFactory.getLogger(Presser::class.java)
+
     // uses two coroutines, one to accept incoming & one to send outgoing
     private val scope = CoroutineScope(dispatcher)
 
@@ -42,7 +51,9 @@ class Presser constructor(
         val outgoing = scope.launch {
             // handle outgoing
             for (updatedCount in countUpdateChannel) {
-                socketSession.send(Text(updatedCount.toString()))
+                val message = CurrentCount(count = updatedCount)
+                val text = objectMapper.writeValueAsString(message)
+                socketSession.send(Text(text))
             }
         }
         incoming.join()
@@ -63,15 +74,26 @@ class Presser constructor(
 
     private suspend fun Presser.handleIncomingText(frame: Text) {
         val text = frame.readText()
-        logger.info("Presser at $remoteHost set to $text")
-        when (text) {
-            "pressing" -> observer.pressed(this)
-            "released" -> observer.released(this)
-            else -> {
-                logger.error("Got unexpected text from client on socket: $text, disconnecting.")
-                observer.disconnected(this@Presser)
-                socketSession.close(CloseReason(PROTOCOL_ERROR, "Invalid text $text"))
-            }
+        logger.info("Presser at $remoteHost sent $text")
+        val message = try {
+            objectMapper.readValue<ClientMessage>(text)
+        } catch (e: JsonParseException) {
+            logger.error("Client sent unparseable message, disconnecting.", e)
+            observer.disconnected(this)
+            socketSession.close(CloseReason(PROTOCOL_ERROR, "Invalid text $text"))
+            scope.cancel("Client sent unparseable message, disconnecting.", e)
+            return
+        }
+
+        when (message) {
+            is PressStateChanged -> handlePressStateChanged(message)
+        }
+    }
+
+    private suspend fun handlePressStateChanged(pressStateChanged: PressStateChanged) {
+        when (pressStateChanged.state) {
+            PressState.PRESSING -> observer.pressed(this)
+            PressState.RELEASED -> observer.released(this)
         }
     }
 
