@@ -19,7 +19,7 @@ Status: Proposal (v2 protocol)
   - "ts": "<ISO-8601>" (producer timestamp)
 
 Notes:
-- Only "type" and "ts" are required.
+- Only "type" is required.
 - Message names are unique per direction; server and client may share some (e.g., Ping/Pong).
 
 ## Message taxonomy (initial set)
