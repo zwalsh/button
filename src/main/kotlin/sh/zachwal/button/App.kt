@@ -32,6 +32,7 @@ import sh.zachwal.button.features.configureStatusPages
 import sh.zachwal.button.guice.ApplicationModule
 import sh.zachwal.button.guice.ConfigModule
 import sh.zachwal.button.guice.HikariModule
+import sh.zachwal.button.guice.JacksonModule
 import sh.zachwal.button.guice.JdbiModule
 import sh.zachwal.button.guice.MessagingModule
 import sh.zachwal.button.roles.RoleAuthorization
@@ -60,7 +61,8 @@ fun Application.module(testing: Boolean = false) {
         ConfigModule(environment.config),
         JdbiModule(),
         HikariModule(),
-        MessagingModule()
+        MessagingModule(),
+        JacksonModule()
     )
 
     val config = injector.getInstance(AppConfig::class.java)
