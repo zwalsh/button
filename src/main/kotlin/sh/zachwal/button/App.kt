@@ -23,6 +23,7 @@ import sh.zachwal.button.auth.configureContactSessionAuth
 import sh.zachwal.button.auth.configureFormAuth
 import sh.zachwal.button.auth.configureUserSessionAuth
 import sh.zachwal.button.auth.contact.ContactTokenCleanupTask
+import sh.zachwal.button.presshistory.ContactPressCountMaterializationTask
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.config.initSentry
 import sh.zachwal.button.config.initUmami
@@ -144,4 +145,8 @@ fun Application.module(testing: Boolean = false) {
     // clean up expired contact tokens every hour
     val contactTokenCleanupTask = injector.getInstance(ContactTokenCleanupTask::class.java)
     contactTokenCleanupTask.repeatCleanup()
+
+    // materialize contact press counts daily
+    val contactPressCountMaterializationTask = injector.getInstance(ContactPressCountMaterializationTask::class.java)
+    contactPressCountMaterializationTask.repeatDaily()
 }

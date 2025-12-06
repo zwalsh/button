@@ -9,6 +9,7 @@ import org.jdbi.v3.postgres.PostgresPlugin
 import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import sh.zachwal.button.db.dao.ContactDAO
+import sh.zachwal.button.db.dao.ContactPressCountDAO
 import sh.zachwal.button.db.dao.ContactTokenDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.dao.PressDAO
@@ -55,4 +56,7 @@ class JdbiModule : AbstractModule() {
 
     @Provides
     fun wrappedDao(jdbi: Jdbi): WrappedDAO = jdbi.onDemand()
+
+    @Provides
+    fun contactPressCountDao(jdbi: Jdbi): ContactPressCountDAO = jdbi.onDemand()
 }
