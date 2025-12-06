@@ -23,7 +23,6 @@ import sh.zachwal.button.auth.configureContactSessionAuth
 import sh.zachwal.button.auth.configureFormAuth
 import sh.zachwal.button.auth.configureUserSessionAuth
 import sh.zachwal.button.auth.contact.ContactTokenCleanupTask
-import sh.zachwal.button.presshistory.ContactPressCountMaterializationTask
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.config.initSentry
 import sh.zachwal.button.config.initUmami
@@ -36,6 +35,7 @@ import sh.zachwal.button.guice.HikariModule
 import sh.zachwal.button.guice.JacksonModule
 import sh.zachwal.button.guice.JdbiModule
 import sh.zachwal.button.guice.MessagingModule
+import sh.zachwal.button.presshistory.ContactPressCountMaterializationTask
 import sh.zachwal.button.roles.RoleAuthorization
 import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.session.CONTACT_SESSION

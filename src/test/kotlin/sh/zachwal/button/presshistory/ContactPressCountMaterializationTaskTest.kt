@@ -1,18 +1,17 @@
 package sh.zachwal.button.presshistory
 
+import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.jdbi.v3.core.Jdbi
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.ContactPressCountDAO
 import sh.zachwal.button.db.dao.PressDAO
-import java.time.LocalDate
-import java.time.ZoneOffset
-
 import sh.zachwal.button.db.extension.DatabaseExtension
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 @ExtendWith(DatabaseExtension::class)
