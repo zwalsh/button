@@ -28,7 +28,6 @@ class PresserManager : PresserObserver {
     private suspend fun sendNewPresser(presser: Presser) {
         presser.contact?.name?.let { name ->
             pressers
-                .filterNot { it == presser }
                 .forEach { p ->
                     p.notifyPersonPressing(name)
                 }

@@ -120,6 +120,9 @@ class HomeController @Inject constructor(
                 }
                 body {
                     div(classes = "container pointerparent") {
+                        div(classes = "person-pressed-message") {
+                            id = "personPressedMessage"
+                        }
                         // must go first
                         if (buttonShape == FIREWORKS) {
                             div(classes = "fw") { }

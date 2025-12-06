@@ -30,6 +30,18 @@ function connect() {
             }
             case 'PersonPressing': {
                 console.log('Person pressing:', msg.displayName);
+                const messageDiv = document.getElementById('personPressedMessage');
+                if (messageDiv) {
+                    if (window.personPressedTimeout) {
+                        clearTimeout(window.personPressedTimeout);
+                    }
+                    messageDiv.textContent = `${msg.displayName} pressed!`;
+                    messageDiv.classList.add('show');
+                    window.personPressedTimeout = setTimeout(() => {
+                        messageDiv.classList.remove('show');
+                        window.personPressedTimeout = null;
+                    }, 2000);
+                }
                 break;
             }
             default:

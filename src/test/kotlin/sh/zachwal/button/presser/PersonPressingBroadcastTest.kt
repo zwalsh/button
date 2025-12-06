@@ -23,8 +23,8 @@ class PersonPressingBroadcastTest {
         manager.addPresser(presser2)
         // Simulate presser1 pressing
         manager.pressed(presser1)
-        // Only presser2 should be notified about Alice
+        // Both pressers should be notified about Alice
         coVerify { presser2.notifyPersonPressing("Alice") }
-        coVerify(exactly = 0) { presser1.notifyPersonPressing(any()) }
+        coVerify { presser1.notifyPersonPressing("Alice") }
     }
 }
