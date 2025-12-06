@@ -10,6 +10,11 @@ import java.time.Instant
     JsonSubTypes.Type(CurrentCount::class),
     JsonSubTypes.Type(PersonPressing::class)
 )
+/**
+ * Base interface for all server-to-client protocol messages (e.g., CurrentCount, PersonPressing).
+ *
+ * Used for polymorphic serialization and message handling on the frontend.
+ */
 sealed interface ServerMessage {
     @get:JsonIgnore
     val type: String get() = this::class.simpleName!!

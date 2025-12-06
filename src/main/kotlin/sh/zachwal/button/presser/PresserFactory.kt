@@ -11,6 +11,11 @@ import sh.zachwal.button.notify.ContactNotifier
 import sh.zachwal.button.presshistory.PressHistoryObserver
 
 @Singleton
+/**
+ * Factory for creating Presser instances, wiring them with the appropriate observers and dependencies.
+ *
+ * Ensures each Presser is connected to the global data flow (via PresserManager, PressHistoryObserver, etc).
+ */
 class PresserFactory @Inject constructor(
     private val presserManager: PresserManager,
     private val presserHistoryObserver: PressHistoryObserver,

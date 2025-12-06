@@ -26,6 +26,13 @@ import sh.zachwal.button.presser.protocol.client.PressStateChanged
 import sh.zachwal.button.presser.protocol.server.CurrentCount
 import sh.zachwal.button.presser.protocol.server.PersonPressing
 
+/**
+ * Handles a single WebSocket client connection, managing incoming and outgoing messages for a button presser.
+ *
+ * Receives state changes from the client, notifies observers (such as PresserManager), and sends updates (like
+ * CurrentCount and PersonPressing) to the client. Each Presser is associated with a contact (if authenticated) and
+ * participates in the global pressers data flow via its observer.
+ */
 class Presser constructor(
     private val socketSession: WebSocketServerSession,
     private val observer: PresserObserver,
