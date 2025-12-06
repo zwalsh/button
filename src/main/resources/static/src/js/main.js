@@ -29,7 +29,7 @@ function connect() {
                 break;
             }
             case 'PersonPressing': {
-                console.log('Person pressing:', msg.body.displayName);
+                console.log('Person pressing:', msg.displayName);
                 break;
             }
             default:
