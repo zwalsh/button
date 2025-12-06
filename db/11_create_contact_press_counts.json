@@ -1,0 +1,83 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "11_create_contact_press_counts",
+        "author": "copilot",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "contact_press_counts",
+              "columns": [
+                {
+                  "column": {
+                    "name": "contact_id",
+                    "type": "INT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "date",
+                    "type": "DATE",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "press_count",
+                    "type": "INT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addPrimaryKey": {
+              "tableName": "contact_press_counts",
+              "columnNames": "contact_id, date",
+              "constraintName": "pk_contact_press_counts"
+            }
+          },
+          {
+            "createIndex": {
+              "tableName": "contact_press_counts",
+              "indexName": "idx_contact_press_counts_date_contact",
+              "columns": [
+                {
+                  "column": {
+                    "name": "date"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "contact_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "baseTableName": "contact_press_counts",
+              "baseColumnNames": "contact_id",
+              "referencedTableName": "contact",
+              "referencedColumnNames": "id",
+              "constraintName": "contact_press_counts_contact_id_fk",
+              "onDelete": "CASCADE",
+              "onUpdate": "RESTRICT",
+              "validate": true
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

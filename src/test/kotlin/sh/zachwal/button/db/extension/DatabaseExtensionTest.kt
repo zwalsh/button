@@ -36,7 +36,8 @@ class DatabaseExtensionTest {
             "sent_message",
             "notification",
             "contact_token",
-            "wrapped_link"
+            "wrapped_link",
+            "contact_press_counts"
         )
     }
 
