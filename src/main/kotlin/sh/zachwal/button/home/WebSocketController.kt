@@ -14,6 +14,11 @@ import sh.zachwal.button.session.principals.ContactSessionPrincipal
 import javax.inject.Inject
 
 @Controller
+/**
+ * Ktor controller that handles the /socket WebSocket endpoint for button pressers.
+ *
+ * Authenticates users, creates Presser instances for each connection, and integrates them into the system.
+ */
 class WebSocketController @Inject constructor(
     private val manager: PresserManager,
     private val presserFactory: PresserFactory,
