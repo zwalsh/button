@@ -1,10 +1,10 @@
 package sh.zachwal.button.db.dao
 
 import com.google.common.truth.Truth.assertThat
+import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.jdbi.v3.core.Jdbi
 import sh.zachwal.button.db.extension.DatabaseExtension
 import sh.zachwal.button.db.jdbi.ContactPressCount
 import java.time.LocalDate
