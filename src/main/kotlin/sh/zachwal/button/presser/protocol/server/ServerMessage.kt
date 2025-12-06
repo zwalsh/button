@@ -7,7 +7,8 @@ import java.time.Instant
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(CurrentCount::class)
+    JsonSubTypes.Type(CurrentCount::class),
+    JsonSubTypes.Type(PersonPressing::class)
 )
 sealed interface ServerMessage {
     @get:JsonIgnore

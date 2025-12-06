@@ -24,6 +24,7 @@ import sh.zachwal.button.presser.protocol.client.ClientMessage
 import sh.zachwal.button.presser.protocol.client.PressState
 import sh.zachwal.button.presser.protocol.client.PressStateChanged
 import sh.zachwal.button.presser.protocol.server.CurrentCount
+import sh.zachwal.button.presser.protocol.server.PersonPressing
 
 class Presser constructor(
     private val socketSession: WebSocketServerSession,
@@ -40,6 +41,8 @@ class Presser constructor(
 
     // updates to the current count of pressers
     private val countUpdateChannel = Channel<Int>(UNLIMITED)
+    // person pressing notifications
+    private val personPressingChannel = Channel<String>(UNLIMITED)
 
     suspend fun watchChannels() {
         val incoming = scope.launch {
@@ -48,16 +51,23 @@ class Presser constructor(
                 handleIncomingFrame(frame)
             }
         }
-        val outgoing = scope.launch {
-            // handle outgoing
+        val outgoingCount = scope.launch {
             for (updatedCount in countUpdateChannel) {
                 val message = CurrentCount(count = updatedCount)
                 val text = objectMapper.writeValueAsString(message)
                 socketSession.send(Text(text))
             }
         }
+        val outgoingPerson = scope.launch {
+            for (name in personPressingChannel) {
+                val message = PersonPressing(displayName = name, ts = java.time.Instant.now())
+                val text = objectMapper.writeValueAsString(message)
+                socketSession.send(Text(text))
+            }
+        }
         incoming.join()
-        outgoing.join()
+        outgoingCount.join()
+        outgoingPerson.join()
         observer.disconnected(this)
     }
 
@@ -72,7 +82,7 @@ class Presser constructor(
         }
     }
 
-    private suspend fun Presser.handleIncomingText(frame: Text) {
+    private suspend fun handleIncomingText(frame: Text) {
         val text = frame.readText()
         logger.info("Presser at $remoteHost sent $text")
         val message = try {
@@ -99,6 +109,10 @@ class Presser constructor(
 
     suspend fun updatePressingCount(count: Int) {
         countUpdateChannel.send(count)
+    }
+
+    suspend fun notifyPersonPressing(name: String) {
+        personPressingChannel.send(name)
     }
 
     fun remote(): String = socketSession.call.request.remote()

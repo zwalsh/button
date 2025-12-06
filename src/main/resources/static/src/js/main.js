@@ -28,6 +28,10 @@ function connect() {
                 if (buttonPressDivWhite) buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + msg.count;
                 break;
             }
+            case 'PersonPressing': {
+                console.log('Person pressing:', msg.body.displayName);
+                break;
+            }
             default:
                 console.error("Unknown message type received from server: ", msg.type)
                 break;

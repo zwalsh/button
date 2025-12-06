@@ -38,4 +38,15 @@ internal class ProtocolSerDeTest {
         assertTrue(parsed is CurrentCount)
         assertEquals(123, parsed.count)
     }
+
+    @Test
+    fun `serialize and deserialize server PersonPressing`() {
+        val msg: ServerMessage = PersonPressing("Alice", java.time.Instant.parse("2025-12-06T16:21:10.836Z"))
+        val json = mapper.writeValueAsString(msg)
+
+        val parsed = mapper.readValue<ServerMessage>(json)
+        assertTrue(parsed is PersonPressing)
+        assertEquals("Alice", (parsed as PersonPressing).displayName)
+        assertEquals(java.time.Instant.parse("2025-12-06T16:21:10.836Z"), parsed.ts)
+    }
 }
