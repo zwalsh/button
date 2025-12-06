@@ -65,7 +65,7 @@ interface PressDAO {
         """
         select date(time at time zone 'UTC') as date, count(*) as press_count
         from public.press
-        where contact_id = :contactId and time >= :startDate and time <= :endDate + interval '1 day' - interval '1 second'
+        where contact_id = :contactId and date(time at time zone 'UTC') between :startDate and :endDate
         group by date
         order by date
         """

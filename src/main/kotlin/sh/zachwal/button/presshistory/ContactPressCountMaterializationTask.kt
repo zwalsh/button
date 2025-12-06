@@ -23,7 +23,7 @@ class ContactPressCountMaterializationTask @Inject constructor(
         val yesterday = today.minusDays(1)
         val contacts = contactDAO.selectActiveContacts()
         for (contact in contacts) {
-            logger.info("Materializing press counts for $contact")
+            logger.info("Materializing press counts for contact id=${contact.id}, name=${contact.name}")
             val contactId = contact.id
             val firstPressTimestamp = pressDAO.firstPressTimestampForContact(contactId) ?: continue
             val firstPressDate = firstPressTimestamp.toInstant().atZone(ZoneOffset.UTC).toLocalDate()
