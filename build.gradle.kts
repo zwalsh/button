@@ -83,6 +83,11 @@ dependencies {
 
     testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("com.google.truth:truth:1.1.3")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.7")
+    testImplementation("org.testcontainers:postgresql:1.19.7")
+    testImplementation("org.liquibase:liquibase-core:4.27.0")
+    testImplementation("org.jdbi:jdbi3-jackson2:$jdbiVersion")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.13.5")
 }
 
 application {
