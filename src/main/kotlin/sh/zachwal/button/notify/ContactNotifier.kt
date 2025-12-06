@@ -7,13 +7,12 @@ import com.google.inject.name.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.db.dao.ContactDAO
-import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.dao.ContactPressCountDAO
+import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.home.TOKEN_PARAMETER
 import sh.zachwal.button.presser.Presser
