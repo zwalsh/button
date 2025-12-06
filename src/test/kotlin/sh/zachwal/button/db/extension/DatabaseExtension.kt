@@ -28,9 +28,9 @@ const val PASSWORD = "button"
 const val DB_NAME = "button"
 
 class DatabaseExtension : ParameterResolver, BeforeEachCallback, AfterEachCallback {
-    
+
     private val logger = LoggerFactory.getLogger(DatabaseExtension::class.java)
-    
+
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
         return parameterContext.parameter.parameterizedType in listOf(
             ButtonPostgresContainer::class.java,
@@ -55,7 +55,6 @@ class DatabaseExtension : ParameterResolver, BeforeEachCallback, AfterEachCallba
                 ButtonPostgresContainer::class.java
             )
     }
-
 
     private fun createPostgresContainer(): ButtonPostgresContainer {
         logger.info("Creating container")

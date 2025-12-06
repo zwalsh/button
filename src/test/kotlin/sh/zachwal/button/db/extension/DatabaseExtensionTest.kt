@@ -1,9 +1,9 @@
 package sh.zachwal.button.db.extension
 
+import com.google.common.truth.Truth.assertThat
+import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.jdbi.v3.core.Jdbi
-import com.google.common.truth.Truth.assertThat
 
 @ExtendWith(DatabaseExtension::class)
 class DatabaseExtensionTest {
