@@ -35,6 +35,7 @@ import sh.zachwal.button.guice.HikariModule
 import sh.zachwal.button.guice.JacksonModule
 import sh.zachwal.button.guice.JdbiModule
 import sh.zachwal.button.guice.MessagingModule
+import sh.zachwal.button.presshistory.ContactPressCountMaterializationTask
 import sh.zachwal.button.roles.RoleAuthorization
 import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.session.CONTACT_SESSION
@@ -144,4 +145,8 @@ fun Application.module(testing: Boolean = false) {
     // clean up expired contact tokens every hour
     val contactTokenCleanupTask = injector.getInstance(ContactTokenCleanupTask::class.java)
     contactTokenCleanupTask.repeatCleanup()
+
+    // materialize contact press counts daily
+    val contactPressCountMaterializationTask = injector.getInstance(ContactPressCountMaterializationTask::class.java)
+    contactPressCountMaterializationTask.repeatDaily()
 }
