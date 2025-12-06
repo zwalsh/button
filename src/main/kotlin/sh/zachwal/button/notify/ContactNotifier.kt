@@ -13,12 +13,14 @@ import org.slf4j.LoggerFactory
 import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.NotificationDAO
+import sh.zachwal.button.db.dao.ContactPressCountDAO
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.home.TOKEN_PARAMETER
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserObserver
 import sh.zachwal.button.sms.ControlledContactMessagingService
 import java.time.Instant
+import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
@@ -26,6 +28,7 @@ import kotlin.concurrent.thread
 @Singleton
 class ContactNotifier @Inject constructor(
     private val contactDAO: ContactDAO,
+    private val contactPressCountDAO: ContactPressCountDAO,
     private val controlledContactMessagingService: ControlledContactMessagingService,
     private val notificationDAO: NotificationDAO,
     @Named("host")
@@ -72,7 +75,7 @@ class ContactNotifier @Inject constructor(
             // TODO: Create the notification with the triggering contact id & remote address
             notificationDAO.createNotification()
 
-            val contacts = contactDAO.selectActiveContacts()
+            val contacts = contactsToNotify()
             logger.info("Sending a notification to ${contacts.size} contacts.")
             contacts.forEach { c ->
                 val linkForContact = linkForContact(c)
@@ -80,10 +83,19 @@ class ContactNotifier @Inject constructor(
                     contact = c,
                     body = "Someone's pressing The Button! Join in: $linkForContact"
                 )
-                // Don't get our number blocked
-                delay(1000)
             }
         }
+    }
+
+    /**
+     * Prioritized list of contacts based on recent press activity.
+     */
+    private fun contactsToNotify(): List<Contact> {
+        val contacts = contactDAO.selectActiveContacts()
+        val endDate = LocalDate.now()
+        val startDate = endDate.minusDays(90)
+        val aggregatedCounts = contactPressCountDAO.aggregateCountsByContact(startDate, endDate)
+        return contacts.sortedByDescending { c -> aggregatedCounts[c.id] ?: 0 }
     }
 
     private fun linkForContact(contact: Contact): String {
