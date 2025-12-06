@@ -9,8 +9,8 @@ import sh.zachwal.button.presser.protocol.client.ClientMessage
 import sh.zachwal.button.presser.protocol.client.PressState
 import sh.zachwal.button.presser.protocol.client.PressStateChanged
 import sh.zachwal.button.presser.protocol.server.CurrentCount
-import sh.zachwal.button.presser.protocol.server.ServerMessage
 import sh.zachwal.button.presser.protocol.server.PersonPressing
+import sh.zachwal.button.presser.protocol.server.ServerMessage
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
