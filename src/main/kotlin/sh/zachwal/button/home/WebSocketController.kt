@@ -33,7 +33,7 @@ class WebSocketController @Inject constructor(
             val contactSession = call.sessions.get<ContactSessionPrincipal>()
             val contact = contactSession?.contactId?.let { contactDAO.findContact(it) }
             if (contact != null) {
-                logger.info("New connection from contact $contact at $remote")
+                logger.info("New connection from contact id=${contact.id} name=${contact.name} at $remote")
             } else {
                 logger.info("New connection from $remote")
             }

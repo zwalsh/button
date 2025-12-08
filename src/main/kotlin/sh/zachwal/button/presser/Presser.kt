@@ -91,7 +91,6 @@ class Presser constructor(
 
     private suspend fun handleIncomingText(frame: Text) {
         val text = frame.readText()
-        logger.info("Presser at $remoteHost sent $text")
         val message = try {
             objectMapper.readValue<ClientMessage>(text)
         } catch (e: JsonParseException) {
