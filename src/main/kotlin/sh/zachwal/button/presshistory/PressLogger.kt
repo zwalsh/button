@@ -15,6 +15,7 @@ import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserObserver
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
+import kotlin.concurrent.thread
 
 @Singleton
 class PressLogger @Inject constructor() : PresserObserver {
@@ -54,11 +55,16 @@ class PressLogger @Inject constructor() : PresserObserver {
                 pressCounts.merge(key, 1, Int::plus)
             }
         }
+        Runtime.getRuntime().addShutdownHook(
+            thread(start = false) {
+                threadPool.shutdownNow()
+            }
+        )
     }
 
     override suspend fun pressed(presser: Presser) {
         val key = presser.contact?.name ?: presser.remoteHost
-        pressChannel.send(key)
+        pressChannel.trySend(key)
     }
 
     override suspend fun released(presser: Presser) {}

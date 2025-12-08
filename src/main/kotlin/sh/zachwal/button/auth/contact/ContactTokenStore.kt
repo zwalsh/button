@@ -1,6 +1,5 @@
 package sh.zachwal.button.auth.contact
 
-import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.dao.ContactTokenDAO
 import sh.zachwal.button.random.RandomStringGenerator
 import java.time.Instant
@@ -14,16 +13,12 @@ class ContactTokenStore @Inject constructor(
     private val contactTokenDAO: ContactTokenDAO
 ) {
 
-    private val logger = LoggerFactory.getLogger(ContactTokenStore::class.java)
-
     private val randomStringGenerator = RandomStringGenerator()
 
     fun createToken(contactId: Int): String {
         val token = randomStringGenerator.newToken(20)
         val expiration = Instant.now().plus(30, ChronoUnit.DAYS)
-        val contactToken = contactTokenDAO.createToken(token, contactId, expiration)
-
-        logger.info("Stored contact token $contactToken.")
+        contactTokenDAO.createToken(token, contactId, expiration)
         return token
     }
 

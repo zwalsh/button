@@ -71,10 +71,11 @@ class TwilioMessagingService constructor(
                 twilioConfig.messagingServiceSid,
                 body
             ).createAsync().await()
+            val maskedNumber = toPhoneNumber.take(5) + "*".repeat(toPhoneNumber.length - 5)
 
             when (message.status) {
                 QUEUED, ACCEPTED -> {
-                    logger.info("Sent message to $toPhoneNumber with id ${message.sid}.")
+                    logger.info("Sent message to $maskedNumber with id ${message.sid}.")
 
                     MessageQueued(
                         id = message.sid,
@@ -83,7 +84,7 @@ class TwilioMessagingService constructor(
                 }
                 FAILED -> {
                     logger.warn(
-                        "Failed to send message to $toPhoneNumber: ${message.sid}, " +
+                        "Failed to send message to $maskedNumber: ${message.sid}, " +
                             "${message.errorMessage}."
                     )
 
@@ -92,7 +93,7 @@ class TwilioMessagingService constructor(
                 else -> {
                     logger.error(
                         "Got unhandled message status from Twilio when sending message to " +
-                            "$toPhoneNumber: ${message.status}, ${message.errorMessage}"
+                            "$maskedNumber: ${message.status}, ${message.errorMessage}"
                     )
                     throw RuntimeException("Unhandled Twilio message status: ${message.status}")
                 }
