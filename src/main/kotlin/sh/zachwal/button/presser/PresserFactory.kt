@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.notify.ContactNotifier
 import sh.zachwal.button.presshistory.PressHistoryObserver
+import sh.zachwal.button.presshistory.PressLogger
 
 @Singleton
 /**
@@ -20,6 +21,7 @@ class PresserFactory @Inject constructor(
     private val presserManager: PresserManager,
     private val presserHistoryObserver: PressHistoryObserver,
     private val contactNotifier: ContactNotifier,
+    private val pressLogger: PressLogger,
     @Named("presserDispatcher")
     private val presserDispatcher: CoroutineDispatcher,
     private val mapper: ObjectMapper,
@@ -32,7 +34,7 @@ class PresserFactory @Inject constructor(
     ): Presser {
         val observer = MultiPresserObserver(
             listOf(
-                presserManager, presserHistoryObserver, contactNotifier
+                presserManager, presserHistoryObserver, contactNotifier, pressLogger
             )
         )
         return Presser(
