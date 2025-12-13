@@ -15,7 +15,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.jdbi.Contact
@@ -53,11 +52,11 @@ class Presser constructor(
     private val scope = CoroutineScope(dispatcher)
 
     // updates to the current count of pressers
-    private val countUpdateChannel = Channel<Int>(UNLIMITED)
+    private val countUpdateChannel = Channel<Int>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
     // person pressing notifications
-    private val personPressingChannel = Channel<String>(UNLIMITED)
+    private val personPressingChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
     // person released notifications
-    private val personReleasedChannel = Channel<String>(UNLIMITED)
+    private val personReleasedChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
 
     suspend fun watchChannels() {
         val incoming = scope.launch {
