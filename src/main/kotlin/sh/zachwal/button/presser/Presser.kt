@@ -14,8 +14,8 @@ import io.ktor.websocket.WebSocketServerSession
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.db.jdbi.Contact
@@ -25,6 +25,8 @@ import sh.zachwal.button.presser.protocol.client.PressState
 import sh.zachwal.button.presser.protocol.client.PressStateChanged
 import sh.zachwal.button.presser.protocol.server.CurrentCount
 import sh.zachwal.button.presser.protocol.server.PersonPressing
+import sh.zachwal.button.presser.protocol.server.PersonReleased
+import sh.zachwal.button.presser.protocol.server.ServerMessage
 
 /**
  * Handles a single WebSocket client connection, managing incoming and outgoing messages for a button presser.
@@ -41,15 +43,18 @@ class Presser constructor(
     private val objectMapper: ObjectMapper,
     dispatcher: CoroutineDispatcher
 ) {
+
     private val logger = LoggerFactory.getLogger(Presser::class.java)
 
     // uses two coroutines, one to accept incoming & one to send outgoing
     private val scope = CoroutineScope(dispatcher)
 
     // updates to the current count of pressers
-    private val countUpdateChannel = Channel<Int>(UNLIMITED)
+    private val countUpdateChannel = Channel<Int>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
     // person pressing notifications
-    private val personPressingChannel = Channel<String>(UNLIMITED)
+    private val personPressingChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    // person released notifications
+    private val personReleasedChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
 
     suspend fun watchChannels() {
         val incoming = scope.launch {
@@ -60,22 +65,29 @@ class Presser constructor(
         }
         val outgoingCount = scope.launch {
             for (updatedCount in countUpdateChannel) {
-                val message = CurrentCount(count = updatedCount)
-                val text = objectMapper.writeValueAsString(message)
-                socketSession.send(Text(text))
+                sendServerMessage(CurrentCount(count = updatedCount))
             }
         }
         val outgoingPerson = scope.launch {
             for (name in personPressingChannel) {
-                val message = PersonPressing(displayName = name)
-                val text = objectMapper.writeValueAsString(message)
-                socketSession.send(Text(text))
+                sendServerMessage(PersonPressing(displayName = name))
+            }
+        }
+        val outgoingReleased = scope.launch {
+            for (name in personReleasedChannel) {
+                sendServerMessage(PersonReleased(displayName = name))
             }
         }
         incoming.join()
         outgoingCount.join()
         outgoingPerson.join()
+        outgoingReleased.join()
         observer.disconnected(this)
+    }
+
+    private suspend fun sendServerMessage(message: ServerMessage) {
+        val text = objectMapper.writeValueAsString(message)
+        socketSession.send(Text(text))
     }
 
     private suspend fun handleIncomingFrame(frame: Frame) {
@@ -119,6 +131,10 @@ class Presser constructor(
 
     suspend fun notifyPersonPressing(name: String) {
         personPressingChannel.send(name)
+    }
+
+    suspend fun notifyPersonReleased(name: String) {
+        personReleasedChannel.send(name)
     }
 
     fun remote(): String = socketSession.call.request.remote()

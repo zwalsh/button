@@ -10,6 +10,7 @@ import sh.zachwal.button.presser.protocol.client.PressState
 import sh.zachwal.button.presser.protocol.client.PressStateChanged
 import sh.zachwal.button.presser.protocol.server.CurrentCount
 import sh.zachwal.button.presser.protocol.server.PersonPressing
+import sh.zachwal.button.presser.protocol.server.PersonReleased
 import sh.zachwal.button.presser.protocol.server.ServerMessage
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -48,5 +49,15 @@ internal class ProtocolSerDeTest {
         val parsed = mapper.readValue<ServerMessage>(json)
         assertTrue(parsed is PersonPressing)
         assertEquals("Alice", parsed.displayName)
+    }
+
+    @Test
+    fun `serialize and deserialize server PersonReleased`() {
+        val msg: ServerMessage = PersonReleased("Alice")
+        val json = mapper.writeValueAsString(msg)
+
+        val parsed = mapper.readValue<ServerMessage>(json)
+        assertTrue(parsed is PersonReleased)
+        assertEquals("Alice", (parsed as PersonReleased).displayName)
     }
 }
