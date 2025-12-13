@@ -25,6 +25,7 @@ import sh.zachwal.button.presser.protocol.client.PressState
 import sh.zachwal.button.presser.protocol.client.PressStateChanged
 import sh.zachwal.button.presser.protocol.server.CurrentCount
 import sh.zachwal.button.presser.protocol.server.PersonPressing
+import sh.zachwal.button.presser.protocol.server.PersonReleased
 
 /**
  * Handles a single WebSocket client connection, managing incoming and outgoing messages for a button presser.
@@ -76,7 +77,7 @@ class Presser constructor(
         }
         val outgoingReleased = scope.launch {
             for (name in personReleasedChannel) {
-                val message = sh.zachwal.button.presser.protocol.server.PersonReleased(displayName = name)
+                val message = PersonReleased(displayName = name)
                 val text = objectMapper.writeValueAsString(message)
                 socketSession.send(Text(text))
             }
