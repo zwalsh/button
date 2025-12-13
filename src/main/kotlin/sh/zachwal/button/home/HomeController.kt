@@ -98,6 +98,7 @@ class HomeController @Inject constructor(
                     umamiScript()
 
                     link(href = "static/src/css/style.css", rel = "stylesheet")
+                    link(href = "static/src/css/floating-pressers.css", rel = "stylesheet")
                     if (buttonShape.isSpecial()) {
                         link(href = "static/src/css/special.css", rel = "stylesheet")
                     }
@@ -120,14 +121,14 @@ class HomeController @Inject constructor(
                         }
                     }
                     script {
+                        src = "static/src/js/floatingPresserPositions.js"
+                    }
+                    script {
                         src = "static/src/js/main.js"
                     }
                 }
                 body {
                     div(classes = "container pointerparent") {
-                        div(classes = "person-pressed-message") {
-                            id = "personPressedMessage"
-                        }
                         // must go first
                         if (buttonShape == FIREWORKS) {
                             div(classes = "fw") { }
