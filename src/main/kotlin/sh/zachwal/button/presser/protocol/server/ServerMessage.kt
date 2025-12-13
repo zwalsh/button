@@ -3,7 +3,6 @@ package sh.zachwal.button.presser.protocol.server
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import java.time.Instant
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
@@ -18,5 +17,4 @@ import java.time.Instant
 sealed interface ServerMessage {
     @get:JsonIgnore
     val type: String get() = this::class.simpleName!!
-    val ts: Instant
 }

@@ -67,7 +67,7 @@ class Presser constructor(
         }
         val outgoingPerson = scope.launch {
             for (name in personPressingChannel) {
-                val message = PersonPressing(displayName = name, ts = java.time.Instant.now())
+                val message = PersonPressing(displayName = name)
                 val text = objectMapper.writeValueAsString(message)
                 socketSession.send(Text(text))
             }
