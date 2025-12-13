@@ -25,6 +25,8 @@ import sh.zachwal.button.presser.protocol.client.PressStateChanged
 import sh.zachwal.button.presser.protocol.server.CurrentCount
 import sh.zachwal.button.presser.protocol.server.PersonPressing
 import sh.zachwal.button.presser.protocol.server.PersonReleased
+import sh.zachwal.button.presser.protocol.server.ServerMessage
+import kotlinx.coroutines.channels.BufferOverflow
 
 /**
  * Handles a single WebSocket client connection, managing incoming and outgoing messages for a button presser.
@@ -41,10 +43,6 @@ class Presser constructor(
     private val objectMapper: ObjectMapper,
     dispatcher: CoroutineDispatcher
 ) {
-    private suspend fun sendServerMessage(message: ServerMessage) {
-        val text = objectMapper.writeValueAsString(message)
-        socketSession.send(Text(text))
-    }
 
     private val logger = LoggerFactory.getLogger(Presser::class.java)
 
@@ -85,6 +83,11 @@ class Presser constructor(
         outgoingPerson.join()
         outgoingReleased.join()
         observer.disconnected(this)
+    }
+
+    private suspend fun sendServerMessage(message: ServerMessage) {
+        val text = objectMapper.writeValueAsString(message)
+        socketSession.send(Text(text))
     }
 
     private suspend fun handleIncomingFrame(frame: Frame) {
