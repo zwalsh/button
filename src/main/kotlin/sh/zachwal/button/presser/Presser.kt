@@ -42,6 +42,11 @@ class Presser constructor(
     private val objectMapper: ObjectMapper,
     dispatcher: CoroutineDispatcher
 ) {
+    private suspend fun sendServerMessage(message: ServerMessage) {
+        val text = objectMapper.writeValueAsString(message)
+        socketSession.send(Text(text))
+    }
+
     private val logger = LoggerFactory.getLogger(Presser::class.java)
 
     // uses two coroutines, one to accept incoming & one to send outgoing
@@ -63,23 +68,17 @@ class Presser constructor(
         }
         val outgoingCount = scope.launch {
             for (updatedCount in countUpdateChannel) {
-                val message = CurrentCount(count = updatedCount)
-                val text = objectMapper.writeValueAsString(message)
-                socketSession.send(Text(text))
+                sendServerMessage(CurrentCount(count = updatedCount))
             }
         }
         val outgoingPerson = scope.launch {
             for (name in personPressingChannel) {
-                val message = PersonPressing(displayName = name)
-                val text = objectMapper.writeValueAsString(message)
-                socketSession.send(Text(text))
+                sendServerMessage(PersonPressing(displayName = name))
             }
         }
         val outgoingReleased = scope.launch {
             for (name in personReleasedChannel) {
-                val message = PersonReleased(displayName = name)
-                val text = objectMapper.writeValueAsString(message)
-                socketSession.send(Text(text))
+                sendServerMessage(PersonReleased(displayName = name))
             }
         }
         incoming.join()
