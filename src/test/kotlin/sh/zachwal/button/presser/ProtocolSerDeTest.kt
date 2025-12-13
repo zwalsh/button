@@ -49,4 +49,14 @@ internal class ProtocolSerDeTest {
         assertTrue(parsed is PersonPressing)
         assertEquals("Alice", parsed.displayName)
     }
+
+    @Test
+    fun `serialize and deserialize server PersonReleased`() {
+        val msg: ServerMessage = sh.zachwal.button.presser.protocol.server.PersonReleased("Alice")
+        val json = mapper.writeValueAsString(msg)
+
+        val parsed = mapper.readValue<ServerMessage>(json)
+        assertTrue(parsed is sh.zachwal.button.presser.protocol.server.PersonReleased)
+        assertEquals("Alice", (parsed as sh.zachwal.button.presser.protocol.server.PersonReleased).displayName)
+    }
 }

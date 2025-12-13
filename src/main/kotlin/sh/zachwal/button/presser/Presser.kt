@@ -50,6 +50,8 @@ class Presser constructor(
     private val countUpdateChannel = Channel<Int>(UNLIMITED)
     // person pressing notifications
     private val personPressingChannel = Channel<String>(UNLIMITED)
+    // person released notifications
+    private val personReleasedChannel = Channel<String>(UNLIMITED)
 
     suspend fun watchChannels() {
         val incoming = scope.launch {
@@ -72,9 +74,17 @@ class Presser constructor(
                 socketSession.send(Text(text))
             }
         }
+        val outgoingReleased = scope.launch {
+            for (name in personReleasedChannel) {
+                val message = sh.zachwal.button.presser.protocol.server.PersonReleased(displayName = name)
+                val text = objectMapper.writeValueAsString(message)
+                socketSession.send(Text(text))
+            }
+        }
         incoming.join()
         outgoingCount.join()
         outgoingPerson.join()
+        outgoingReleased.join()
         observer.disconnected(this)
     }
 
@@ -119,6 +129,10 @@ class Presser constructor(
 
     suspend fun notifyPersonPressing(name: String) {
         personPressingChannel.send(name)
+    }
+
+    suspend fun notifyPersonReleased(name: String) {
+        personReleasedChannel.send(name)
     }
 
     fun remote(): String = socketSession.call.request.remote()

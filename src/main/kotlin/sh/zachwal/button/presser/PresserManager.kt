@@ -43,6 +43,11 @@ class PresserManager : PresserObserver {
     override suspend fun released(presser: Presser) {
         currentlyPressing.remove(presser)
         sendCurrentCount()
+        presser.contact?.name?.let { name ->
+            pressers.forEach { p ->
+                p.notifyPersonReleased(name)
+            }
+        }
     }
 
     override suspend fun disconnected(presser: Presser) {
