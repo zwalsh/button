@@ -14,6 +14,7 @@ import io.ktor.websocket.WebSocketServerSession
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
@@ -26,7 +27,6 @@ import sh.zachwal.button.presser.protocol.server.CurrentCount
 import sh.zachwal.button.presser.protocol.server.PersonPressing
 import sh.zachwal.button.presser.protocol.server.PersonReleased
 import sh.zachwal.button.presser.protocol.server.ServerMessage
-import kotlinx.coroutines.channels.BufferOverflow
 
 /**
  * Handles a single WebSocket client connection, managing incoming and outgoing messages for a button presser.
