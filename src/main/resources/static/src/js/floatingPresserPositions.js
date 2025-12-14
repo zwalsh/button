@@ -1,180 +1,145 @@
 // floatingPresserPositions.js
-// Utility to deterministically compute (x, y) positions for floating pressers
-// per docs/pressers-floating-plan.md
-// Last updated: 2025-12-13T21:47:08.797Z
-console.log('[floatingPresserPositions.js] loaded');
 
-// Hash a string to a 32-bit integer
-function hashString(str) {
-    let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) + hash) + str.charCodeAt(i);
-        hash = hash & 0xffffffff;
-    }
-    return Math.abs(hash);
-}
 
-// Generate a pseudo-random number [0, 1) from a seed
-function seededRandom(seed) {
-    // Mulberry32 PRNG
-    let t = seed + 0x6D2B79F5;
-    t = Math.imul(t ^ t >>> 15, t | 1);
-    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-}
-
-// Compute a (x, y) position in percent (0-100), avoiding the button "no-fly zone"
-function computeFloatingPresserPosition(name, salt = 0) {
-    const seed = hashString(name + ':' + salt);
-    // No-fly zone: x 30-70%, y 40-60%
-    const noFly = { xMin: 30, xMax: 70, yMin: 40, yMax: 60 };
-    const edgePad = 6; // percent padding from edges
-    let tries = 0;
-    while (tries < 10) {
-        // Generate x, y in [edgePad, 100-edgePad]
-        const x = edgePad + seededRandom(seed + tries) * (100 - 2 * edgePad);
-        const y = edgePad + seededRandom(seed + tries + 1000) * (100 - 2 * edgePad);
-        // Check if in no-fly zone
-        if (!(x >= noFly.xMin && x <= noFly.xMax && y >= noFly.yMin && y <= noFly.yMax)) {
-            return { x, y };
-        }
-        tries++;
-    }
-    // Fallback: just return last computed
-    return { x: edgePad + seededRandom(seed) * (100 - 2 * edgePad),
-             y: edgePad + seededRandom(seed + 1000) * (100 - 2 * edgePad) };
-}
-
-// Exported: get all positions for a list of names
-function getFloatingPresserPositions(names) {
-    // Returns: { name, x, y }[]
-    return names.map((name, i) => {
-        // Optionally, use i as salt for minimal overlap avoidance
-        return { name, ...computeFloatingPresserPosition(name, i) };
-    });
-}
-
-// --- Force-directed organic packing for floating pressers ---
-// Button exclusion zone (percent of viewport)
-const BUTTON_ZONE = { xMin: 30, xMax: 70, yMin: 40, yMax: 60 };
-const EDGE_PAD = 6; // percent
-const PILL_RADIUS = 7; // percent, for collision
-const ITERATIONS = 60;
-
-// Assign half to top, half to bottom
-function splitNames(names) {
-    const mid = Math.ceil(names.length / 2);
-    return [names.slice(0, mid), names.slice(mid)];
-}
-
-// Deterministic seeded random for initial placement
-function seededPlacement(name, region) {
-    const seed = hashString(name + ':' + region);
-    const x = EDGE_PAD + seededRandom(seed) * (100 - 2 * EDGE_PAD);
-    let y;
-    if (region === 'top') {
-        y = EDGE_PAD + seededRandom(seed + 1) * (BUTTON_ZONE.yMin - 2 * EDGE_PAD);
-    } else {
-        y = BUTTON_ZONE.yMax + seededRandom(seed + 2) * (100 - BUTTON_ZONE.yMax - EDGE_PAD);
-    }
-    return { x, y };
-}
-
-// Force-directed packing
-function packPositions(names, region) {
-    // Start with deterministic positions
-    let nodes = names.map(name => ({
-        name,
-        ...seededPlacement(name, region),
-        vx: 0,
-        vy: 0
-    }));
-    for (let iter = 0; iter < ITERATIONS; iter++) {
-        // Repel overlapping nodes
-        for (let i = 0; i < nodes.length; i++) {
-            for (let j = i + 1; j < nodes.length; j++) {
-                const a = nodes[i], b = nodes[j];
-                const dx = a.x - b.x, dy = a.y - b.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < PILL_RADIUS * 2) {
-                    const overlap = PILL_RADIUS * 2 - dist;
-                    const nx = dx / (dist || 1), ny = dy / (dist || 1);
-                    a.vx += nx * overlap * 0.05;
-                    a.vy += ny * overlap * 0.05;
-                    b.vx -= nx * overlap * 0.05;
-                    b.vy -= ny * overlap * 0.05;
-                }
-            }
-        }
-        // Keep inside allowed region
-        for (const n of nodes) {
-            if (n.x < EDGE_PAD) n.vx += (EDGE_PAD - n.x) * 0.1;
-            if (n.x > 100 - EDGE_PAD) n.vx -= (n.x - (100 - EDGE_PAD)) * 0.1;
-            if (region === 'top') {
-                if (n.y < EDGE_PAD) n.vy += (EDGE_PAD - n.y) * 0.1;
-                if (n.y > BUTTON_ZONE.yMin - EDGE_PAD) n.vy -= (n.y - (BUTTON_ZONE.yMin - EDGE_PAD)) * 0.1;
-            } else {
-                if (n.y < BUTTON_ZONE.yMax + EDGE_PAD) n.vy += (BUTTON_ZONE.yMax + EDGE_PAD - n.y) * 0.1;
-                if (n.y > 100 - EDGE_PAD) n.vy -= (n.y - (100 - EDGE_PAD)) * 0.1;
-            }
-        }
-        // Apply velocity
-        for (const n of nodes) {
-            n.x += n.vx;
-            n.y += n.vy;
-            n.vx *= 0.5;
-            n.vy *= 0.5;
-        }
-    }
-    return nodes;
-}
-
-// Render all floating pressers into two divs above/below the button
+// Render all floating pressers into two divs above/below the button.
+// Names should consistently land into one or the other bin.
+// All names should be rendered as a pill.
+// Pills should be packed with a force-directed algorithm to create a pleasing visual layout where they NEVER
+// overlap and they arrange nicely.
 function renderFloatingPressers(names) {
     const topDiv = document.getElementById('floating-pressers-top');
     const botDiv = document.getElementById('floating-pressers-bottom');
     if (!topDiv || !botDiv) return;
     topDiv.innerHTML = '';
     botDiv.innerHTML = '';
-    const [topNames, botNames] = splitNames(names);
-    // Wait for layout to ensure bounding boxes are correct
-    requestAnimationFrame(() => {
-        const topRect = topDiv.getBoundingClientRect();
-        const botRect = botDiv.getBoundingClientRect();
-        const topNodes = packPositions(topNames, 'top');
-        const botNodes = packPositions(botNames, 'bottom');
-        for (const n of topNodes) {
-            const pill = document.createElement('span');
-            pill.className = 'floating-presser-pill';
-            pill.textContent = n.name;
+    const half = Math.ceil(names.length / 2);
+    // Multi-row, adaptive grid layout
+    const vSpacing = 40;
+    const hSpacing = 10;
+    // --- Force-directed layout ---
+    function forceLayout(container, pills) {
+        // Initial random positions and velocities
+        const W = container.clientWidth || container.offsetWidth || 600;
+        const H = container.clientHeight || container.offsetHeight || 80;
+        const n = pills.length;
+        const state = pills.map((pill, i) => {
+            container.appendChild(pill);
             pill.style.position = 'absolute';
-            pill.style.left = (n.x / 100 * topRect.width) + 'px';
-            pill.style.top = (n.y / 100 * topRect.height) + 'px';
-            pill.style.transform = 'translate(-50%, -50%)';
-            pill.title = n.name;
-            topDiv.appendChild(pill);
+            // Force layout to measure size
+            pill.style.left = Math.random() * (W - 100) + 'px';
+            pill.style.top = Math.random() * (H - 32) + 'px';
+            const w = pill.offsetWidth || 100;
+            const h = pill.offsetHeight || 32;
+            return {
+                pill,
+                x: Math.random() * (W - w),
+                y: Math.random() * (H - h),
+                w,
+                h,
+                vx: 0,
+                vy: 0
+            };
+        });
+        // Animation loop
+        // --- Tunable constants ---
+        const BASE_DAMPING = 0.94;
+        const MAX_DAMPING = 0.998;
+        const DAMPING_RAMP = 0.0012;
+        const OVERLAP_REPEL = 0.045;
+        const SOFT_REPEL_DIST = 110;
+        const SOFT_REPEL_FORCE = 0.7;
+        const CENTER_ATTRACT = 0.004;
+        const EDGE_MARGIN = 18;
+        const EDGE_REPEL = 0.09;
+        let frame = 0;
+        function step() {
+            frame++;
+            // Damping increases over time, up to a max
+            const damping = Math.min(BASE_DAMPING + frame * DAMPING_RAMP, MAX_DAMPING);
+            for (let i = 0; i < n; i++) {
+                let fx = 0, fy = 0;
+                const a = state[i];
+                // Update width/height in case of resize
+                a.w = a.pill.offsetWidth || 100;
+                a.h = a.pill.offsetHeight || 32;
+                for (let j = 0; j < n; j++) {
+                    if (i === j) continue;
+                    const b = state[j];
+                    // Use bounding box collision
+                    const dx = (a.x + a.w/2) - (b.x + b.w/2);
+                    const dy = (a.y + a.h/2) - (b.y + b.h/2);
+                    const overlapX = (a.w + b.w)/2 - Math.abs(dx);
+                    const overlapY = (a.h + b.h)/2 - Math.abs(dy);
+                    if (overlapX > 0 && overlapY > 0) {
+                        // Repel out of overlap
+                        fx += (dx/Math.abs(dx||1)) * overlapX * OVERLAP_REPEL;
+                        fy += (dy/Math.abs(dy||1)) * overlapY * OVERLAP_REPEL;
+                    } else {
+                        // Soft repulsion at a distance
+                        const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+                        if (dist < SOFT_REPEL_DIST) {
+                            fx += (dx/dist) * SOFT_REPEL_FORCE;
+                            fy += (dy/dist) * SOFT_REPEL_FORCE;
+                        }
+                    }
+                }
+                // Attract to center
+                fx += (W/2 - (a.x + a.w/2)) * CENTER_ATTRACT;
+                fy += (H/2 - (a.y + a.h/2)) * CENTER_ATTRACT;
+                // Repel from edges
+                if (a.x < EDGE_MARGIN) fx += (EDGE_MARGIN - a.x) * EDGE_REPEL;
+                if (a.y < EDGE_MARGIN) fy += (EDGE_MARGIN - a.y) * EDGE_REPEL;
+                if (a.x + a.w > W - EDGE_MARGIN) fx -= (a.x + a.w - (W - EDGE_MARGIN)) * EDGE_REPEL;
+                if (a.y + a.h > H - EDGE_MARGIN) fy -= (a.y + a.h - (H - EDGE_MARGIN)) * EDGE_REPEL;
+                // Damping (increases over time)
+                a.vx = (a.vx + fx * 0.1) * damping;
+                a.vy = (a.vy + fy * 0.1) * damping;
+            }
+            // Move and clamp
+            let moving = false;
+            for (let i = 0; i < n; i++) {
+                const a = state[i];
+                a.x += a.vx;
+                a.y += a.vy;
+                a.x = Math.max(0, Math.min(W - a.w, a.x));
+                a.y = Math.max(0, Math.min(H - a.h, a.y));
+                a.pill.style.left = a.x + 'px';
+                a.pill.style.top = a.y + 'px';
+                if (Math.abs(a.vx) > 0.05 || Math.abs(a.vy) > 0.05) moving = true;
+            }
+            if (moving) {
+                requestAnimationFrame(step);
+            }
         }
-        for (const n of botNodes) {
-            const pill = document.createElement('span');
-            pill.className = 'floating-presser-pill';
-            pill.textContent = n.name;
-            pill.style.position = 'absolute';
-            pill.style.left = (n.x / 100 * botRect.width) + 'px';
-            pill.style.top = (n.y / 100 * botRect.height) + 'px';
-            pill.style.transform = 'translate(-50%, -50%)';
-            pill.title = n.name;
-            botDiv.appendChild(pill);
-        }
+        step();
+    }
+    // Split names into top/bottom
+    const topNames = names.slice(0, half);
+    const botNames = names.slice(half);
+    // Create pill elements
+    function truncateName(name) {
+        return name.length > 16 ? name.slice(0, 16) + '…' : name;
+    }
+    const topPills = topNames.map(name => {
+        const pill = document.createElement('div');
+        pill.className = 'floating-presser-pill';
+        pill.textContent = truncateName(name);
+        return pill;
     });
+    const botPills = botNames.map(name => {
+        const pill = document.createElement('div');
+        pill.className = 'floating-presser-pill';
+        pill.textContent = truncateName(name);
+        return pill;
+    });
+    forceLayout(topDiv, topPills);
+    forceLayout(botDiv, botPills);
 }
 
 // Export for use in main.js or elsewhere
 if (typeof window !== 'undefined') {
-    window.getFloatingPresserPositions = getFloatingPresserPositions;
-    window.computeFloatingPresserPosition = computeFloatingPresserPosition;
     window.renderFloatingPressers = renderFloatingPressers;
-    console.log('[floatingPresserPositions.js] window.getFloatingPresserPositions assigned:', typeof window.getFloatingPresserPositions);
 }
 if (typeof module !== 'undefined') {
-    module.exports = { getFloatingPresserPositions, computeFloatingPresserPosition, renderFloatingPressers };
+    module.exports = { renderFloatingPressers };
 }
