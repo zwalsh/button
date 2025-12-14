@@ -61,6 +61,8 @@ function getOrCreatePill(name, halfKey) {
             };
             nameToPosition[name] = pos;
         }
+        pill.style.left = pos.x + 'px';
+        pill.style.top = pos.y + 'px';
         pillState[halfKey][name] = { pill, x: pos.x, y: pos.y, vx: 0, vy: 0 };
     }
     return pillState[halfKey][name];
@@ -78,39 +80,8 @@ function cleanupPills(namesArr, halfKey) {
     });
 }
 
-// Track animation frame IDs for each container to prevent multiple loops
-const containerAnimationFrameIds = new WeakMap();
-
-function forceLayout(container, pills) {
-    const W = container.clientWidth || container.offsetWidth || 600;
-    const H = container.clientHeight || container.offsetHeight || 80;
-    const n = pills.length;
-    const state = pills.map((p, i) => {
-        container.appendChild(p.pill);
-        p.pill.style.position = 'absolute';
-        const w = p.pill.offsetWidth || 100;
-        const h = p.pill.offsetHeight || 32;
-        let pos = nameToPosition[p.name];
-        if (!pos) {
-            pos = {
-                x: Math.random() * (W - w),
-                y: Math.random() * (H - h)
-            };
-            nameToPosition[p.name] = pos;
-        }
-        p.pill.style.left = pos.x + 'px';
-        p.pill.style.top = pos.y + 'px';
-        return {
-            pill: p.pill,
-            name: p.name,
-            x: pos.x,
-            y: pos.y,
-            w,
-            h,
-            vx: 0,
-            vy: 0
-        };
-    });
+// --- Animation loop for each halfKey ---
+function animatePills(halfKey, container) {
     const BASE_DAMPING = 0.94;
     const MAX_DAMPING = 0.998;
     const DAMPING_RAMP = 0.0012;
@@ -123,25 +94,28 @@ function forceLayout(container, pills) {
     let frame = 0;
     function step() {
         frame++;
-        const damping = Math.min(BASE_DAMPING + frame * DAMPING_RAMP, MAX_DAMPING);
+        const pills = Object.values(pillState[halfKey]);
+        const n = pills.length;
+        const W = container.clientWidth || container.offsetWidth || 600;
+        const H = container.clientHeight || container.offsetHeight || 80;
         for (let i = 0; i < n; i++) {
             let fx = 0, fy = 0;
-            const a = state[i];
+            const a = pills[i];
             a.w = a.pill.offsetWidth || 100;
             a.h = a.pill.offsetHeight || 32;
             for (let j = 0; j < n; j++) {
                 if (i === j) continue;
-                const b = state[j];
+                const b = pills[j];
                 const dx = (a.x + a.w/2) - (b.x + b.w/2);
                 const dy = (a.y + a.h/2) - (b.y + b.h/2);
                 const overlapX = (a.w + b.w)/2 - Math.abs(dx);
                 const overlapY = (a.h + b.h)/2 - Math.abs(dy);
                 if (overlapX > 0 && overlapY > 0) {
-                    fx += (dx/Math.abs(dx||1)) * overlapX * OVERLAP_REPEL;
-                    fy += (dy/Math.abs(dy||1)) * overlapY * OVERLAP_REPEL;
+                    if (dx !== 0) fx += (dx/Math.abs(dx)) * overlapX * OVERLAP_REPEL;
+                    if (dy !== 0) fy += (dy/Math.abs(dy)) * overlapY * OVERLAP_REPEL;
                 } else {
-                    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-                    if (dist < SOFT_REPEL_DIST) {
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist > 0 && dist < SOFT_REPEL_DIST) {
                         fx += (dx/dist) * SOFT_REPEL_FORCE;
                         fy += (dy/dist) * SOFT_REPEL_FORCE;
                     }
@@ -158,58 +132,36 @@ function forceLayout(container, pills) {
             if (a.y < EDGE_MARGIN) fy += (EDGE_MARGIN - a.y) * EDGE_REPEL;
             if (a.x + a.w > W - EDGE_MARGIN) fx -= (a.x + a.w - (W - EDGE_MARGIN)) * EDGE_REPEL;
             if (a.y + a.h > H - EDGE_MARGIN) fy -= (a.y + a.h - (H - EDGE_MARGIN)) * EDGE_REPEL;
+            const damping = Math.min(BASE_DAMPING + frame * DAMPING_RAMP, MAX_DAMPING);
             a.vx = (a.vx + fx * 0.1) * damping;
             a.vy = (a.vy + fy * 0.1) * damping;
         }
-        let moving = false;
         for (let i = 0; i < n; i++) {
-            const a = state[i];
+            const a = pills[i];
             a.x += a.vx;
             a.y += a.vy;
             a.x = Math.max(0, Math.min(W - a.w, a.x));
             a.y = Math.max(0, Math.min(H - a.h, a.y));
             a.pill.style.left = a.x + 'px';
             a.pill.style.top = a.y + 'px';
-            // Persist position for this name using the full name
             if (a.name) {
                 nameToPosition[a.name] = { x: a.x, y: a.y };
             }
-            if (Math.abs(a.vx) > 0.1 || Math.abs(a.vy) > 0.1) moving = true;
         }
-        if (moving) {
-            requestAnimationFrame(step);
-        } else {
-            // Animation stopped, allow new animation to be started later
-            containerAnimationFrameIds.delete(container);
-        }
+        requestAnimationFrame(step);
     }
-    // Always cancel any running animation for this container before starting a new one
-    if (containerAnimationFrameIds.has(container)) {
-        cancelAnimationFrame(containerAnimationFrameIds.get(container));
-        containerAnimationFrameIds.delete(container);
-    }
-    // Start the animation and store the frame ID
-    const frameId = requestAnimationFrame(step);
-    containerAnimationFrameIds.set(container, frameId);
+    requestAnimationFrame(step);
 }
 
 function renderFloatingPressers(names) {
     const topDiv = document.getElementById('floating-pressers-top');
     const botDiv = document.getElementById('floating-pressers-bottom');
     if (!topDiv || !botDiv) return;
-    topDiv.innerHTML = '';
-    botDiv.innerHTML = '';
-
     let topNames = [];
     let botNames = [];
     names.forEach(name => {
         (ringHash(name, 2) === 0 ? topNames : botNames).push(name);
     });
-
-    // Log new and removed names
-    const allNames = Object.keys(nameToPosition);
-    const newNames = names.filter(n => !allNames.includes(n));
-    const removedNames = allNames.filter(n => !names.includes(n));
 
     const topSlots = assignSlots(topNames);
     const botSlots = assignSlots(botNames);
@@ -217,17 +169,32 @@ function renderFloatingPressers(names) {
     cleanupPills(topNames, 'top');
     cleanupPills(botNames, 'bottom');
 
-    const topPills = topNames.map(name => {
+    // Only add new pills, don't clear all
+    topNames.forEach(name => {
         const state = getOrCreatePill(name, 'top');
-        return { name, pill: state.pill, slot: topSlots[name], state };
+        state.pill.style.position = 'absolute';
+        if (!topDiv.contains(state.pill)) {
+            topDiv.appendChild(state.pill);
+        }
     });
-    const botPills = botNames.map(name => {
+    botNames.forEach(name => {
         const state = getOrCreatePill(name, 'bottom');
-        return { name, pill: state.pill, slot: botSlots[name], state };
+        state.pill.style.position = 'absolute';
+        if (!botDiv.contains(state.pill)) {
+            botDiv.appendChild(state.pill);
+        }
     });
+}
 
-    forceLayout(topDiv, topPills);
-    forceLayout(botDiv, botPills);
+// Start the animation loops once at load
+if (typeof window !== 'undefined') {
+    window.addEventListener('DOMContentLoaded', () => {
+        const topDiv = document.getElementById('floating-pressers-top');
+        const botDiv = document.getElementById('floating-pressers-bottom');
+        if (topDiv) animatePills('top', topDiv);
+        if (botDiv) animatePills('bottom', botDiv);
+    });
+    window.renderFloatingPressers = renderFloatingPressers;
 }
 
 // Export for use in main.js or elsewhere
