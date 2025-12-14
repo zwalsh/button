@@ -124,6 +124,9 @@ class HomeController @Inject constructor(
                         src = "static/src/js/floatingPresserPositions.js"
                     }
                     script {
+                        src = "static/src/js/floatingPresserPhysics.js"
+                    }
+                    script {
                         src = "static/src/js/main.js"
                     }
                 }
