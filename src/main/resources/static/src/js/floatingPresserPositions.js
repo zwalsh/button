@@ -78,6 +78,9 @@ function cleanupPills(namesArr, halfKey) {
     });
 }
 
+// Track animation frame IDs for each container to prevent multiple loops
+const containerAnimationFrameIds = new WeakMap();
+
 function forceLayout(container, pills) {
     const W = container.clientWidth || container.offsetWidth || 600;
     const H = container.clientHeight || container.offsetHeight || 80;
@@ -175,9 +178,19 @@ function forceLayout(container, pills) {
         }
         if (moving) {
             requestAnimationFrame(step);
+        } else {
+            // Animation stopped, allow new animation to be started later
+            containerAnimationFrameIds.delete(container);
         }
     }
-    step();
+    // Always cancel any running animation for this container before starting a new one
+    if (containerAnimationFrameIds.has(container)) {
+        cancelAnimationFrame(containerAnimationFrameIds.get(container));
+        containerAnimationFrameIds.delete(container);
+    }
+    // Start the animation and store the frame ID
+    const frameId = requestAnimationFrame(step);
+    containerAnimationFrameIds.set(container, frameId);
 }
 
 function renderFloatingPressers(names) {
