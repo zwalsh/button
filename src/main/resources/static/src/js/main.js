@@ -1,42 +1,3 @@
-// --- TEST DATA FOR FLOATING PRESSERS UI ---
-// Adjust this array to test different numbers of floating pressers
-var testFloatingPressers = [
-    "Zach",
-    "Jackie",
-    "Matt",
-    "DROP TABLE pressers; —",
-    "Meg",
-    "Sofia Catalina",
-    "Pete",
-    "David Baxter",
-    "eswar",
-//    "Dominique Ives",
-//    "Jessica",
-//    "Michael Parrish",
-//    "jess",
-//    "your mom",
-//    "DerkNasty",
-//    "Owen P",
-//    "Connor",
-//    "Joseph Vetere",
-//    "Pena",
-//    "kat",
-//    "Brendan Whalen",
-//    "Karen Brown",
-//    "Patrick Connolly",
-//    "Jenna",
-//    "Button Lover",
-//    "Nicole",
-//    "Max Drew",
-//    "Jack LaPlante",
-//    "Lexi Dubs",
-//    "Laura Hobbs",
-//    "Michaela Olson",
-//    "Alex Fernandez",
-//    "Taco Bell Enjoyed"
-];
-// To test with fewer/more, add/remove names above.
-
 var socket;
 var count = 0;
 
@@ -51,6 +12,8 @@ function connect() {
         console.log("Socket opened!");
         console.log(event);
     }
+    // Track currently pressing names
+    const currentPressers = new Set();
     socket.onmessage = function (event) {
         let msg;
         try {
@@ -69,6 +32,8 @@ function connect() {
             }
             case 'PersonPressing': {
                 console.log('Person pressing:', msg.displayName);
+                currentPressers.add(msg.displayName);
+                window.renderFloatingPressers(Array.from(currentPressers));
                 const messageDiv = document.getElementById('personPressedMessage');
                 if (messageDiv) {
                     if (window.personPressedTimeout) {
@@ -81,6 +46,12 @@ function connect() {
                         window.personPressedTimeout = null;
                     }, 2000);
                 }
+                break;
+            }
+            case 'PersonReleased': {
+                console.log('Person released:', msg.displayName);
+                currentPressers.delete(msg.displayName);
+                window.renderFloatingPressers(Array.from(currentPressers));
                 break;
             }
             default:
@@ -127,13 +98,10 @@ function released() {
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 window.onload = function () {
-    // Log floating presser positions for test data
-    window.renderFloatingPressers(testFloatingPressers);
-
     let button = document.getElementById("pressMePls");
     console.log(button);
 
-    button.addEventListener("pointerdown", () => { pressing(); }, false);
+    button.addEventListener("pointerdown", () => { pressing() }, false);
     button.addEventListener("pointerup", () => { released(); }, false);
 };
 
