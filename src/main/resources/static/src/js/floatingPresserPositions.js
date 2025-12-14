@@ -22,7 +22,6 @@ function truncateName(name) {
     return name.length > 16 ? name.slice(0, 16) + '…' : name;
 }
 
-
 function getOrCreatePill(name, halfKey) {
     if (!pillState[halfKey][name]) {
         const pill = document.createElement('div');
@@ -37,6 +36,7 @@ function getOrCreatePill(name, halfKey) {
             };
             nameToPosition[name] = pos;
         }
+        pill.style.position = 'absolute';
         pill.style.left = pos.x + 'px';
         pill.style.top = pos.y + 'px';
         pillState[halfKey][name] = { pill, x: pos.x, y: pos.y, vx: 0, vy: 0 };
@@ -117,14 +117,12 @@ function renderFloatingPressers(names) {
     // Only add new pills, don't clear all
     topNames.forEach(name => {
         const state = getOrCreatePill(name, 'top');
-        state.pill.style.position = 'absolute';
         if (!topDiv.contains(state.pill)) {
             topDiv.appendChild(state.pill);
         }
     });
     botNames.forEach(name => {
         const state = getOrCreatePill(name, 'bottom');
-        state.pill.style.position = 'absolute';
         if (!botDiv.contains(state.pill)) {
             botDiv.appendChild(state.pill);
         }
@@ -139,7 +137,6 @@ if (typeof window !== 'undefined') {
         if (topDiv) animatePills('top', topDiv);
         if (botDiv) animatePills('bottom', botDiv);
     });
-    window.renderFloatingPressers = renderFloatingPressers;
 }
 
 // Export for use in main.js or elsewhere
