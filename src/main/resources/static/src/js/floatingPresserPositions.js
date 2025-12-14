@@ -3,18 +3,8 @@
 /**
  * State for floating presser pills animation:
  *
- * 1. nameToPosition: { [name]: { x, y } } - persists pill positions across renders for each name.
- * 2. pillState: { top: { [name]: { pill, x, y, vx, vy } }, bottom: { ... } } - DOM and animation state for each pill.
- * 3. activeNames: string[] - current set of names to display (implicit, passed to render).
- *
- * Usage:
- * - On each render, reuse nameToPosition for existing names, assign new random positions for new names.
- * - Remove positions for names no longer present.
- * - This keeps persistent names stable and only animates new/removed names.
+ * pillState: { top: { [name]: { pill, x, y, vx, vy } }, bottom: { ... } } - DOM and animation state for each pill.
  */
-
-// Persistent mapping of name to position
-const nameToPosition = {};
 
 let pillState = { top: {}, bottom: {} };
 
@@ -27,15 +17,10 @@ function getOrCreatePill(name, halfKey) {
         const pill = document.createElement('div');
         pill.className = 'floating-presser-pill';
         pill.textContent = truncateName(name);
-        // Use persistent position if available, else random
-        let pos = nameToPosition[name];
-        if (!pos) {
-            pos = {
-                x: Math.random() * 500 + 50, // fallback, will be set in forceLayout
-                y: Math.random() * 40 + 10
-            };
-            nameToPosition[name] = pos;
-        }
+        pos = {
+            x: Math.random() * 500 + 50,
+            y: Math.random() * 40 + 10
+        };
         pill.style.position = 'absolute';
         pill.style.left = pos.x + 'px';
         pill.style.top = pos.y + 'px';
@@ -50,8 +35,6 @@ function cleanupPills(namesArr, halfKey) {
             const pill = pillState[halfKey][name].pill;
             if (pill.parentNode) pill.parentNode.removeChild(pill);
             delete pillState[halfKey][name];
-            // Remove from persistent position map
-            delete nameToPosition[name];
         }
     });
 }
@@ -89,9 +72,6 @@ function animatePills(halfKey, container) {
             a.vy = next.vy;
             a.pill.style.left = a.x + 'px';
             a.pill.style.top = a.y + 'px';
-            if (a.name) {
-                nameToPosition[a.name] = { x: a.x, y: a.y };
-            }
         }
         requestAnimationFrame(step);
     }
