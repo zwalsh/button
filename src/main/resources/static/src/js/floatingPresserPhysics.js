@@ -42,7 +42,7 @@ function computeNextPillStates(pills, config) {
     } = config;
     const containerWidth = W;
     const containerHeight = H;
-    function computePillTargetPosition(pillIndex, pill, containerWidth, containerHeight) {
+    function computePillTargetPosition(pillIndex, pill) {
         const angle = (2 * Math.PI * pillIndex) / pills.length;
         const ovalRadiusX = (containerWidth - 60) / 2;
         const ovalRadiusY = (containerHeight - 40) / 2;
@@ -50,6 +50,20 @@ function computeNextPillStates(pills, config) {
         const targetY = containerHeight/2 + ovalRadiusY * Math.sin(angle) - pill.h/2;
         return { targetX, targetY };
     }
+    const targets = pills.map((pill, pillIndex) => {
+        return computePillTargetPosition(pillIndex, pill);
+    });
+
+    for (const [index, pill] of pills.entries()) {
+        // pill has not yet been initialized; set to target location
+        if (pill.x == undefined) {
+            const target = targets[index];
+            console.log("Pill " + JSON.stringify(pill) + " has not been initialized, setting to " + JSON.stringify(target));
+            pill.x = target.targetX;
+            pill.y = target.targetY;
+        }
+    }
+
     const nextPillStates = pills.map((pill, pillIndex) => {
         let fX = 0, fY = 0;
         for (let otherIndex = 0; otherIndex < pills.length; otherIndex++) {
@@ -70,7 +84,7 @@ function computeNextPillStates(pills, config) {
                 }
             }
         }
-        const { targetX, targetY } = computePillTargetPosition(pillIndex, pill, containerWidth, containerHeight);
+        const { targetX, targetY } = targets[pillIndex];
         fX += (targetX - pill.x) * OVAL_ATTRACT;
         fY += (targetY - pill.y) * OVAL_ATTRACT;
         if (pill.x < EDGE_MARGIN) fX += (EDGE_MARGIN - pill.x) * EDGE_REPEL;

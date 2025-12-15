@@ -17,14 +17,8 @@ function getOrCreatePill(name, halfKey) {
         const pill = document.createElement('div');
         pill.className = 'floating-presser-pill';
         pill.textContent = truncateName(name);
-        pos = {
-            x: Math.random() * 500 + 50,
-            y: Math.random() * 40 + 10
-        };
         pill.style.position = 'absolute';
-        pill.style.left = pos.x + 'px';
-        pill.style.top = pos.y + 'px';
-        pillState[halfKey][name] = { pill, x: pos.x, y: pos.y, vx: 0, vy: 0 };
+        pillState[halfKey][name] = { pill, vx: 0, vy: 0 };
     }
     return pillState[halfKey][name];
 }
