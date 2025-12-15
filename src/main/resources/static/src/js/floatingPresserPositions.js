@@ -58,9 +58,6 @@ function renderFloatingPressers(names) {
         (ringHash(name, 2) === 0 ? topNames : botNames).push(name);
     });
 
-    const topSlots = assignSlots(topNames);
-    const botSlots = assignSlots(botNames);
-
     cleanupPills(topNames, 'top');
     cleanupPills(botNames, 'bottom');
 

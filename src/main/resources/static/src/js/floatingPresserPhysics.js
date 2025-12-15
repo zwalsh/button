@@ -12,21 +12,6 @@ function ringHash(name, slots) {
     return Math.abs(hash) % slots;
 }
 
-function assignSlots(namesArr) {
-    const slotMap = {};
-    namesArr.forEach(name => {
-        slotMap[name] = ringHash(name, namesArr.length);
-    });
-    const used = new Set();
-    namesArr.forEach(name => {
-        let slot = slotMap[name];
-        while (used.has(slot)) slot = (slot + 1) % namesArr.length;
-        slotMap[name] = slot;
-        used.add(slot);
-    });
-    return slotMap;
-}
-
 function computeNextPillStates(pills, config) {
     const {
         W, H, frame,
