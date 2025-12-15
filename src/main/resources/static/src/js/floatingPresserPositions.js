@@ -3,7 +3,7 @@
 /**
  * State for floating presser pills animation:
  *
- * pillState: { top: { [name]: { pill, x, y, vx, vy } }, bottom: { ... } } - DOM and animation state for each pill.
+ * pillState: { top: { [name]: pill }, bottom: { ... } } - DOM and animation state for each pill.
  */
 
 let pillState = { top: {}, bottom: {} };
@@ -14,11 +14,12 @@ function truncateName(name) {
 
 function getOrCreatePill(name, halfKey) {
     if (!pillState[halfKey][name]) {
-        const pill = document.createElement('div');
-        pill.className = 'floating-presser-pill';
-        pill.textContent = truncateName(name);
-        pill.style.position = 'absolute';
-        pillState[halfKey][name] = { pill, vx: 0, vy: 0 };
+        const pillEl = document.createElement('div');
+        pillEl.className = 'floating-presser-pill';
+        pillEl.textContent = truncateName(name);
+        pillEl.style.position = 'absolute';
+        const pill = new window.Pill(pillEl);
+        pillState[halfKey][name] = pill;
     }
     return pillState[halfKey][name];
 }
@@ -26,8 +27,8 @@ function getOrCreatePill(name, halfKey) {
 function cleanupPills(namesArr, halfKey) {
     Object.keys(pillState[halfKey]).forEach(name => {
         if (!namesArr.includes(name)) {
-            const pill = pillState[halfKey][name].pill;
-            if (pill.parentNode) pill.parentNode.removeChild(pill);
+            const pill = pillState[halfKey][name];
+            pill.remove();
             delete pillState[halfKey][name];
         }
     });
@@ -42,30 +43,13 @@ function animatePills(halfKey, container) {
         const n = pills.length;
         const W = container.clientWidth || container.offsetWidth || 600;
         const H = container.clientHeight || container.offsetHeight || 80;
-        // Update width/height for each pill
-        for (let i = 0; i < n; i++) {
-            const a = pills[i];
-            a.w = a.pill.offsetWidth || 100;
-            a.h = a.pill.offsetHeight || 32;
-        }
-        // Prepare pure state
-        const pillStates = pills.map(a => ({
-            ...a,
-            // Defensive: ensure w/h present
-            w: a.w || 100,
-            h: a.h || 32
-        }));
-        const nextStates = computeNextPillStates(pillStates, { W, H, frame });
+        const nextStates = computeNextPillStates(pills, { W, H, frame });
         // Apply new state to DOM and objects
         for (let i = 0; i < n; i++) {
-            const a = pills[i];
+            const pill = pills[i];
             const next = nextStates[i];
-            a.x = next.x;
-            a.y = next.y;
-            a.vx = next.vx;
-            a.vy = next.vy;
-            a.pill.style.left = (a.x - a.w/2) + 'px';
-            a.pill.style.top = (a.y - a.h/2) + 'px';
+            pill.setCenter(next.x, next.y, W, H);
+            pill.setVelocity(next.vx, next.vy);
         }
         requestAnimationFrame(step);
     }
@@ -90,15 +74,15 @@ function renderFloatingPressers(names) {
 
     // Only add new pills, don't clear all
     topNames.forEach(name => {
-        const state = getOrCreatePill(name, 'top');
-        if (!topDiv.contains(state.pill)) {
-            topDiv.appendChild(state.pill);
+        const pill = getOrCreatePill(name, 'top');
+        if (!topDiv.contains(pill.domElement)) {
+            topDiv.appendChild(pill.domElement);
         }
     });
     botNames.forEach(name => {
-        const state = getOrCreatePill(name, 'bottom');
-        if (!botDiv.contains(state.pill)) {
-            botDiv.appendChild(state.pill);
+        const pill = getOrCreatePill(name, 'bottom');
+        if (!botDiv.contains(pill.domElement)) {
+            botDiv.appendChild(pill.domElement);
         }
     });
 }
