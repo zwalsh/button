@@ -43,6 +43,13 @@ function computeNextPillStates(pills, config) {
     const containerWidth = W;
     const containerHeight = H;
     function computePillTargetPosition(pillIndex, pill) {
+        // If there are 2 or less pills, start them in the middle so they're not weirdly off-center.
+        if (pills.length <= 2) {
+            const targetX = containerWidth / 2;
+            const targetY = containerHeight / 2;
+            return { targetX, targetY };
+        }
+
         const angle = (2 * Math.PI * pillIndex) / pills.length;
         const ovalRadiusX = (containerWidth - 60) / 2;
         const ovalRadiusY = (containerHeight - 40) / 2;
@@ -55,12 +62,13 @@ function computeNextPillStates(pills, config) {
     });
 
     for (const [index, pill] of pills.entries()) {
-        // pill has not yet been initialized; set to target location
+        // pill has not yet been initialized; set to target location w/ random offset.
         if (pill.x == undefined) {
             const target = targets[index];
-            console.log("Pill " + JSON.stringify(pill) + " has not been initialized, setting to " + JSON.stringify(target));
-            pill.x = target.targetX;
-            pill.y = target.targetY;
+            const xJitter = Math.random() * 10 - 5;
+            const yJitter = Math.random() * 10 - 5;
+            pill.x = target.targetX + xJitter;
+            pill.y = target.targetY + yJitter;
         }
     }
 
