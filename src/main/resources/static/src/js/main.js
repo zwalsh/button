@@ -99,7 +99,21 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 
 window.onload = function () {
     let button = document.getElementById("pressMePls");
+    let pressers = ["Fargen Bargen adfsafds dsajfl dfjdso"];
+    window.renderFloatingPressers(pressers);
     console.log(button);
+
+    setInterval(() => {
+        if (Math.random() < 0.9) {
+            let num = Math.floor(Math.random() * 100);
+            console.log("Adding " + num);
+            pressers.push("Name " + num);
+        } else {
+            let p = pressers.pop();
+            console.log("Removing " + JSON.stringify(p));
+        }
+        window.renderFloatingPressers(pressers);
+    }, 3000);
 
     button.addEventListener("pointerdown", () => { pressing() }, false);
     button.addEventListener("pointerup", () => { released(); }, false);

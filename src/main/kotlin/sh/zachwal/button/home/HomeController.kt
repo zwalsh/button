@@ -121,6 +121,9 @@ class HomeController @Inject constructor(
                         }
                     }
                     script {
+                        src = "static/src/js/Pill.js"
+                    }
+                    script {
                         src = "static/src/js/floatingPresserPositions.js"
                     }
                     script {
