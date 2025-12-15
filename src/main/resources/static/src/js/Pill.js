@@ -7,6 +7,11 @@ class Pill {
     this.domElement = domElement;
     this.vx = 0;
     this.vy = 0;
+    this.initialPositionSet = false;
+  }
+
+  isInitialized() {
+    return this.initialPositionSet;
   }
 
   centerX() {
@@ -25,9 +30,33 @@ class Pill {
     return parseFloat(this.domElement.style.top) || 0;
   }
 
-  setPosition(x, y) {
-    this.domElement.style.left = `${x}px`;
-    this.domElement.style.top = `${y}px`;
+  rightX() {
+    return this.leftX() + this.width();
+  }
+
+  bottomY() {
+    return this.topY() + this.height();
+  }
+
+  setCenter(x, y, containerWidth, containerHeight) {
+    let left = this.safeX(x, containerWidth) - this.width() / 2;
+    let top = this.safeY(y, containerHeight) - this.height() / 2;
+    this.domElement.style.left = `${left}px`;
+    this.domElement.style.top = `${top}px`;
+    this.initialPositionSet = true;
+  }
+
+  safeX(x, containerWidth) {
+      return Math.max(this.width() / 2, Math.min(containerWidth - this.width() / 2, x));
+  }
+
+  safeY(y, containerHeight) {
+      return Math.max(this.height() / 2, Math.min(containerHeight - this.height() / 2, y));
+  }
+
+  setVelocity(vx, vy) {
+    this.vx = vx;
+    this.vy = vy;
   }
 
   width() {
@@ -44,9 +73,9 @@ class Pill {
     return el;
   }
 
-  static removePillElement(domElement) {
-    if (domElement.parentNode) {
-      domElement.parentNode.removeChild(domElement);
+  remove() {
+    if (this.domElement.parentNode) {
+       this.domElement.parentNode.removeChild(this.domElement);
     }
   }
 }
