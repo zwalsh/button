@@ -64,8 +64,8 @@ function animatePills(halfKey, container) {
             a.y = next.y;
             a.vx = next.vx;
             a.vy = next.vy;
-            a.pill.style.left = a.x + 'px';
-            a.pill.style.top = a.y + 'px';
+            a.pill.style.left = (a.x - a.w/2) + 'px';
+            a.pill.style.top = (a.y - a.h/2) + 'px';
         }
         requestAnimationFrame(step);
     }
