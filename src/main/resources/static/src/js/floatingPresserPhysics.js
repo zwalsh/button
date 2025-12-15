@@ -97,7 +97,7 @@ function computeNextPillStates(pills, config) {
 
 
 if (typeof module !== 'undefined') {
-    module.exports = { ringHash, assignSlots, computeNextPillStates };
+    module.exports = { ringHash, computeNextPillStates };
 } else if (typeof window !== 'undefined') {
-    window.floatingPresserPhysics = { ringHash, assignSlots, computeNextPillStates };
+    window.floatingPresserPhysics = { ringHash, computeNextPillStates };
 }

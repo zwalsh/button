@@ -32,14 +32,12 @@ function animatePills(halfKey, container) {
     function step() {
         frame++;
         const pills = Object.values(pillState[halfKey]);
-        const n = pills.length;
         const W = container.clientWidth || container.offsetWidth || 600;
         const H = container.clientHeight || container.offsetHeight || 80;
         const nextStates = computeNextPillStates(pills, { W, H, frame });
         // Apply new state to DOM and objects
-        for (let i = 0; i < n; i++) {
-            const pill = pills[i];
-            const next = nextStates[i];
+        for (const [index, pill] of pills.entries()) {
+            const next = nextStates[index];
             pill.setCenter(next.x, next.y, W, H);
             pill.setVelocity(next.vx, next.vy);
         }
