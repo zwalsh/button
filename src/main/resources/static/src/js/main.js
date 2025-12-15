@@ -34,18 +34,6 @@ function connect() {
                 console.log('Person pressing:', msg.displayName);
                 currentPressers.add(msg.displayName);
                 window.renderFloatingPressers(Array.from(currentPressers));
-                const messageDiv = document.getElementById('personPressedMessage');
-                if (messageDiv) {
-                    if (window.personPressedTimeout) {
-                        clearTimeout(window.personPressedTimeout);
-                    }
-                    messageDiv.textContent = `${msg.displayName} pressed!`;
-                    messageDiv.classList.add('show');
-                    window.personPressedTimeout = setTimeout(() => {
-                        messageDiv.classList.remove('show');
-                        window.personPressedTimeout = null;
-                    }, 2000);
-                }
                 break;
             }
             case 'PersonReleased': {
