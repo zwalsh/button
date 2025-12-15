@@ -77,7 +77,12 @@ class Pill {
 
   remove() {
     if (this.domElement.parentNode) {
-       this.domElement.parentNode.removeChild(this.domElement);
+      this.domElement.classList.add('floating-presser-pill--out');
+      setTimeout(() => {
+        if (this.domElement.parentNode) {
+          this.domElement.parentNode.removeChild(this.domElement);
+        }
+      }, 200); // Match CSS animation duration
     }
   }
 }

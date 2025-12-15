@@ -87,22 +87,6 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 
 window.onload = function () {
     let button = document.getElementById("pressMePls");
-    let pressers = ["Peter", "Piper", "Picked", "Peck", "Pickled", "Peppers"];
-    window.renderFloatingPressers(pressers);
-    console.log(button);
-
-    setInterval(() => {
-        if (Math.random() < 0.5) {
-            let num = Math.floor(Math.random() * 100);
-            console.log("Adding " + num);
-            pressers.push("Name " + num);
-        } else {
-            let idx = Math.floor(Math.random() * pressers.length);
-            let [p] = pressers.splice(idx, 1)
-            console.log("Removing " + JSON.stringify(p));
-        }
-        window.renderFloatingPressers(pressers);
-    }, 3000);
 
     button.addEventListener("pointerdown", () => { pressing() }, false);
     button.addEventListener("pointerup", () => { released(); }, false);
