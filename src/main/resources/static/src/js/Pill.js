@@ -67,10 +67,12 @@ class Pill {
     return this.domElement.offsetHeight || 22;
   }
 
-  static createPillElement() {
-    const el = document.createElement('div');
-    el.className = 'pill';
-    return el;
+  static createPill(name) {
+        const pillEl = document.createElement('div');
+        pillEl.className = 'floating-presser-pill';
+        pillEl.textContent = truncateName(name);
+        pillEl.style.position = 'absolute';
+        return new Pill(pillEl);
   }
 
   remove() {
@@ -78,6 +80,10 @@ class Pill {
        this.domElement.parentNode.removeChild(this.domElement);
     }
   }
+}
+
+function truncateName(name) {
+    return name.length > 16 ? name.slice(0, 16) + '…' : name;
 }
 
 if (typeof window !== 'undefined') {

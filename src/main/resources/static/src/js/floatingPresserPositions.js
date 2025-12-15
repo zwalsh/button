@@ -8,17 +8,9 @@
 
 let pillState = { top: {}, bottom: {} };
 
-function truncateName(name) {
-    return name.length > 16 ? name.slice(0, 16) + '…' : name;
-}
-
 function getOrCreatePill(name, halfKey) {
     if (!pillState[halfKey][name]) {
-        const pillEl = document.createElement('div');
-        pillEl.className = 'floating-presser-pill';
-        pillEl.textContent = truncateName(name);
-        pillEl.style.position = 'absolute';
-        const pill = new window.Pill(pillEl);
+        const pill = Pill.createPill(name);
         pillState[halfKey][name] = pill;
     }
     return pillState[halfKey][name];
