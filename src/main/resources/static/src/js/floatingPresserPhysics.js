@@ -40,48 +40,53 @@ function computeNextPillStates(pills, config) {
         EDGE_MARGIN = 18,
         EDGE_REPEL = 0.09
     } = config;
-    const n = pills.length;
-    const next = pills.map((a, i) => {
-        let fx = 0, fy = 0;
-        for (let j = 0; j < n; j++) {
-            if (i === j) continue;
-            const b = pills[j];
-            const dx = (a.x + a.w/2) - (b.x + b.w/2);
-            const dy = (a.y + a.h/2) - (b.y + b.h/2);
-            const overlapX = (a.w + b.w)/2 - Math.abs(dx);
-            const overlapY = (a.h + b.h)/2 - Math.abs(dy);
+    const containerWidth = W;
+    const containerHeight = H;
+    function computePillTargetPosition(pillIndex, pill, containerWidth, containerHeight) {
+        const angle = (2 * Math.PI * pillIndex) / pills.length;
+        const ovalRadiusX = (containerWidth - 60) / 2;
+        const ovalRadiusY = (containerHeight - 40) / 2;
+        const targetX = containerWidth/2 + ovalRadiusX * Math.cos(angle) - pill.w/2;
+        const targetY = containerHeight/2 + ovalRadiusY * Math.sin(angle) - pill.h/2;
+        return { targetX, targetY };
+    }
+    const nextPillStates = pills.map((pill, pillIndex) => {
+        let fX = 0, fY = 0;
+        for (let otherIndex = 0; otherIndex < pills.length; otherIndex++) {
+            if (pillIndex === otherIndex) continue;
+            const otherPill = pills[otherIndex];
+            const dX = (pill.x + pill.w/2) - (otherPill.x + otherPill.w/2);
+            const dY = (pill.y + pill.h/2) - (otherPill.y + otherPill.h/2);
+            const overlapX = (pill.w + otherPill.w)/2 - Math.abs(dX);
+            const overlapY = (pill.h + otherPill.h)/2 - Math.abs(dY);
             if (overlapX > 0 && overlapY > 0) {
-                if (dx !== 0) fx += (dx/Math.abs(dx)) * overlapX * OVERLAP_REPEL;
-                if (dy !== 0) fy += (dy/Math.abs(dy)) * overlapY * OVERLAP_REPEL;
+                if (dX !== 0) fX += (dX/Math.abs(dX)) * overlapX * OVERLAP_REPEL;
+                if (dY !== 0) fY += (dY/Math.abs(dY)) * overlapY * OVERLAP_REPEL;
             } else {
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist > 0 && dist < SOFT_REPEL_DIST) {
-                    fx += (dx/dist) * SOFT_REPEL_FORCE;
-                    fy += (dy/dist) * SOFT_REPEL_FORCE;
+                const distance = Math.sqrt(dX*dX + dY*dY);
+                if (distance > 0 && distance < SOFT_REPEL_DIST) {
+                    fX += (dX/distance) * SOFT_REPEL_FORCE;
+                    fY += (dY/distance) * SOFT_REPEL_FORCE;
                 }
             }
         }
-        const angle = (2 * Math.PI * i) / n;
-        const ovalA = (W - 60) / 2;
-        const ovalB = (H - 40) / 2;
-        const targetX = W/2 + ovalA * Math.cos(angle) - a.w/2;
-        const targetY = H/2 + ovalB * Math.sin(angle) - a.h/2;
-        fx += (targetX - a.x) * OVAL_ATTRACT;
-        fy += (targetY - a.y) * OVAL_ATTRACT;
-        if (a.x < EDGE_MARGIN) fx += (EDGE_MARGIN - a.x) * EDGE_REPEL;
-        if (a.y < EDGE_MARGIN) fy += (EDGE_MARGIN - a.y) * EDGE_REPEL;
-        if (a.x + a.w > W - EDGE_MARGIN) fx -= (a.x + a.w - (W - EDGE_MARGIN)) * EDGE_REPEL;
-        if (a.y + a.h > H - EDGE_MARGIN) fy -= (a.y + a.h - (H - EDGE_MARGIN)) * EDGE_REPEL;
+        const { targetX, targetY } = computePillTargetPosition(pillIndex, pill, containerWidth, containerHeight);
+        fX += (targetX - pill.x) * OVAL_ATTRACT;
+        fY += (targetY - pill.y) * OVAL_ATTRACT;
+        if (pill.x < EDGE_MARGIN) fX += (EDGE_MARGIN - pill.x) * EDGE_REPEL;
+        if (pill.y < EDGE_MARGIN) fY += (EDGE_MARGIN - pill.y) * EDGE_REPEL;
+        if (pill.x + pill.w > containerWidth - EDGE_MARGIN) fX -= (pill.x + pill.w - (containerWidth - EDGE_MARGIN)) * EDGE_REPEL;
+        if (pill.y + pill.h > containerHeight - EDGE_MARGIN) fY -= (pill.y + pill.h - (containerHeight - EDGE_MARGIN)) * EDGE_REPEL;
         const damping = Math.min(BASE_DAMPING + frame * DAMPING_RAMP, MAX_DAMPING);
-        const vx = (a.vx + fx * 0.1) * damping;
-        const vy = (a.vy + fy * 0.1) * damping;
-        let x = a.x + vx;
-        let y = a.y + vy;
-        x = Math.max(0, Math.min(W - a.w, x));
-        y = Math.max(0, Math.min(H - a.h, y));
-        return { ...a, x, y, vx, vy };
+        const velocityX = (pill.vx + fX * 0.1) * damping;
+        const velocityY = (pill.vy + fY * 0.1) * damping;
+        let nextX = pill.x + velocityX;
+        let nextY = pill.y + velocityY;
+        nextX = Math.max(0, Math.min(containerWidth - pill.w, nextX));
+        nextY = Math.max(0, Math.min(containerHeight - pill.h, nextY));
+        return { ...pill, x: nextX, y: nextY, vx: velocityX, vy: velocityY };
     });
-    return next;
+    return nextPillStates;
 }
 
 if (typeof module !== 'undefined') {
