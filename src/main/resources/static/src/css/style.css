@@ -55,7 +55,7 @@ body {
 
 /* On phones, the bottom of the screen may be taken up by browser navigation tools */
 #floating-pressers-bottom {
-  margin-bottom: env(safe-area-inset-bottom);
+  margin-bottom: 40px;
 }
 
 body > * {
