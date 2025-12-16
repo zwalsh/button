@@ -130,33 +130,43 @@ class HomeController @Inject constructor(
                             div(classes = "fw") { }
                         }
 
-                        if (buttonShape.isSpecial()) {
-                            div(classes = "specialContainer") {
-                                img(src = svgForShape(buttonShape)) {
+                        // Floating pressers container above the button
+                        div(classes = "presser-container") {
+                            id = "floating-pressers-top"
+                        }
+                        // Button and counts centered
+                        div(classes = "button-and-counts") {
+                            if (buttonShape.isSpecial()) {
+                                div(classes = "specialContainer") {
+                                    img(src = svgForShape(buttonShape)) {
+                                        id = "pressMePls"
+                                        draggable = htmlFalse
+                                        onDragStart = "false;"
+                                    }
+                                    span { +"PRESS" }
+                                }
+                            } else {
+                                button {
                                     id = "pressMePls"
-                                    draggable = htmlFalse
-                                    onDragStart = "false;"
-                                }
-                                span {
-                                    +"PRESS"
+                                    span { +"PRESS" }
                                 }
                             }
-                        } else {
-                            button {
-                                id = "pressMePls"
-                                span {
-                                    +"PRESS"
-                                }
-                            }
-                        }
 
-                        h1 {
-                            id = "buttonPressCount"
-                            +"BUTTON PRESSERS: 0"
+                            if (buttonShape == FIREWORKS) {
+                                h1(classes = "whiteButton") {
+                                    id = "buttonPressCountWhite"
+                                    +"BUTTON PRESSERS: 0"
+                                }
+                            } else {
+                                h1 {
+                                    id = "buttonPressCount"
+                                    +"BUTTON PRESSERS: 0"
+                                }
+                            }
                         }
-                        h1(classes = "whiteButton") {
-                            id = "buttonPressCountWhite"
-                            +"BUTTON PRESSERS: 0"
+                        // Floating pressers container below the counts
+                        div(classes = "presser-container") {
+                            id = "floating-pressers-bottom"
                         }
 
                         div {
