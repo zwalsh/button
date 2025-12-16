@@ -54,9 +54,8 @@ body {
 
 /* On phones, the bottom of the screen may be taken up by browser navigation tools */
 #floating-pressers-top {
-  flex: 0.8 0.8 0;
+  flex: 0.7 0.7 0;
 }
-
 #floating-pressers-bottom {
   margin-bottom: 40px;
   flex: 1 1 0;
