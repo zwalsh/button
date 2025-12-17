@@ -28,7 +28,8 @@ body {
 }
 
 .container {
-    height: 100%;
+    /* 100dvh for use on mobile broswers */
+    height: 100dvh;
     margin: 0;
     display: flex;
     flex-direction: column;
