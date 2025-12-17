@@ -6,6 +6,8 @@ import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.Routing
 import io.ktor.routing.get
+import io.ktor.sessions.get
+import io.ktor.sessions.sessions
 import io.ktor.util.pipeline.PipelineContext
 import kotlinx.html.Draggable.htmlFalse
 import kotlinx.html.a
@@ -44,6 +46,7 @@ import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.session.SessionService
+import sh.zachwal.button.session.principals.ContactSessionPrincipal
 import sh.zachwal.button.shared_html.favicon
 import sh.zachwal.button.shared_html.mobileUI
 import sh.zachwal.button.shared_html.sentryScript
@@ -82,6 +85,8 @@ class HomeController @Inject constructor(
     internal fun Routing.home() {
         get("/") {
             checkContactToken()
+            val contactSession = call.sessions.get<ContactSessionPrincipal>()
+            val isExistingContact = contactSession != null
 
             val buttonShape = buttonConfigService.currentShape()
             call.respondHtml(HttpStatusCode.OK) {
@@ -169,11 +174,13 @@ class HomeController @Inject constructor(
                             id = "floating-pressers-bottom"
                         }
 
-                        div {
-                            id = "signup"
-                            +"Love the button? "
-                            a(href = "/phone/signup") {
-                                +"Sign up for texts."
+                        if (!isExistingContact) {
+                            div {
+                                id = "signup"
+                                +"Love the button? "
+                                a(href = "/phone/signup") {
+                                    +"Sign up for texts."
+                                }
                             }
                         }
                     }
