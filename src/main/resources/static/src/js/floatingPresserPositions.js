@@ -84,10 +84,10 @@ function assignNames(names) {
             topNames.push(name);
         }
     }
-    topNames = topNames.filter((n) => n!=null);
-    bottomNames = bottomNames.filter((n) => n!=null);
+    topNames = topNames.filter((n) => n != null);
+    bottomNames = bottomNames.filter((n) => n != null);
 
-    return { topNames, bottomNames }
+    return { topNames, bottomNames };
 }
 
 

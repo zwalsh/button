@@ -1,7 +1,6 @@
 // floatingPresserPhysics.js
 // Pure functions for pill animation logic
-// floatingPresserPhysics.js
-// Pure functions for pill animation logic
+
 
 function ringHash(name, slots) {
     let hash = 2166136261;
