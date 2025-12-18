@@ -31,13 +31,11 @@ function connect() {
                 break;
             }
             case 'PersonPressing': {
-                console.log('Person pressing:', msg.displayName);
                 currentPressers.add(msg.displayName);
                 window.renderFloatingPressers(Array.from(currentPressers));
                 break;
             }
             case 'PersonReleased': {
-                console.log('Person released:', msg.displayName);
                 currentPressers.delete(msg.displayName);
                 window.renderFloatingPressers(Array.from(currentPressers));
                 break;
@@ -88,7 +86,7 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 window.onload = function () {
     let button = document.getElementById("pressMePls");
 
-    button.addEventListener("pointerdown", () => { pressing() }, false);
+    button.addEventListener("pointerdown", () => { pressing(); }, false);
     button.addEventListener("pointerup", () => { released(); }, false);
 };
 

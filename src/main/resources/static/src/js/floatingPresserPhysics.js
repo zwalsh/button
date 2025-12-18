@@ -1,16 +1,6 @@
 // floatingPresserPhysics.js
 // Pure functions for pill animation logic
 
-
-function ringHash(name, slots) {
-    let hash = 2166136261;
-    for (let i = 0; i < name.length; i++) {
-        hash ^= name.charCodeAt(i);
-        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
-    }
-    return Math.abs(hash) % slots;
-}
-
 function computeNextPillStates(pills, config) {
     const {
         W, H, frame,
@@ -96,7 +86,7 @@ function computeNextPillStates(pills, config) {
 
 
 if (typeof module !== 'undefined') {
-    module.exports = { ringHash, computeNextPillStates };
+    module.exports = { computeNextPillStates };
 } else if (typeof window !== 'undefined') {
-    window.floatingPresserPhysics = { ringHash, computeNextPillStates };
+    window.floatingPresserPhysics = { computeNextPillStates };
 }
