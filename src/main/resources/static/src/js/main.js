@@ -12,6 +12,8 @@ function connect() {
         console.log("Socket opened!");
         console.log(event);
     }
+    // Track currently pressing names
+    const currentPressers = new Set();
     socket.onmessage = function (event) {
         let msg;
         try {
@@ -29,19 +31,15 @@ function connect() {
                 break;
             }
             case 'PersonPressing': {
-                console.log('Person pressing:', msg.displayName);
-                const messageDiv = document.getElementById('personPressedMessage');
-                if (messageDiv) {
-                    if (window.personPressedTimeout) {
-                        clearTimeout(window.personPressedTimeout);
-                    }
-                    messageDiv.textContent = `${msg.displayName} pressed!`;
-                    messageDiv.classList.add('show');
-                    window.personPressedTimeout = setTimeout(() => {
-                        messageDiv.classList.remove('show');
-                        window.personPressedTimeout = null;
-                    }, 2000);
-                }
+                currentPressers.add(msg.displayName);
+                window.renderFloatingPressers(Array.from(currentPressers));
+                break;
+            }
+            case 'PersonReleased': {
+                currentPressers.delete(msg.displayName);
+                setTimeout(() => {
+                    window.renderFloatingPressers(Array.from(currentPressers));
+                }, 100);
                 break;
             }
             default:
@@ -89,7 +87,6 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 
 window.onload = function () {
     let button = document.getElementById("pressMePls");
-    console.log(button);
 
     button.addEventListener("pointerdown", () => { pressing(); }, false);
     button.addEventListener("pointerup", () => { released(); }, false);
