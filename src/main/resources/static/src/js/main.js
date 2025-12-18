@@ -37,7 +37,9 @@ function connect() {
             }
             case 'PersonReleased': {
                 currentPressers.delete(msg.displayName);
-                window.renderFloatingPressers(Array.from(currentPressers));
+                setTimeout(() => {
+                    window.renderFloatingPressers(Array.from(currentPressers));
+                }, 100);
                 break;
             }
             default:
