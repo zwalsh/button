@@ -43,6 +43,7 @@ class Pill {
     let top = this.safeY(y, containerHeight) - this.height() / 2;
     this.domElement.style.left = `${left}px`;
     this.domElement.style.top = `${top}px`;
+    this.domElement.style.display = 'block';
     this.initialPositionSet = true;
   }
 
@@ -72,6 +73,7 @@ class Pill {
         pillEl.className = 'floating-presser-pill';
         pillEl.textContent = truncateName(name);
         pillEl.style.position = 'absolute';
+        pillEl.style.display = 'none';
         return new Pill(pillEl);
   }
 
