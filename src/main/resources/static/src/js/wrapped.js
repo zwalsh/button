@@ -40,7 +40,7 @@ function countUp(counterElement) {
     updateCounter();
 }
 
-window.onload = function () {
+window.addEventListener('load', function () {
     let buttons = document.getElementsByClassName("pressMePls");
     console.log(buttons);
 
@@ -57,5 +57,5 @@ window.onload = function () {
             );
         }
     }
-};
+}, false);
 

@@ -85,10 +85,10 @@ function released() {
 // prevent right-click weirdness on mobile when holding the button
 document.addEventListener('contextmenu', event => event.preventDefault());
 
-window.onload = function () {
+window.addEventListener('load', function () {
     let button = document.getElementById("pressMePls");
 
     button.addEventListener("pointerdown", () => { pressing(); }, false);
     button.addEventListener("pointerup", () => { released(); }, false);
-};
+}, false);
 
