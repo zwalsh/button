@@ -1,3 +1,6 @@
+import { renderFloatingPressers } from '../floatingPresserPositions.js';
+
+
 var socket;
 var count = 0;
 
@@ -32,13 +35,13 @@ function connect() {
             }
             case 'PersonPressing': {
                 currentPressers.add(msg.displayName);
-                window.renderFloatingPressers(Array.from(currentPressers));
+                renderFloatingPressers(Array.from(currentPressers));
                 break;
             }
             case 'PersonReleased': {
                 currentPressers.delete(msg.displayName);
                 setTimeout(() => {
-                    window.renderFloatingPressers(Array.from(currentPressers));
+                    renderFloatingPressers(Array.from(currentPressers));
                 }, 100);
                 break;
             }

@@ -83,10 +83,4 @@ function computeNextPillStates(pills, config) {
     return nextPillStates;
 }
 
-
-
-if (typeof module !== 'undefined') {
-    module.exports = { computeNextPillStates };
-} else if (typeof window !== 'undefined') {
-    window.floatingPresserPhysics = { computeNextPillStates };
-}
+export { computeNextPillStates };

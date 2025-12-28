@@ -1,5 +1,8 @@
 // floatingPresserPositions.js
 
+import { Pill } from './Pill.js';
+import { computeNextPillStates } from './floatingPresserPhysics.js';
+
 /**
  * State for floating presser pills animation:
  *
@@ -125,11 +128,4 @@ if (typeof window !== 'undefined') {
     });
 }
 
-// Export for use in main.js or elsewhere
-if (typeof window !== 'undefined') {
-    window.renderFloatingPressers = renderFloatingPressers;
-}
-
-if (typeof module !== 'undefined') {
-    module.exports = { renderFloatingPressers };
-}
+export { renderFloatingPressers };

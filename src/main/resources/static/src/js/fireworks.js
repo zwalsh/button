@@ -22,3 +22,6 @@ window.addEventListener("load", function () {
     button.addEventListener("pointerdown", () => { fireworksPressing(); }, false);
     button.addEventListener("pointerup", () => { fireworksReleasing(); }, false);
 }, false);
+
+
+export { fireworksPressing, fireworksReleasing };
