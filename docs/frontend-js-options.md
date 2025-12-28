@@ -76,3 +76,13 @@ Environment notes
 - Ktor serves static files unchanged. Target modern mobile browsers (iOS Safari/Chrome). Use native ESM (no bundling).
 - wsUrl is injected inline by HomeController; PR1 keeps this mechanism.
 - Admin pages currently include jQuery; plan is to migrate them to use the ESM bootstrap instead of classic script tags.
+
+Progress (2025-12-28T17:50:28.607Z)
+- Converted Pill, floatingPresserPhysics, floatingPresserPositions, fireworks, and wrapped to ES modules (exported symbols; removed window/module.exports usage).
+- Updated HomeController and WrappedController to emit script tags with type="module" and renamed main.js to bootstrap/main.js.
+- Added bootstrap/main.js that preserves current WebSocket wiring and uses the inline wsUrl shim to maintain existing runtime behavior.
+
+Remaining tasks
+- Implement net/socket.js with a capped-backoff reconnect strategy and centralize WebSocket logic (PR2/PR3).
+- Import and initialize fireworks and wrapped features from bootstrap/main.js (PR4).
+- Add package.json with Vitest/jsdom, write frontend unit tests, and run npm test in CI (PR5).
