@@ -1,0 +1,13 @@
+{
+  "name": "button-frontend-spike",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest --run --environment jsdom"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "jsdom": "^22.0.0"
+  }
+}

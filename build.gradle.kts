@@ -105,6 +105,32 @@ tasks.test {
     useJUnitPlatform()
 }
 
+// Frontend integration tasks: install node deps, run frontend tests, and copy frontend assets
+tasks.register<Exec>("npmInstall") {
+    workingDir = file("frontend")
+    commandLine = listOf("npm", "ci")
+}
+
+tasks.register<Exec>("npmTest") {
+    dependsOn("npmInstall")
+    workingDir = file("frontend")
+    commandLine = listOf("npm", "test")
+}
+
+tasks.register<Copy>("copyFrontend") {
+    from("frontend/src/main")
+    into("src/main/resources/static/src")
+}
+
+tasks.named("processResources") {
+    dependsOn("copyFrontend")
+}
+
+// Ensure assemble task picks up latest frontend files in local dev
+tasks.named("assemble") {
+    dependsOn("copyFrontend")
+}
+
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 }

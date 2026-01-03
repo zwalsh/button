@@ -2,6 +2,9 @@
 
 .idea/
 
+# Copied from frontend/src/main
+src/main/resources/static/src/
+
 
 # Created by https://www.toptal.com/developers/gitignore/api/kotlin,gradle
 # Edit at https://www.toptal.com/developers/gitignore?templates=kotlin,gradle
