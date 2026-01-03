@@ -32,18 +32,44 @@ class Socket {
 
   connect() {
     if (this._closed) return;
+    // Close any existing socket to avoid leaks or duplicate connections
+    if (this.ws) {
+      try {
+        console.debug('Closing existing WebSocket before creating a new one');
+        this.ws.onopen = null;
+        this.ws.onmessage = null;
+        this.ws.onclose = null;
+        this.ws.onerror = null;
+        this.ws.close();
+      } catch (e) {
+        console.warn('Error while closing existing WebSocket', e);
+      }
+      this.ws = null;
+    }
+    // Clear any pending reconnect timer since a manual connect is occurring
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
+    console.info('Connecting WebSocket to', this.url);
     this.ws = new WebSocket(this.url);
 
     this.ws.onopen = () => {
+      console.info('WebSocket opened', this.url);
       // reset backoff after a successful open
       this.backoff = this.BACKOFF_INITIAL;
     };
 
     this.ws.onmessage = (ev) => this._handleMessage(ev);
 
-    this.ws.onclose = () => this._scheduleReconnect();
+    this.ws.onclose = (ev) => {
+      console.warn('WebSocket closed', ev);
+      this._scheduleReconnect();
+    };
 
-    this.ws.onerror = () => {
+    this.ws.onerror = (ev) => {
+      console.error('WebSocket error', ev);
       // no-op; onclose will drive reconnect
     };
   }
@@ -76,6 +102,7 @@ class Socket {
   _scheduleReconnect() {
     if (this._closed) return;
     if (this.reconnectTimer) return;
+    console.info('Scheduling reconnect in', this.backoff, 'ms');
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       this.connect();
@@ -88,10 +115,11 @@ class Socket {
       try {
         this.ws.send(JSON.stringify(obj));
       } catch (e) {
-        // swallow
+        console.error('Failed to send message over WebSocket', e, obj);
       }
+    } else {
+      console.warn('Dropping outbound message; WebSocket not open', obj);
     }
-    // dropped when not open
   }
 
   sendPressing() {
@@ -104,6 +132,7 @@ class Socket {
 
   close() {
     // stop reconnect attempts and close socket
+    console.info('Socket.close() called; stopping reconnects and closing WebSocket');
     this._closed = true;
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
@@ -113,7 +142,7 @@ class Socket {
       try {
         this.ws.close();
       } catch (e) {
-        // ignore
+        console.warn('Error while closing WebSocket in close()', e);
       }
     }
   }
