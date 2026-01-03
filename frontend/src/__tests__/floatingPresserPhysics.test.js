@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeNextPillStates } from '../../src/main/resources/static/src/js/floatingPresserPhysics.js';
+import { computeNextPillStates } from '../main/js/floatingPresserPhysics.js';
 
 describe('computeNextPillStates', () => {
   it('returns an array for empty input', () => {
