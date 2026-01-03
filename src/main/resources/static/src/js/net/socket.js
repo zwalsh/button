@@ -1,6 +1,6 @@
 // net/socket.js
 // OOP-style WebSocket client for button app
-// Exports: Socket class and a createSocket convenience function
+// Exports: Socket class (default export)
 // Handlers supported: onCurrentCount(msg), onPersonPressing(msg), onPersonReleased(msg)
 // Instance methods: sendPressing(), sendReleased(), close()
 // Behavior:
