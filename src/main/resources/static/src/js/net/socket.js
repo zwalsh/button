@@ -1,14 +1,9 @@
-// net/socket.js
 // OOP-style WebSocket client for button app
-// Exports: Socket class (default export)
-// Handlers supported: onCurrentCount(msg), onPersonPressing(msg), onPersonReleased(msg)
-// Instance methods: sendPressing(), sendReleased(), close()
 // Behavior:
 // - Automatically connects to provided url on construction.
 // - Reconnects on close using internal capped exponential backoff.
 // - Dispatches parsed server messages for CurrentCount, PersonPressing, PersonReleased to handlers.
 // - Outbound press messages are JSON-stringified and sent only when the socket is OPEN; otherwise they are dropped.
-// Date: 2026-01-03T16:01:14.724Z
 
 class Socket {
   constructor({ url, handlers } = {}) {
