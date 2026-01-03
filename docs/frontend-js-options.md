@@ -81,7 +81,7 @@ Progress (2026-01-03T16:12:57.805Z)
 - Converted Pill, floatingPresserPhysics, floatingPresserPositions, fireworks, and wrapped to ES modules (exported symbols; removed window/module.exports usage).
 - Updated HomeController and WrappedController to emit script tags with type="module" and renamed main.js to bootstrap/main.js.
 - Implemented net/socket.js as an OOP Socket class with capped exponential backoff reconnect and minimal handler dispatch.
-- Wired bootstrap/main.js to use createSocket() / Socket, replacing manual WebSocket creation; bootstrap now calls sendPressing()/sendReleased().
+- Wired bootstrap/main.js to instantiate Socket directly (new Socket(...)), replacing manual WebSocket creation; bootstrap now calls sendPressing()/sendReleased().
 
 Remaining tasks
 - Import and initialize fireworks and wrapped features from bootstrap/main.js (PR4).
