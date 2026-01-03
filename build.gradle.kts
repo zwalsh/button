@@ -117,7 +117,7 @@ tasks.register<Exec>("npmTest") {
     commandLine = listOf("npm", "test")
 }
 
-tasks.register<Copy>("copyFrontend") {
+tasks.register<Sync>("copyFrontend") {
     from("frontend/src/main")
     into("src/main/resources/static/src")
 }
