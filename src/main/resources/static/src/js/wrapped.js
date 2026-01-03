@@ -59,3 +59,4 @@ window.addEventListener('load', function () {
     }
 }, false);
 
+export { hideAndReveal, countUp };

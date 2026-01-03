@@ -108,6 +108,7 @@ class HomeController @Inject constructor(
                     if (buttonShape == FIREWORKS) {
                         link(href = "static/src/css/fireworks.css", rel = "stylesheet")
                         script {
+                            type = "module"
                             src = "static/src/js/fireworks.js"
                         }
                     }
@@ -121,16 +122,20 @@ class HomeController @Inject constructor(
                         }
                     }
                     script {
+                        type = "module"
                         src = "static/src/js/Pill.js"
                     }
                     script {
+                        type = "module"
                         src = "static/src/js/floatingPresserPhysics.js"
                     }
                     script {
+                        type = "module"
                         src = "static/src/js/floatingPresserPositions.js"
                     }
                     script {
-                        src = "static/src/js/main.js"
+                        type = "module"
+                        src = "static/src/js/bootstrap/main.js"
                     }
                 }
                 body {

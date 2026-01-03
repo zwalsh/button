@@ -45,6 +45,7 @@ class WrappedController @Inject constructor(
                         headSetup()
                         link(href = "/static/src/css/wrapped.css", rel = "stylesheet")
                         script {
+                            type = "module"
                             src = "/static/src/js/wrapped.js"
                         }
                     }
