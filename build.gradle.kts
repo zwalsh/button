@@ -105,6 +105,18 @@ tasks.test {
     useJUnitPlatform()
 }
 
+// Frontend integration tasks: copy frontend assets
+tasks.register<Sync>("copyFrontend") {
+    from("frontend/src/main")
+    into("src/main/resources/static/src")
+}
+
+// Ensure processResources task picks up latest frontend files.
+// assemble, run, etc. all depend on processResources
+tasks.named("processResources") {
+    dependsOn("copyFrontend")
+}
+
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 }
