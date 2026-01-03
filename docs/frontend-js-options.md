@@ -53,7 +53,7 @@ PR4 — Moduleize other features
 - Export initFireworks and initWrapped and call from bootstrap; consolidate contextmenu prevention.
 
 PR5 — Tests and CI
-- Add package.json with vitest + jsdom devDependencies and a "test" script.
+- Add package.json in `frontend/` with vitest + jsdom devDependencies and a "test" script; update CI to run `npm --prefix frontend ci && npm --prefix frontend test` (or use the Gradle `npmTest` task).
 - Write unit tests for physics, pill, positions, socket, fireworks, wrapped.
 - Run npm ci && npm test in Jenkinsfile so frontend tests run in CI.
 

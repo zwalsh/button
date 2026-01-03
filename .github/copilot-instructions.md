@@ -11,12 +11,13 @@ A Kotlin/Ktor web app where users press a shared button and see how many are pre
 - HTTP/controllers: Home, Users, Phone, Contact, Admin, Wrapped; controller creation via custom `Controller` annotation and `ControllerCreator`.
 - Auth/sessions/roles: `SessionService`, `SessionAuth`, `FormAuth`, principals (`UserSessionPrincipal`, `ContactSessionPrincipal`), role checks (`RoleAuthorization` / `AuthorizedRoute`).
 - Persistence: PostgreSQL via HikariCP + JDBI DAOs and models; migrations with Liquibase JSON in `/db` and `migrate.sh`.
-- Static assets: `src/main/resources/static/src` (HTML/CSS/JS) and images in `static/special`.
+- Static assets: maintained in `frontend/src/main` (HTML/CSS/JS). Images stay in JVM resources (`src/main/resources/static/special`). The Gradle build copies `frontend/src/main` into `src/main/resources/static` at build time (see `copyFrontend` task).
 - Observability: Logback, Sentry; Umami analytics config.
 
 ## Key directories and files
 - `src/main/kotlin/sh/zachwal/button/` core server code (controllers, services, features, config, auth, roles).
 - `src/main/resources/` config and static assets (`application.conf`, `hikari.properties`, `logback.xml`, `static/`).
+- `frontend/src/main` static CSS / JS.
 - `db/` Liquibase migrations (`changelog.json`, numbered change sets, `migrate.sh`, `liquibase.properties`).
 - `build.gradle.kts`, `settings.gradle.kts` build configuration.
 - `Jenkinsfile` CI/CD pipeline.
@@ -35,6 +36,7 @@ A Kotlin/Ktor web app where users press a shared button and see how many are pre
   - `./gradlew assemble testClasses` to compile
   - `./gradlew ktlintCheck` to lint
   - `./gradlew build` to test
+  - Frontend tests: `npm --prefix frontend install && npm --prefix frontend test`.
 - Run (distribution tar produced by Gradle):
   - `./gradlew assemble` -> `build/distributions/button.tar`
   - Unpack and run `button/bin/button` (systemd units reference this layout).
