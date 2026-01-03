@@ -105,29 +105,15 @@ tasks.test {
     useJUnitPlatform()
 }
 
-// Frontend integration tasks: install node deps, run frontend tests, and copy frontend assets
-tasks.register<Exec>("npmInstall") {
-    workingDir = file("frontend")
-    commandLine = listOf("npm", "ci")
-}
-
-tasks.register<Exec>("npmTest") {
-    dependsOn("npmInstall")
-    workingDir = file("frontend")
-    commandLine = listOf("npm", "test")
-}
-
+// Frontend integration tasks: copy frontend assets
 tasks.register<Sync>("copyFrontend") {
     from("frontend/src/main")
     into("src/main/resources/static/src")
 }
 
+// Ensure processResources task picks up latest frontend files.
+// assemble, run, etc. all depend on processResources
 tasks.named("processResources") {
-    dependsOn("copyFrontend")
-}
-
-// Ensure assemble task picks up latest frontend files in local dev
-tasks.named("assemble") {
     dependsOn("copyFrontend")
 }
 
