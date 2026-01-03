@@ -1,78 +1,35 @@
 import { renderFloatingPressers } from '../floatingPresserPositions.js';
+import Socket from '../net/socket.js';
 
+let count = 0;
 
-var socket;
-var count = 0;
+// Track currently pressing names
+const currentPressers = new Set();
 
-function connect() {
-    console.log("Connecting...");
-    if (socket !== null && socket !== undefined) {
-        socket.close(); // clean up
-    }
-    socket = new WebSocket(wsUrl); // from script tag in HTML
-
-    socket.onopen = function (event) {
-        console.log("Socket opened!");
-        console.log(event);
-    }
-    // Track currently pressing names
-    const currentPressers = new Set();
-    socket.onmessage = function (event) {
-        let msg;
-        try {
-            msg = JSON.parse(event.data);
-        } catch {
-            console.error('Bad JSON from server: ' + event.data);
-            return;
-        }
-        switch (msg.type) {
-            case 'CurrentCount': {
-                let buttonPressDiv = document.getElementById("buttonPressCount");
-                let buttonPressDivWhite = document.getElementById("buttonPressCountWhite");
-                if (buttonPressDiv) buttonPressDiv.innerText = "BUTTON PRESSERS: " + msg.count;
-                if (buttonPressDivWhite) buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + msg.count;
-                break;
-            }
-            case 'PersonPressing': {
-                currentPressers.add(msg.displayName);
+const socket = new Socket({
+    url: wsUrl, // injected by HomeController
+    handlers: {
+        onCurrentCount: (msg) => {
+            let buttonPressDiv = document.getElementById("buttonPressCount");
+            let buttonPressDivWhite = document.getElementById("buttonPressCountWhite");
+            if (buttonPressDiv) buttonPressDiv.innerText = "BUTTON PRESSERS: " + msg.count;
+            if (buttonPressDivWhite) buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + msg.count;
+        },
+        onPersonPressing: (msg) => {
+            currentPressers.add(msg.displayName);
+            renderFloatingPressers(Array.from(currentPressers));
+        },
+        onPersonReleased: (msg) => {
+            currentPressers.delete(msg.displayName);
+            setTimeout(() => {
                 renderFloatingPressers(Array.from(currentPressers));
-                break;
-            }
-            case 'PersonReleased': {
-                currentPressers.delete(msg.displayName);
-                setTimeout(() => {
-                    renderFloatingPressers(Array.from(currentPressers));
-                }, 100);
-                break;
-            }
-            default:
-                console.error("Unknown message type received from server: ", msg.type)
-                break;
+            }, 100);
         }
     }
-
-    socket.onclose = function (event) {
-        console.log("Closing, oh no!");
-        console.log(event);
-    }
-
-    socket.onerror = (event) => {
-        console.log("Error, oh no!");
-        console.log(event);
-    };
-}
-
-connect();
-
-function sendPressState(state) {
-    if (socket.readyState !== WebSocket.OPEN) {
-        connect();
-    }
-    socket.send(JSON.stringify({ type: "PressStateChanged", state: state }));
-}
+});
 
 function pressing() {
-    sendPressState("PRESSING");
+    socket.sendPressing();
     count++;
     if (count > 15) {
         let signup = document.getElementById("signup");
@@ -81,9 +38,8 @@ function pressing() {
 }
 
 function released() {
-    sendPressState("RELEASED");
+    socket.sendReleased();
 }
-
 
 // prevent right-click weirdness on mobile when holding the button
 document.addEventListener('contextmenu', event => event.preventDefault());

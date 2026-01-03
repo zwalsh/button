@@ -123,18 +123,6 @@ class HomeController @Inject constructor(
                     }
                     script {
                         type = "module"
-                        src = "static/src/js/Pill.js"
-                    }
-                    script {
-                        type = "module"
-                        src = "static/src/js/floatingPresserPhysics.js"
-                    }
-                    script {
-                        type = "module"
-                        src = "static/src/js/floatingPresserPositions.js"
-                    }
-                    script {
-                        type = "module"
                         src = "static/src/js/bootstrap/main.js"
                     }
                 }
