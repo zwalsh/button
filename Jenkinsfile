@@ -9,7 +9,7 @@ pipeline {
                 setBuildStatus('pending')
             }
         }
-        stage('frontend test') {
+        stage('frontend preflight') {
             steps {
                 sh './frontend/preflight.sh'
             }
