@@ -27,8 +27,10 @@ pipeline {
                     }
                 }
                 stage('frontend build') {
-                    sh './frontend/preflight.sh'
-                    sh './frontend/test.sh'
+                    steps {
+                        sh './frontend/preflight.sh'
+                        sh './frontend/test.sh'
+                    }
                 }
             }
         }
