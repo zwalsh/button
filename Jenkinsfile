@@ -9,11 +9,6 @@ pipeline {
                 setBuildStatus('pending')
             }
         }
-        stage('frontend preflight') {
-            steps {
-                sh './frontend/preflight.sh'
-            }
-	}
         stage('assemble') {
             steps {
                 sh './gradlew assemble testClasses'
@@ -25,13 +20,16 @@ pipeline {
             }
         }
         stage('test') {
-            steps {
-                sh './gradlew build'
-            }
-        }
-        stage('frontend test') {
-            steps {
-                sh './frontend/test.sh'
+            parallel {
+                stage('Gradle build') {
+                    steps {
+                        sh './gradlew build'
+                    }
+                }
+                stage('frontend build') {
+                    sh './frontend/preflight.sh'
+                    sh './frontend/test.sh'
+                }
             }
         }
         stage('test-release') {
