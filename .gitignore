@@ -6,6 +6,11 @@
 src/main/resources/static/src/
 # Don't check in node_modules
 frontend/node_modules/
+# Vite cache
+.vite/
+
+# Vitest results
+frontend/test-results/
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/kotlin,gradle

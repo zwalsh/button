@@ -20,8 +20,18 @@ pipeline {
             }
         }
         stage('test') {
-            steps {
-                sh './gradlew build'
+            parallel {
+                stage('Gradle test') {
+                    steps {
+                        sh './gradlew check'
+                    }
+                }
+                stage('frontend test') {
+                    steps {
+                        sh './frontend/preflight.sh'
+                        sh './frontend/test.sh'
+                    }
+                }
             }
         }
         stage('test-release') {
@@ -100,7 +110,7 @@ pipeline {
             setBuildStatus('failure')
         }
         always {
-            junit '**/build/test-results/test/TEST-*.xml'
+            junit testResults: '**/build/test-results/test/TEST-*.xml, frontend/test-results/**/*.xml'
         }
     }
 }
