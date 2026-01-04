@@ -28,6 +28,9 @@ pipeline {
             steps {
                 sh "node -v || { echo 'node not found'; exit 1; }"
                 sh "npm -v || { echo 'npm not found'; exit 1; }"
+                sh "NODE_MAJOR=$(node -v | sed 's/^v\([0-9]*\)\..*/\1/')"
+                sh "[ "$NODE_MAJOR" -ge 24 ] || { echo "Node 24+ required"; exit 1; }"
+
                 sh "[ -f frontend/package-lock.json ] || { echo 'frontend/package-lock.json missing'; exit 1; }"
 
                 sh 'mkdir -p ~/.npm'
