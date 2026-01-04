@@ -24,6 +24,17 @@ pipeline {
                 sh './gradlew build'
             }
         }
+        stage('frontend test') {
+            steps {
+                sh "node -v || { echo 'node not found'; exit 1; }"
+                sh "npm -v || { echo 'npm not found'; exit 1; }"
+                sh "[ -f frontend/package-lock.json ] || { echo 'frontend/package-lock.json missing'; exit 1; }"
+
+                sh 'mkdir -p ~/.npm'
+                sh 'npm ci --prefix frontend --cache ~/.npm --no-audit --no-fund'
+                sh 'npm --prefix frontend test'
+            }
+        }
         stage('test-release') {
             steps {
                 // Clear testbutton releases
@@ -100,7 +111,7 @@ pipeline {
             setBuildStatus('failure')
         }
         always {
-            junit '**/build/test-results/test/TEST-*.xml'
+            junit '**/build/test-results/test/TEST-*.xml', 'frontend/test-results/**/*.xml'
         }
     }
 }
