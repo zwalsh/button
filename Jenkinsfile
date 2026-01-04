@@ -9,6 +9,11 @@ pipeline {
                 setBuildStatus('pending')
             }
         }
+        stage('frontend test') {
+            steps {
+                sh './frontend/preflight.sh'
+            }
+	}
         stage('assemble') {
             steps {
                 sh './gradlew assemble testClasses'
@@ -26,7 +31,7 @@ pipeline {
         }
         stage('frontend test') {
             steps {
-                sh './frontend-preflight.sh'
+                sh './frontend/preflight.sh'
 
                 sh 'mkdir -p ~/.npm'
                 sh 'npm ci --prefix frontend --cache ~/.npm --no-audit --no-fund'
