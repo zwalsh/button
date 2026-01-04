@@ -31,11 +31,7 @@ pipeline {
         }
         stage('frontend test') {
             steps {
-                sh './frontend/preflight.sh'
-
-                sh 'mkdir -p ~/.npm'
-                sh 'npm ci --prefix frontend --cache ~/.npm --no-audit --no-fund'
-                sh 'npm --prefix frontend test'
+                sh './frontend/test.sh'
             }
         }
         stage('test-release') {

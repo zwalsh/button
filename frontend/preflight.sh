@@ -3,6 +3,9 @@ set -euo pipefail
 
 fail() { echo "$1"; exit 1; }
 
+# Source nvm
+. ~/.nvm/nvm.sh
+
 echo "Node: $(node -v)"
 echo "npm: $(npm -v)"
 
