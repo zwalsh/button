@@ -111,7 +111,7 @@ pipeline {
             setBuildStatus('failure')
         }
         always {
-            junit '**/build/test-results/test/TEST-*.xml', 'frontend/test-results/**/*.xml'
+            junit testResults: '**/build/test-results/test/TEST-*.xml', 'frontend/test-results/**/*.xml'
         }
     }
 }
