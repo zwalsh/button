@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 # Source nvm
 . ~/.nvm/nvm.sh

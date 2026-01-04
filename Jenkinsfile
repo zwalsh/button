@@ -21,12 +21,12 @@ pipeline {
         }
         stage('test') {
             parallel {
-                stage('Gradle build') {
+                stage('Gradle test') {
                     steps {
-                        sh './gradlew build'
+                        sh './gradlew check'
                     }
                 }
-                stage('frontend build') {
+                stage('frontend test') {
                     steps {
                         sh './frontend/preflight.sh'
                         sh './frontend/test.sh'
