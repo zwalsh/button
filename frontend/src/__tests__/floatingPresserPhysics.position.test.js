@@ -3,13 +3,24 @@ import { computeNextPillStates } from '../main/js/floatingPresserPhysics.js';
 
 import { makeMockPill } from './testUtils.js';
 
+// Helper function to check positions within a tolerance
+// due to random jitter in initial placement
+function expectPositionsCloseTo(pillStates, expectedPositions, tolerance = 5.1) {
+  expect(pillStates.length).toBe(expectedPositions.length);
+  for (let i = 0; i < pillStates.length; i++) {
+    const pill = pillStates[i];
+    const expected = expectedPositions[i];
+    expect(Math.abs(pill.x - expected.x)).toBeLessThanOrEqual(tolerance);
+    expect(Math.abs(pill.y - expected.y)).toBeLessThanOrEqual(tolerance);
+  }
+}
+
 describe('computeNextPillStates', () => {
   it('positions a single pill in the center', () => {
     const W = 400, H = 300;
     const pill = makeMockPill({ initialized: false });
     const next = computeNextPillStates([pill], { W, H, frame: 0 });
-    expect(Math.abs(next[0].x - W/2)).toBeLessThan(25);
-    expect(Math.abs(next[0].y - H/2)).toBeLessThan(25);
+    expectPositionsCloseTo(next, [{ x: W / 2, y: H / 2 }]);
   });
 
   it('positions two pills symmetrically', () => {
@@ -17,24 +28,27 @@ describe('computeNextPillStates', () => {
     const pillA = makeMockPill({ initialized: false });
     const pillB = makeMockPill({ initialized: false });
     const next = computeNextPillStates([pillA, pillB], { W, H, frame: 0 });
-    expect(next.length).toBe(2);
-    // Pills should be on opposite sides of the oval
-    expect(Math.abs(next[0].x - (W/2 + (W-200)/2))).toBeLessThan(50);
-    expect(Math.abs(next[1].x - (W/2 - (W-200)/2))).toBeLessThan(50);
+
+    // Expect pills to be positioned symmetrically about center, with some margin from edges
+    const margin = 200;
+    expectPositionsCloseTo(next, [
+      // Expected symmetrical positions -- first pill to the right, second to the left
+      { x: W / 2 + (W - margin) / 2, y: H / 2 },
+      { x: W / 2 - (W - margin) / 2, y: H / 2 },
+    ]);
   });
 
   it('positions N pills on oval', () => {
     const W = 400, H = 300, N = 5;
     const pills = Array.from({ length: N }, () => makeMockPill({ initialized: false }));
     const next = computeNextPillStates(pills, { W, H, frame: 0 });
-    expect(next.length).toBe(N);
-    // All pills should be roughly on oval
-    for (let i = 0; i < N; i++) {
-      const dx = next[i].x - W/2;
-      const dy = next[i].y - H/2;
-      const rX = (W-200)/2, rY = (H-40)/2;
-      // Check if pill is near oval
-      expect(Math.abs(Math.sqrt((dx*dx)/(rX*rX) + (dy*dy)/(rY*rY)) - 1)).toBeLessThan(0.3);
-    }
+
+    expectPositionsCloseTo(next, [
+      { x: W / 2 + (W - 200) / 2, y: H / 2 }, // Pill 0
+      { x: W / 2 + ((W - 200) / 2) * Math.cos((2 * Math.PI) / 5), y: H / 2 + ((H - 40) / 2) * Math.sin((2 * Math.PI) / 5) }, // Pill 1
+      { x: W / 2 + ((W - 200) / 2) * Math.cos((4 * Math.PI) / 5), y: H / 2 + ((H - 40) / 2) * Math.sin((4 * Math.PI) / 5) }, // Pill 2
+      { x: W / 2 + ((W - 200) / 2) * Math.cos((6 * Math.PI) / 5), y: H / 2 + ((H - 40) / 2) * Math.sin((6 * Math.PI) / 5) }, // Pill 3
+      { x: W / 2 + ((W - 200) / 2) * Math.cos((8 * Math.PI) / 5), y: H / 2 + ((H - 40) / 2) * Math.sin((8 * Math.PI) / 5) }, // Pill 4
+    ]);
   });
 });
