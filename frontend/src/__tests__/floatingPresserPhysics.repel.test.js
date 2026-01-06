@@ -11,6 +11,9 @@ describe('computeNextPillStates edge/collision/repel', () => {
     const next = computeNextPillStates([pillA, pillB], { W, H, frame: 0 });
     // Pills should move apart in X
     expect(Math.abs(next[0].x - next[1].x)).toBeGreaterThan(Math.abs(pillA.x - pillB.x));
+    // Pills should have nonzero velocity in X (repel direction)
+    expect(Math.abs(next[0].vx)).toBeGreaterThan(0);
+    expect(Math.abs(next[1].vx)).toBeGreaterThan(0);
   });
 
   it('repels pills near edge', () => {
