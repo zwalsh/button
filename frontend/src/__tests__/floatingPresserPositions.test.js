@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderFloatingPressers } from '../main/js/floatingPresserPositions.js';
+import { renderFloatingPressers, assignNames } from '../main/js/floatingPresserPositions.js';
 
 // Mock Pill and computeNextPillStates
 const mockDom = () => {
