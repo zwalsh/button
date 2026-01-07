@@ -128,4 +128,9 @@ if (typeof window !== 'undefined') {
     });
 }
 
-export { renderFloatingPressers };
+function __resetTestState() {
+    pillState = { top: {}, bottom: {} };
+    nameAssignments = [];
+}
+
+export { renderFloatingPressers, __resetTestState, assignNames };
