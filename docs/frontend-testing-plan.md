@@ -9,7 +9,9 @@ The frontend codebase is modularized with ES modules and uses Vitest + jsdom for
   - `frontend/src/__tests__/js/floatingPresserPhysics.test.js`: broader coverage for initial positioning (1, 2, N pills), repel behavior (overlap, edge, soft-repel), and damping behavior as `frame` increases.
 - **Pill.js**: `frontend/src/__tests__/js/Pill.test.js` covers geometry helpers, `setCenter` clamping + initialization, `setVelocity`, `createPill` truncation/class defaults, and `remove()` DOM removal (fake timers).
 - **floatingPresserPositions.js**: `frontend/src/__tests__/floatingPresserPositions.test.js` covers `renderFloatingPressers` pill creation/removal/no-dup behavior (with mocked `Pill` + `computeNextPillStates`) and `assignNames` slotting rules.
-- **Other modules**: Still no dedicated test coverage for `net/socket.js`, `wrapped.js`, `fireworks.js`, or `bootstrap/main.js`.
+- **net/socket.js**: `frontend/src/__tests__/js/net/socket.test.js` covers construction/connect, handler dispatch, outbound send gating by `readyState`, and reconnect/backoff behavior.
+- **bootstrap/main.js**: `frontend/src/__tests__/js/bootstrap/main.test.js` covers event wiring (pointerdown/up), `contextmenu` prevention, and handler-to-DOM/render wiring.
+- **Other modules**: Still no dedicated test coverage for `wrapped.js` or `fireworks.js`.
 
 ## Coverage Plan by Module
 
@@ -59,10 +61,15 @@ The frontend codebase is modularized with ES modules and uses Vitest + jsdom for
   - Test DOM class toggling and event listeners.
 
 ### 7. bootstrap/main.js
-- **Current**: No tests.
-- **Needed**:
-  - Integration tests for event wiring and socket interaction.
-  - Test that UI updates on socket events.
+- **Current**: `frontend/src/__tests__/js/bootstrap/main.test.js` covers:
+  - Preventing default `contextmenu` behavior.
+  - Updating the press count DOM on `CurrentCount`.
+  - Updating floating pressers on `PersonPressing` / `PersonReleased` (including the 100ms delayed update on release).
+  - Wiring `pointerdown`/`pointerup` events to `socket.sendPressing()` / `socket.sendReleased()` and revealing the signup prompt after 16 presses.
+  - Note: tests mock `Socket` and `renderFloatingPressers`.
+- **Still needed**:
+  - Higher-level integration coverage that uses the real `Socket` implementation (optional; unit tests already cover `net/socket.js`).
+  - Coverage for missing `#pressMePls` behavior (currently assumed present).
 
 ## General Recommendations
 - Add a test file for each module in `frontend/src/__tests__/`.
