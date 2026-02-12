@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        jdk 'JDK 11'
+        jdk 'JDK 17'
     }
     environment {
         GITHUB_TOKEN = credentials('github-personal-access-token')

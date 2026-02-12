@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val kotlinVersion = "1.5.32" // keep in sync with plugin version
+val kotlinVersion = "1.6.21" // keep in sync with plugin version
 val ktorVersion = "1.6.7"
 val logbackVersion = "1.2.5"
 val jdbiVersion = "3.14.4"
 
 plugins {
-    kotlin("jvm") version "1.5.32"
+    kotlin("jvm") version "1.6.21"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     application
 }
@@ -60,7 +60,7 @@ dependencies {
     implementation("org.mindrot:jbcrypt:0.4")
 
     // DI
-    implementation("com.google.inject:guice:4.2.3")
+    implementation("com.google.inject:guice:6.0.0")
 
     // Twilio
     implementation("com.twilio.sdk:twilio:8.32.0")
@@ -95,14 +95,23 @@ application {
     mainClass.set("sh.zachwal.button.AppKt")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 tasks.withType(KotlinCompile::class.java).all {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs(
+        "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+        "--add-opens", "java.base/java.util=ALL-UNNAMED"
+    )
 }
 
 // Frontend integration tasks: copy frontend assets
