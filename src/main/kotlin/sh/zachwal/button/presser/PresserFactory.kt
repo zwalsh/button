@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.google.inject.name.Named
-import io.ktor.websocket.WebSocketServerSession
+import io.ktor.server.websocket.WebSocketServerSession
 import kotlinx.coroutines.CoroutineDispatcher
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.notify.ContactNotifier

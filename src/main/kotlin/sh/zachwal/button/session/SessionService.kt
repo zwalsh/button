@@ -1,7 +1,7 @@
 package sh.zachwal.button.session
 
-import io.ktor.application.ApplicationCall
-import io.ktor.sessions.sessions
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.sessions.sessions
 import sh.zachwal.button.session.principals.ContactSessionPrincipal
 import sh.zachwal.button.session.principals.UserSessionPrincipal
 import java.time.Duration

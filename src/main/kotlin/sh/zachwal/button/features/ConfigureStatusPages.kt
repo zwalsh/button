@@ -1,10 +1,9 @@
 package sh.zachwal.button.features
 
-import io.ktor.application.call
-import io.ktor.features.StatusPages.Configuration
-import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.uri
+import io.ktor.server.html.respondHtml
+import io.ktor.server.plugins.statuspages.StatusPagesConfig
+import io.ktor.server.request.uri
 import io.sentry.Sentry
 import kotlinx.html.DIV
 import kotlinx.html.HTML
@@ -20,37 +19,37 @@ import sh.zachwal.button.shared_html.headSetup
 
 private val logger = LoggerFactory.getLogger("StatusPage")
 
-fun Configuration.configureStatusPages() {
+fun StatusPagesConfig.configureStatusPages() {
 
-    exception<Throwable> {
-        logger.error("Unhandled error", it)
-        Sentry.captureException(it)
+    exception<Throwable> { call, cause ->
+        logger.error("Unhandled error", cause)
+        Sentry.captureException(cause)
         call.respondHtml(HttpStatusCode.InternalServerError) {
             statusPage("Internal Server Error") {
                 h1 {
                     +"Error!"
                 }
                 p {
-                    +"${it.message}"
+                    +"${cause.message}"
                 }
             }
         }
     }
 
-    status(HttpStatusCode.NotFound) {
+    status(HttpStatusCode.NotFound) { call, status ->
         call.respondHtml(HttpStatusCode.NotFound) {
-            statusPage("${it.value} Not Found") {
+            statusPage("${status.value} Not Found") {
                 h1 {
                     +"Resource not found"
                 }
                 p {
-                    +" ${it.value}, ${it.description}"
+                    +" ${status.value}, ${status.description}"
                 }
             }
         }
     }
 
-    exception<UnauthorizedException> {
+    exception<UnauthorizedException> { call, cause ->
         call.respondHtml(HttpStatusCode.Unauthorized) {
             statusPage("Unauthorized") {
                 h1 {
@@ -63,15 +62,15 @@ fun Configuration.configureStatusPages() {
                         )
                 }
                 p {
-                    +"${it.message}"
+                    +"${cause.message}"
                 }
             }
         }
     }
 
-    status(HttpStatusCode.Unauthorized) {
+    status(HttpStatusCode.Unauthorized) { call, status ->
         call.respondHtml(HttpStatusCode.Unauthorized) {
-            statusPage("${it.value} Not Logged In") {
+            statusPage("${status.value} Not Logged In") {
                 h1 {
                     +"Unauthorized"
                 }
@@ -79,15 +78,15 @@ fun Configuration.configureStatusPages() {
                     +"You must be logged in to access: ${call.request.uri}"
                 }
                 p {
-                    +" ${it.value} ${it.description}"
+                    +" ${status.value} ${status.description}"
                 }
             }
         }
     }
 
-    status(HttpStatusCode.Forbidden) {
+    status(HttpStatusCode.Forbidden) { call, status ->
         call.respondHtml(HttpStatusCode.Forbidden) {
-            statusPage("${it.value} Access Denied") {
+            statusPage("${status.value} Access Denied") {
                 h1 {
                     +"Access Denied"
                 }
@@ -95,7 +94,7 @@ fun Configuration.configureStatusPages() {
                     +"You do not have permission to access: ${call.request.uri}"
                 }
                 p {
-                    +" ${it.value} ${it.description}"
+                    +" ${status.value} ${status.description}"
                 }
             }
         }

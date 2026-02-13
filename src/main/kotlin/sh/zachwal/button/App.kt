@@ -2,22 +2,22 @@ package sh.zachwal.button
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.google.inject.Guice
-import io.ktor.application.Application
-import io.ktor.application.install
-import io.ktor.application.log
-import io.ktor.auth.Authentication
-import io.ktor.features.CallLogging
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.DefaultHeaders
-import io.ktor.features.StatusPages
-import io.ktor.features.XForwardedHeaderSupport
-import io.ktor.http.content.resources
-import io.ktor.http.content.static
-import io.ktor.jackson.jackson
-import io.ktor.routing.routing
-import io.ktor.sessions.Sessions
-import io.ktor.sessions.cookie
-import io.ktor.websocket.WebSockets
+import io.ktor.serialization.jackson.jackson
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.application.log
+import io.ktor.server.auth.Authentication
+import io.ktor.server.http.content.resources
+import io.ktor.server.http.content.static
+import io.ktor.server.plugins.callloging.CallLogging
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.routing.routing
+import io.ktor.server.sessions.Sessions
+import io.ktor.server.sessions.cookie
+import io.ktor.server.websocket.WebSockets
 import org.slf4j.event.Level
 import sh.zachwal.button.auth.configureContactSessionAuth
 import sh.zachwal.button.auth.configureFormAuth
@@ -86,7 +86,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     if (config.env != "DEV") {
-        install(XForwardedHeaderSupport)
+        install(XForwardedHeaders)
     }
 
     install(Sessions) {

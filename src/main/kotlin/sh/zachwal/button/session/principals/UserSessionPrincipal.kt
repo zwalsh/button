@@ -1,6 +1,6 @@
 package sh.zachwal.button.session.principals
 
-import io.ktor.auth.Principal
+import io.ktor.server.auth.Principal
 
 data class UserSessionPrincipal constructor(
     val user: String,

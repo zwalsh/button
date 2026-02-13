@@ -1,15 +1,15 @@
 package sh.zachwal.button.auth
 
-import io.ktor.application.call
-import io.ktor.auth.Authentication
-import io.ktor.auth.UserIdPrincipal
-import io.ktor.auth.UserPasswordCredential
-import io.ktor.auth.form
-import io.ktor.response.respondRedirect
+import io.ktor.server.application.call
+import io.ktor.server.auth.AuthenticationConfig
+import io.ktor.server.auth.UserIdPrincipal
+import io.ktor.server.auth.UserPasswordCredential
+import io.ktor.server.auth.form
+import io.ktor.server.response.respondRedirect
 import sh.zachwal.button.users.UserService
 
 // taken from https://gitlab.com/nanodeath/ktor-session-auth-example
-fun Authentication.Configuration.configureFormAuth(userService: UserService) {
+fun AuthenticationConfig.configureFormAuth(userService: UserService) {
     form("form") {
         userParamName = "username"
         passwordParamName = "password"

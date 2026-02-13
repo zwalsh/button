@@ -1,9 +1,9 @@
 package sh.zachwal.button.controller
 
 import com.google.inject.Injector
-import io.ktor.application.Application
-import io.ktor.routing.Routing
-import io.ktor.routing.routing
+import io.ktor.server.application.Application
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.routing
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import java.lang.reflect.Method

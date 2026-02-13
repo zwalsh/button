@@ -1,11 +1,11 @@
 package sh.zachwal.button.wrapped
 
-import io.ktor.application.call
-import io.ktor.html.respondHtml
-import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.route
-import io.ktor.util.getOrFail
+import io.ktor.server.application.call
+import io.ktor.server.html.respondHtml
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+import io.ktor.server.routing.route
+import io.ktor.server.util.getOrFail
 import kotlinx.html.DIV
 import kotlinx.html.a
 import kotlinx.html.body

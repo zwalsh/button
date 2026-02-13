@@ -1,7 +1,7 @@
 package sh.zachwal.button.features
 
-import io.ktor.application.Application
-import io.ktor.application.log
+import io.ktor.server.application.Application
+import io.ktor.server.application.log
 import sh.zachwal.button.roles.RoleAuthorization.RoleBasedAuthorizer
 import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.users.UserService
