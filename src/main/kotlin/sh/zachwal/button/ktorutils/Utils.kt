@@ -5,6 +5,6 @@ import io.ktor.server.request.ApplicationRequest
 
 fun ApplicationRequest.remote(): String {
     val clientHost = origin.remoteHost
-    val clientPort = origin.port
+    val clientPort = origin.remotePort
     return "$clientHost:$clientPort"
 }
