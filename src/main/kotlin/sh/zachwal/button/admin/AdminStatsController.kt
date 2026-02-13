@@ -1,10 +1,10 @@
 package sh.zachwal.button.admin
 
 import com.google.inject.Inject
-import io.ktor.application.call
-import io.ktor.html.respondHtml
-import io.ktor.routing.Routing
-import io.ktor.routing.get
+import io.ktor.server.application.call
+import io.ktor.server.html.respondHtml
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
 import kotlinx.html.TBODY
 import kotlinx.html.body
 import kotlinx.html.div

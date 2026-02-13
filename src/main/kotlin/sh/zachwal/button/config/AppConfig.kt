@@ -1,6 +1,6 @@
 package sh.zachwal.button.config
 
-import io.ktor.config.ApplicationConfig
+import io.ktor.server.config.ApplicationConfig
 
 private fun url(config: ApplicationConfig): String {
     val host = config.property("ktor.deployment.ws_host").getString()

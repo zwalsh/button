@@ -1,6 +1,5 @@
 package sh.zachwal.button.users
 
-import io.ktor.util.error
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import org.mindrot.jbcrypt.BCrypt
 import org.slf4j.LoggerFactory
@@ -44,7 +43,7 @@ class UserService @Inject constructor(private val userDAO: UserDAO) {
         return try {
             userDAO.createUser(username, hash)
         } catch (e: UnableToExecuteStatementException) {
-            logger.error(e)
+            logger.error("Failed to create user $username", e)
             null
         }
     }

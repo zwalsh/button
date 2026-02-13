@@ -1,16 +1,16 @@
 package sh.zachwal.button.admin.config
 
 import com.google.inject.Inject
-import io.ktor.application.call
-import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receiveParameters
-import io.ktor.response.respond
-import io.ktor.response.respondRedirect
-import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.util.getOrFail
+import io.ktor.server.application.call
+import io.ktor.server.html.respondHtml
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.util.getOrFail
 import kotlinx.html.DIV
 import kotlinx.html.FormMethod.post
 import kotlinx.html.body

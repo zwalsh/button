@@ -1,14 +1,14 @@
 package sh.zachwal.button.roles
 
-import io.ktor.application.feature
-import io.ktor.auth.authenticate
-import io.ktor.routing.Route
-import io.ktor.routing.RouteSelector
-import io.ktor.routing.RouteSelectorEvaluation
-import io.ktor.routing.Routing
-import io.ktor.routing.RoutingResolveContext
-import io.ktor.routing.application
-import io.ktor.routing.createRouteFromPath
+import io.ktor.server.application.plugin
+import io.ktor.server.auth.authenticate
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RouteSelector
+import io.ktor.server.routing.RouteSelectorEvaluation
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.RoutingResolveContext
+import io.ktor.server.routing.application
+import io.ktor.server.routing.createRouteFromPath
 import sh.zachwal.button.auth.CONTACT_SESSION_AUTH
 import sh.zachwal.button.roles.Role.ADMIN
 import sh.zachwal.button.roles.Role.USER
@@ -16,7 +16,7 @@ import sh.zachwal.button.roles.Role.USER
 fun Route.requireOneOfRoles(vararg roles: Role, build: Route.() -> Unit): Route {
     val authorisedRoute = createChild(AuthorisedRouteSelector())
     authorisedRoute.build()
-    application.feature(RoleAuthorization).interceptPipeline(this, roles.toSet())
+    application.plugin(RoleAuthorization).interceptPipeline(this, roles.toSet())
     return authorisedRoute
 }
 

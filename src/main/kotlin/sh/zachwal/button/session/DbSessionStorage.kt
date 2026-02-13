@@ -1,11 +1,6 @@
 package sh.zachwal.button.session
 
-import io.ktor.sessions.SessionStorage
-import io.ktor.util.toByteArray
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.core.ExperimentalIoApi
-import io.ktor.utils.io.writer
+import io.ktor.server.sessions.SessionStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -24,24 +19,20 @@ class DbSessionStorage @Inject constructor(private val sessionDAO: SessionDAO) :
         }
     }
 
-    @ExperimentalIoApi
-    override suspend fun <R> read(id: String, consumer: suspend (ByteReadChannel) -> R): R {
+    override suspend fun read(id: String): String {
         return withContext(Dispatchers.IO) {
             val bytes = sessionDAO.getById(id)?.data
                 ?: throw NoSuchElementException("No session with id $id")
-            consumer(ByteReadChannel(bytes))
+            bytes.decodeToString()
         }
     }
 
-    override suspend fun write(id: String, provider: suspend (ByteWriteChannel) -> Unit) {
+    override suspend fun write(id: String, value: String) {
         // Note that this function is called every time the session is used.
         withContext(Dispatchers.IO) {
-            val bytes = writer {
-                provider(channel)
-            }.channel
             val session = Session(
                 id = id,
-                data = bytes.toByteArray(),
+                data = value.encodeToByteArray(),
                 // CONTACT_SESSION_LENGTH is the longer of the two. Set the db expiration to the longer one as a session
                 // is only valid if the `bytes` contains an expiration time that hasn't passed, and the row is still
                 // present in the database (i.e. hasn't been cleaned up by SessionCleanupTask).

@@ -1,14 +1,14 @@
 package sh.zachwal.button.roles
 
-import io.ktor.application.ApplicationCall
-import io.ktor.application.ApplicationCallPipeline
-import io.ktor.application.ApplicationFeature
-import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
-import io.ktor.response.respondRedirect
-import io.ktor.sessions.get
-import io.ktor.sessions.sessions
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.BaseApplicationPlugin
+import io.ktor.server.application.call
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
 import io.ktor.util.AttributeKey
 import io.ktor.util.pipeline.PipelinePhase
 import org.slf4j.LoggerFactory
@@ -38,7 +38,7 @@ class RoleAuthorization internal constructor(config: Configuration) {
     }
 
     fun interceptPipeline(pipeline: ApplicationCallPipeline, roles: Set<Role>) {
-        pipeline.insertPhaseAfter(ApplicationCallPipeline.Features, authorizationPhase)
+        pipeline.insertPhaseAfter(ApplicationCallPipeline.Plugins, authorizationPhase)
         pipeline.intercept(authorizationPhase) {
             val call = call
             val session = call.sessions.get<UserSessionPrincipal>() ?: run {
@@ -66,7 +66,7 @@ class RoleAuthorization internal constructor(config: Configuration) {
         }
     }
 
-    companion object Feature : ApplicationFeature<ApplicationCallPipeline, RoleBasedAuthorizer, RoleAuthorization> {
+    companion object Feature : BaseApplicationPlugin<ApplicationCallPipeline, RoleBasedAuthorizer, RoleAuthorization> {
         val authorizationPhase = PipelinePhase("authorization")
 
         override val key: AttributeKey<RoleAuthorization> = AttributeKey("RoleAuthorization")

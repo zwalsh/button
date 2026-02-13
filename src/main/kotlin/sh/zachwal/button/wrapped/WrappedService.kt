@@ -3,7 +3,7 @@ package sh.zachwal.button.wrapped
 import com.google.common.cache.CacheBuilder
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.inject.name.Named
-import io.ktor.features.NotFoundException
+import io.ktor.server.plugins.NotFoundException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher

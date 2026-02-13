@@ -3,7 +3,7 @@ package sh.zachwal.button.guice
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import com.google.inject.name.Named
-import io.ktor.config.ApplicationConfig
+import io.ktor.server.config.ApplicationConfig
 import sh.zachwal.button.config.AppConfig
 
 class ConfigModule(
