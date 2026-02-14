@@ -54,6 +54,11 @@
       "include": {
         "file": "11_create_contact_press_counts.json"
       }
+    },
+    {
+      "include": {
+        "file": "12_extend_session_id.json"
+      }
     }
   ]
 }
