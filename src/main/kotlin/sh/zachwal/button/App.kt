@@ -40,7 +40,7 @@ import sh.zachwal.button.roles.RoleAuthorization
 import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.session.CONTACT_SESSION
 import sh.zachwal.button.session.CONTACT_SESSION_LENGTH
-import sh.zachwal.button.session.DbSessionStorage
+import sh.zachwal.button.session.DbSessionStorageFactory
 import sh.zachwal.button.session.SessionCleanupTask
 import sh.zachwal.button.session.USER_SESSION
 import sh.zachwal.button.session.USER_SESSION_LENGTH
@@ -74,7 +74,7 @@ fun Application.module(testing: Boolean = false) {
 
     val userService = injector.getInstance(UserService::class.java)
     val roleService = injector.getInstance(RoleService::class.java)
-    val dbSessionStorage = injector.getInstance(DbSessionStorage::class.java)
+    val dbSessionStorageFactory = injector.getInstance(DbSessionStorageFactory::class.java)
 
     install(CallLogging) {
         level = Level.INFO
@@ -92,7 +92,7 @@ fun Application.module(testing: Boolean = false) {
     install(Sessions) {
         cookie<UserSessionPrincipal>(
             USER_SESSION,
-            storage = dbSessionStorage
+            storage = dbSessionStorageFactory.buildStorage(USER_SESSION)
         ) {
             cookie.httpOnly = true
             cookie.secure = config.env != "DEV"
@@ -101,7 +101,7 @@ fun Application.module(testing: Boolean = false) {
         }
         cookie<ContactSessionPrincipal>(
             CONTACT_SESSION,
-            storage = dbSessionStorage
+            storage = dbSessionStorageFactory.buildStorage(CONTACT_SESSION)
         ) {
             cookie.httpOnly = true
             cookie.secure = config.env != "DEV"
