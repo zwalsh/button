@@ -11,18 +11,10 @@ import java.time.Instant
 /**
  * Database-backed session storage implementation that prefixes session IDs to prevent collisions.
  *
- * After upgrading to Ktor 2.0, the framework can reuse the same session ID for different session types
- * (e.g., USER_SESSION and CONTACT_SESSION). This class prevents session data from being overwritten by
- * prefixing each session ID with a unique identifier before storing it in the database.
- *
- * For example, if Ktor generates session ID "abc123" for both a user session and a contact session,
- * this class will store them as "USER_SESSION_abc123" and "CONTACT_SESSION_abc123" respectively,
- * allowing both sessions to coexist without trampling each other.
- *
  * @param sessionDAO The DAO for database operations on sessions
  * @param sessionPrefix A unique prefix for this session type (e.g., "USER_SESSION" or "CONTACT_SESSION")
  */
-class DbSessionStorage constructor(
+class DbSessionStorage(
     private val sessionDAO: SessionDAO,
     private val sessionPrefix: String
 ) : SessionStorage {
@@ -37,26 +29,26 @@ class DbSessionStorage constructor(
     private fun dbId(id: String) = "${sessionPrefix}_$id"
 
     override suspend fun invalidate(id: String) {
-        logger.info("Clearing $id")
+        logger.debug("Clearing $id")
         withContext(Dispatchers.IO) {
             sessionDAO.deleteSession(dbId(id))
         }
     }
 
     override suspend fun read(id: String): String {
-        logger.info("Reading session ${id + sessionPrefix}")
+        logger.debug("Reading session ${dbId(id)}")
         return withContext(Dispatchers.IO) {
             val bytes = sessionDAO.getById(dbId(id))?.data
-                ?: throw NoSuchElementException("No session with id $id")
+                ?: throw NoSuchElementException("No session with id ${dbId(id)}")
             bytes.decodeToString().also {
-                logger.info("Got $it")
+                logger.debug("Got $it")
             }
         }
     }
 
     override suspend fun write(id: String, value: String) {
         // Note that this function is called every time the session is used.
-        logger.info("Writing ${id + sessionPrefix} as $value")
+        logger.debug("Writing ${dbId(id)} as $value")
         withContext(Dispatchers.IO) {
             val session = Session(
                 id = dbId(id),
