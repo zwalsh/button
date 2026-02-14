@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val kotlinVersion = "1.8.22" // keep in sync with plugin version
-val ktorVersion = "2.0.3"
+val ktorVersion = "2.2.4"
 val logbackVersion = "1.2.5"
 val jdbiVersion = "3.14.4"
 
