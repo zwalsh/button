@@ -1,0 +1,19 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "12",
+        "author": "zach",
+        "changes": [
+          {
+            "modifyDataType": {
+              "tableName": "session",
+              "columnName": "id",
+              "newDataType": "VARCHAR(64)"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
