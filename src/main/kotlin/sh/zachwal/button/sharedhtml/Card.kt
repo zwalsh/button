@@ -1,4 +1,4 @@
-package sh.zachwal.button.shared_html
+package sh.zachwal.button.sharedhtml
 
 import kotlinx.html.DIV
 import kotlinx.html.div

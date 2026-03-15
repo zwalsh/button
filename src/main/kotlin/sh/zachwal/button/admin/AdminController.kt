@@ -36,7 +36,7 @@ import sh.zachwal.button.roles.Role.ADMIN
 import sh.zachwal.button.roles.Role.USER
 import sh.zachwal.button.roles.RoleService
 import sh.zachwal.button.roles.adminRoute
-import sh.zachwal.button.shared_html.headSetup
+import sh.zachwal.button.sharedhtml.headSetup
 import sh.zachwal.button.users.UserService
 import javax.inject.Inject
 

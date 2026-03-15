@@ -31,7 +31,7 @@ import sh.zachwal.button.phone.ContactNotFound
 import sh.zachwal.button.phone.PhoneBookService
 import sh.zachwal.button.phone.UpdatedContact
 import sh.zachwal.button.roles.adminRoute
-import sh.zachwal.button.shared_html.headSetup
+import sh.zachwal.button.sharedhtml.headSetup
 
 @Controller
 class AdminContactController @Inject constructor(

@@ -15,7 +15,7 @@ import kotlinx.html.p
 import kotlinx.html.title
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.auth.UnauthorizedException
-import sh.zachwal.button.shared_html.headSetup
+import sh.zachwal.button.sharedhtml.headSetup
 
 private val logger = LoggerFactory.getLogger("StatusPage")
 

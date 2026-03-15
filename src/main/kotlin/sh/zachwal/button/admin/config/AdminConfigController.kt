@@ -29,7 +29,7 @@ import kotlinx.html.title
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.roles.adminRoute
-import sh.zachwal.button.shared_html.headSetup
+import sh.zachwal.button.sharedhtml.headSetup
 import java.lang.IllegalArgumentException
 
 @Controller
