@@ -59,6 +59,16 @@
       "include": {
         "file": "12_extend_session_id.json"
       }
+    },
+    {
+      "include": {
+        "file": "13_create_daily_stats.json"
+      }
+    },
+    {
+      "include": {
+        "file": "14_create_daily_pressers.json"
+      }
     }
   ]
 }
