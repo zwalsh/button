@@ -10,7 +10,6 @@ ktlint_standard_class-signature = disabled                     # 36 violations
 ktlint_standard_function-expression-body = disabled            # 20 violations
 ktlint_standard_function-signature = disabled                  # 179 violations
 ktlint_standard_indent = disabled                              # 3 violations
-ktlint_standard_max-line-length = disabled                     # 3 violations
 ktlint_standard_multiline-expression-wrapping = disabled       # 133 violations
 ktlint_standard_no-empty-first-line-in-class-body = disabled   # 57 violations
 ktlint_standard_no-empty-first-line-in-method-block = disabled # 2 violations

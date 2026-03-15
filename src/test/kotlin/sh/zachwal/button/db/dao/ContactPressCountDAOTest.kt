@@ -19,8 +19,16 @@ class ContactPressCountDAOTest(private val jdbi: Jdbi) {
         dao = jdbi.onDemand(ContactPressCountDAO::class.java)
         // Insert contacts 1 and 2 for FK constraint
         jdbi.useHandle<Exception> { h ->
-            h.execute("insert into contact (id, created_date, name, phone_number, active) values (1, now(), 'Contact 1', '+15550001', true)")
-            h.execute("insert into contact (id, created_date, name, phone_number, active) values (2, now(), 'Contact 2', '+15550002', true)")
+            h.execute(
+                "insert into contact " +
+                    "(id, created_date, name, phone_number, active) " +
+                    "values (1, now(), 'Contact 1', '+15550001', true)"
+            )
+            h.execute(
+                "insert into contact " +
+                    "(id, created_date, name, phone_number, active) " +
+                    "values (2, now(), 'Contact 2', '+15550002', true)"
+            )
         }
     }
 
