@@ -15,8 +15,10 @@ import sh.zachwal.button.db.dao.DailyStatsDAO
 import sh.zachwal.button.db.extension.DatabaseExtension
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.presser.Presser
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -42,6 +44,11 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
         // Drain pending DB ops before DatabaseExtension truncates tables
         service.close()
     }
+
+    private val zone: ZoneId = ZoneId.systemDefault()
+
+    private fun clockFor(date: LocalDate): Clock =
+        Clock.fixed(date.atStartOfDay(zone).toInstant(), zone)
 
     private fun mockPresser(remoteHost: String = "127.0.0.1", contact: Contact? = null): Presser {
         return mockk<Presser>().also {
@@ -123,6 +130,51 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
         val stats = service.currentStats()
         assertThat(stats.totalPresses).isEqualTo(100)
         assertThat(stats.uniquePressers).isEqualTo(100)
+    }
+
+    @Test
+    fun `day rollover resets in-memory stats`() = runBlocking {
+        service.pressed(mockPresser("1.2.3.4"))
+        service.pressed(mockPresser("5.6.7.8"))
+        assertThat(service.currentStats().totalPresses).isEqualTo(2)
+        assertThat(service.currentStats().uniquePressers).isEqualTo(2)
+
+        service.clock = clockFor(today.plusDays(1))
+        service.pressed(mockPresser("9.10.11.12"))
+
+        val stats = service.currentStats()
+        assertThat(stats.totalPresses).isEqualTo(1)
+        assertThat(stats.uniquePressers).isEqualTo(1)
+        assertThat(stats.peakConcurrent).isEqualTo(0)
+    }
+
+    @Test
+    fun `day rollover loads existing DB state for the new day`() = runBlocking {
+        val tomorrow = today.plusDays(1)
+        dailyStatsDAO.ensureRow(tomorrow)
+        dailyStatsDAO.incrementTotalPresses(tomorrow)
+        dailyStatsDAO.incrementTotalPresses(tomorrow)
+        dailyStatsDAO.updatePeakIfHigher(tomorrow, 7)
+        dailyPressersDAO.insertIfAbsent(tomorrow, "existing-presser")
+
+        service.clock = clockFor(tomorrow)
+        service.pressed(mockPresser("new-host"))
+
+        val stats = service.currentStats()
+        assertThat(stats.totalPresses).isEqualTo(3) // 2 pre-existing + 1 new press
+        assertThat(stats.peakConcurrent).isEqualTo(7) // loaded from DB
+        assertThat(stats.uniquePressers).isEqualTo(2) // "existing-presser" + "new-host"
+    }
+
+    @Test
+    fun `day rollover does not trigger within the same day`() = runBlocking {
+        service.pressed(mockPresser("1.2.3.4"))
+        service.pressed(mockPresser("5.6.7.8"))
+        service.pressed(mockPresser("1.2.3.4")) // same presser again
+
+        val stats = service.currentStats()
+        assertThat(stats.totalPresses).isEqualTo(3)
+        assertThat(stats.uniquePressers).isEqualTo(2)
     }
 
     @Test
