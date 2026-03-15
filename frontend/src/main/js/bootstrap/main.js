@@ -6,14 +6,18 @@ let count = 0;
 // Track currently pressing names
 const currentPressers = new Set();
 
+function setPresserCount(n) {
+    let buttonPressDiv = document.getElementById("buttonPressCount");
+    let buttonPressDivWhite = document.getElementById("buttonPressCountWhite");
+    if (buttonPressDiv) buttonPressDiv.innerText = "BUTTON PRESSERS: " + n;
+    if (buttonPressDivWhite) buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + n;
+}
+
 const socket = new Socket({
     url: wsUrl, // injected by HomeController
     handlers: {
         onCurrentCount: (msg) => {
-            let buttonPressDiv = document.getElementById("buttonPressCount");
-            let buttonPressDivWhite = document.getElementById("buttonPressCountWhite");
-            if (buttonPressDiv) buttonPressDiv.innerText = "BUTTON PRESSERS: " + msg.count;
-            if (buttonPressDivWhite) buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + msg.count;
+            setPresserCount(msg.count);
         },
         onPersonPressing: (msg) => {
             currentPressers.add(msg.displayName);
@@ -24,6 +28,12 @@ const socket = new Socket({
             setTimeout(() => {
                 renderFloatingPressers(Array.from(currentPressers));
             }, 100);
+        },
+        onSnapshot: (msg) => {
+            currentPressers.clear();
+            msg.names.forEach(name => currentPressers.add(name));
+            renderFloatingPressers(Array.from(currentPressers));
+            setPresserCount(msg.count);
         }
     }
 });
