@@ -8,7 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 @JsonSubTypes(
     JsonSubTypes.Type(CurrentCount::class),
     JsonSubTypes.Type(PersonPressing::class),
-    JsonSubTypes.Type(PersonReleased::class)
+    JsonSubTypes.Type(PersonReleased::class),
+    JsonSubTypes.Type(Snapshot::class),
 )
 /**
  * Base interface for all server-to-client protocol messages (e.g., CurrentCount, PersonPressing).

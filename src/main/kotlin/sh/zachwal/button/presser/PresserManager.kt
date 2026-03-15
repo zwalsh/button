@@ -1,8 +1,17 @@
 package sh.zachwal.button.presser
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import sh.zachwal.button.presser.protocol.server.Snapshot
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
+import kotlin.concurrent.thread
 
 /**
  * Orchestrates communications between [Presser] instances.
@@ -17,6 +26,33 @@ class PresserManager : PresserObserver {
 
     private val pressers: MutableSet<Presser> = ConcurrentHashMap.newKeySet()
     private val currentlyPressing: MutableSet<Presser> = ConcurrentHashMap.newKeySet()
+
+    private val threadPool = Executors.newSingleThreadExecutor(
+        ThreadFactoryBuilder().setNameFormat("presser-manager-%d").build()
+    )
+    private val scope = CoroutineScope(threadPool.asCoroutineDispatcher() + SupervisorJob())
+
+    private fun buildSnapshot(): Snapshot {
+        val names = currentlyPressing.mapNotNull { it.contact?.name }
+        return Snapshot(count = currentlyPressing.size, names = names)
+    }
+
+    init {
+        scope.launch {
+            while (true) {
+                delay(10_000)
+                try {
+                    val snapshot = buildSnapshot()
+                    pressers.forEach { it.sendSnapshot(snapshot) }
+                } catch (e: Exception) {
+                    logger.error("Failed to send periodic snapshot", e)
+                }
+            }
+        }
+        Runtime.getRuntime().addShutdownHook(
+            thread(start = false) { threadPool.shutdownNow() }
+        )
+    }
 
     private suspend fun sendCurrentCount() {
         val pressingCount = currentlyPressing.count()
@@ -60,5 +96,6 @@ class PresserManager : PresserObserver {
     suspend fun addPresser(presser: Presser) {
         pressers.add(presser)
         presser.updatePressingCount(currentlyPressing.count())
+        presser.sendSnapshot(buildSnapshot())
     }
 }
