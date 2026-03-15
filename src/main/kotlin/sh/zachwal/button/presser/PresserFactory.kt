@@ -8,6 +8,7 @@ import io.ktor.server.websocket.WebSocketServerSession
 import kotlinx.coroutines.CoroutineDispatcher
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.notify.ContactNotifier
+import sh.zachwal.button.presshistory.DailyStatsService
 import sh.zachwal.button.presshistory.PressHistoryObserver
 import sh.zachwal.button.presshistory.PressLogger
 
@@ -19,6 +20,7 @@ import sh.zachwal.button.presshistory.PressLogger
  */
 class PresserFactory @Inject constructor(
     private val presserManager: PresserManager,
+    private val dailyStatsService: DailyStatsService,
     private val presserHistoryObserver: PressHistoryObserver,
     private val contactNotifier: ContactNotifier,
     private val pressLogger: PressLogger,
@@ -34,7 +36,7 @@ class PresserFactory @Inject constructor(
     ): Presser {
         val observer = MultiPresserObserver(
             listOf(
-                presserManager, presserHistoryObserver, contactNotifier, pressLogger
+                dailyStatsService, presserManager, presserHistoryObserver, contactNotifier, pressLogger
             )
         )
         return Presser(
