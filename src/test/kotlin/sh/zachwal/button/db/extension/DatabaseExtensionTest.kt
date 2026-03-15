@@ -37,7 +37,9 @@ class DatabaseExtensionTest {
             "notification",
             "contact_token",
             "wrapped_link",
-            "contact_press_counts"
+            "contact_press_counts",
+            "daily_stats",
+            "daily_pressers"
         )
     }
 

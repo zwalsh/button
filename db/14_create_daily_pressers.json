@@ -1,0 +1,44 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "14_create_daily_pressers",
+        "author": "zach",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "daily_pressers",
+              "columns": [
+                {
+                  "column": {
+                    "name": "date",
+                    "type": "DATE",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "presser_id",
+                    "type": "TEXT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addPrimaryKey": {
+              "tableName": "daily_pressers",
+              "columnNames": "date, presser_id",
+              "constraintName": "pk_daily_pressers"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "13_create_daily_stats",
+        "author": "zach",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "daily_stats",
+              "columns": [
+                {
+                  "column": {
+                    "name": "date",
+                    "type": "DATE",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "peak_concurrent",
+                    "type": "INT",
+                    "defaultValueNumeric": 0,
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "total_press_count",
+                    "type": "INT",
+                    "defaultValueNumeric": 0,
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addPrimaryKey": {
+              "tableName": "daily_stats",
+              "columnNames": "date",
+              "constraintName": "pk_daily_stats"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

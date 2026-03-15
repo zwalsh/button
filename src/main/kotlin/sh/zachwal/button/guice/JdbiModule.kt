@@ -11,6 +11,8 @@ import org.jdbi.v3.sqlobject.kotlin.onDemand
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.ContactPressCountDAO
 import sh.zachwal.button.db.dao.ContactTokenDAO
+import sh.zachwal.button.db.dao.DailyPressersDAO
+import sh.zachwal.button.db.dao.DailyStatsDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.dao.PressDAO
 import sh.zachwal.button.db.dao.SentMessageDAO
@@ -59,4 +61,10 @@ class JdbiModule : AbstractModule() {
 
     @Provides
     fun contactPressCountDao(jdbi: Jdbi): ContactPressCountDAO = jdbi.onDemand()
+
+    @Provides
+    fun dailyStatsDao(jdbi: Jdbi): DailyStatsDAO = jdbi.onDemand()
+
+    @Provides
+    fun dailyPressersDao(jdbi: Jdbi): DailyPressersDAO = jdbi.onDemand()
 }
