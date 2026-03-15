@@ -20,7 +20,6 @@ import sh.zachwal.button.sharedhtml.headSetup
 private val logger = LoggerFactory.getLogger("StatusPage")
 
 fun StatusPagesConfig.configureStatusPages() {
-
     exception<Throwable> { call, cause ->
         logger.error("Unhandled error", cause)
         Sentry.captureException(cause)
