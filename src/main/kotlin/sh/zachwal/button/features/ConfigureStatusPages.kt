@@ -58,7 +58,7 @@ fun StatusPagesConfig.configureStatusPages() {
                     +(
                         "You are not logged in, or do not have the correct permissions, to access " +
                             call.request.uri
-                        )
+                    )
                 }
                 p {
                     +"${cause.message}"
