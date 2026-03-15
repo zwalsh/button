@@ -12,7 +12,6 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
-import kotlinx.css.td
 import kotlinx.html.ThScope
 import kotlinx.html.a
 import kotlinx.html.body
@@ -31,7 +30,7 @@ import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.roles.contactRoute
 import sh.zachwal.button.session.principals.ContactSessionPrincipal
-import sh.zachwal.button.shared_html.headSetup
+import sh.zachwal.button.sharedhtml.headSetup
 import javax.inject.Inject
 import javax.inject.Singleton
 

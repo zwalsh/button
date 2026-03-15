@@ -47,10 +47,10 @@ import sh.zachwal.button.config.AppConfig
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.session.SessionService
 import sh.zachwal.button.session.principals.ContactSessionPrincipal
-import sh.zachwal.button.shared_html.favicon
-import sh.zachwal.button.shared_html.mobileUI
-import sh.zachwal.button.shared_html.sentryScript
-import sh.zachwal.button.shared_html.umamiScript
+import sh.zachwal.button.sharedhtml.favicon
+import sh.zachwal.button.sharedhtml.mobileUI
+import sh.zachwal.button.sharedhtml.sentryScript
+import sh.zachwal.button.sharedhtml.umamiScript
 import javax.inject.Inject
 
 const val TOKEN_PARAMETER = "t"

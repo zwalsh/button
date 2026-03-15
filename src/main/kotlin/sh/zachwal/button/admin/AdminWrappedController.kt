@@ -37,8 +37,8 @@ import kotlinx.html.ul
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.db.jdbi.WrappedLink
 import sh.zachwal.button.roles.adminRoute
-import sh.zachwal.button.shared_html.headSetup
-import sh.zachwal.button.shared_html.responsiveTable
+import sh.zachwal.button.sharedhtml.headSetup
+import sh.zachwal.button.sharedhtml.responsiveTable
 import sh.zachwal.button.wrapped.WrappedService
 import java.time.LocalDate
 
