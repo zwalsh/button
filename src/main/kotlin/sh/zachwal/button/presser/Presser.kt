@@ -27,6 +27,7 @@ import sh.zachwal.button.presser.protocol.server.CurrentCount
 import sh.zachwal.button.presser.protocol.server.PersonPressing
 import sh.zachwal.button.presser.protocol.server.PersonReleased
 import sh.zachwal.button.presser.protocol.server.ServerMessage
+import sh.zachwal.button.presser.protocol.server.Snapshot
 
 /**
  * Handles a single WebSocket client connection, managing incoming and outgoing messages for a button presser.
@@ -55,6 +56,8 @@ class Presser constructor(
     private val personPressingChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
     // person released notifications
     private val personReleasedChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    // snapshot messages (only need the latest)
+    private val snapshotChannel = Channel<Snapshot>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     suspend fun watchChannels() {
         val incoming = scope.launch {
@@ -78,10 +81,16 @@ class Presser constructor(
                 sendServerMessage(PersonReleased(displayName = name))
             }
         }
+        val outgoingSnapshot = scope.launch {
+            for (snapshot in snapshotChannel) {
+                sendServerMessage(snapshot)
+            }
+        }
         incoming.join()
         outgoingCount.join()
         outgoingPerson.join()
         outgoingReleased.join()
+        outgoingSnapshot.join()
         observer.disconnected(this)
     }
 
@@ -135,6 +144,10 @@ class Presser constructor(
 
     suspend fun notifyPersonReleased(name: String) {
         personReleasedChannel.send(name)
+    }
+
+    suspend fun sendSnapshot(snapshot: Snapshot) {
+        snapshotChannel.send(snapshot)
     }
 
     fun remote(): String = socketSession.call.request.remote()
