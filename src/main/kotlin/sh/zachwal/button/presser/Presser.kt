@@ -57,7 +57,7 @@ class Presser constructor(
     // person released notifications
     private val personReleasedChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
     // snapshot messages (only need the latest)
-    private val snapshotChannel = Channel<Snapshot>(1, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    private val snapshotChannel = Channel<Snapshot>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     suspend fun watchChannels() {
         val incoming = scope.launch {
