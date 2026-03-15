@@ -14,6 +14,7 @@ import sh.zachwal.button.db.dao.DailyPressersDAO
 import sh.zachwal.button.db.dao.DailyStatsDAO
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserObserver
+import java.time.Clock
 import java.time.LocalDate
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
@@ -36,12 +37,15 @@ class DailyStatsService @Inject constructor(
 
     private val logger = LoggerFactory.getLogger(DailyStatsService::class.java)
 
+    internal var clock: Clock = Clock.systemDefaultZone()
+
     private val uniquePresserIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    private val currentlyPressing: MutableSet<Presser> = ConcurrentHashMap.newKeySet()
     private val peakConcurrent = AtomicInteger(0)
     private val totalPressCount = AtomicInteger(0)
 
     @Volatile
-    private var trackingDate: LocalDate = LocalDate.now()
+    private var trackingDate: LocalDate = LocalDate.now(clock)
 
     private val dbOpChannel = Channel<DbOp>(
         capacity = 1000,
@@ -73,7 +77,7 @@ class DailyStatsService @Inject constructor(
     }
 
     fun initialize() {
-        val today = LocalDate.now()
+        val today = LocalDate.now(clock)
         dailyStatsDAO.ensureRow(today)
         val row = dailyStatsDAO.findByDate(today)
         uniquePresserIds.clear()
@@ -88,10 +92,12 @@ class DailyStatsService @Inject constructor(
     }
 
     override suspend fun pressed(presser: Presser) {
-        val today = LocalDate.now()
+        val today = LocalDate.now(clock)
         if (today != trackingDate) {
             initialize()
         }
+        currentlyPressing.add(presser)
+        updatePeak(currentlyPressing.size)
         val presserId = presser.contact?.id?.toString() ?: presser.remoteHost
         totalPressCount.incrementAndGet()
         val isNewPresser = uniquePresserIds.add(presserId)
@@ -101,9 +107,13 @@ class DailyStatsService @Inject constructor(
         dbOpChannel.trySend(NewPress(today))
     }
 
-    override suspend fun released(presser: Presser) {}
+    override suspend fun released(presser: Presser) {
+        currentlyPressing.remove(presser)
+    }
 
-    override suspend fun disconnected(presser: Presser) {}
+    override suspend fun disconnected(presser: Presser) {
+        currentlyPressing.remove(presser)
+    }
 
     fun updatePeak(concurrentCount: Int) {
         val prevPeak = peakConcurrent.getAndUpdate { max(it, concurrentCount) }
