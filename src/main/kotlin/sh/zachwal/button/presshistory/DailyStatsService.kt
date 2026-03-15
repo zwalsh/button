@@ -25,7 +25,8 @@ import kotlin.math.max
 data class DailyStatsSnapshot(val uniquePressers: Int, val peakConcurrent: Int, val totalPresses: Int)
 
 sealed class DbOp
-data class NewPress(val date: LocalDate, val newPeak: Int?) : DbOp() // newPeak non-null if peak was broken
+data class NewPress(val date: LocalDate) : DbOp()
+data class NewPeak(val date: LocalDate, val newPeak: Int) : DbOp()
 data class NewPresser(val date: LocalDate, val presserId: String) : DbOp()
 
 class DailyStatsService @Inject constructor(
@@ -42,7 +43,12 @@ class DailyStatsService @Inject constructor(
     @Volatile
     private var trackingDate: LocalDate = LocalDate.now()
 
-    private val dbOpChannel = Channel<DbOp>(capacity = 1000, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    private val dbOpChannel = Channel<DbOp>(
+        capacity = 1000,
+        onBufferOverflow = BufferOverflow.DROP_LATEST,
+    ) { undeliveredDbOp ->
+        logger.error("Dropping a database write due to a buffer overflow: $undeliveredDbOp")
+    }
 
     private val threadPool = Executors.newSingleThreadExecutor(
         ThreadFactoryBuilder().setNameFormat("daily-stats-db-%d").build()
@@ -92,7 +98,7 @@ class DailyStatsService @Inject constructor(
         if (isNewPresser) {
             dbOpChannel.trySend(NewPresser(today, presserId))
         }
-        dbOpChannel.trySend(NewPress(today, null))
+        dbOpChannel.trySend(NewPress(today))
     }
 
     override suspend fun released(presser: Presser) {}
@@ -102,7 +108,7 @@ class DailyStatsService @Inject constructor(
     fun updatePeak(concurrentCount: Int) {
         val prevPeak = peakConcurrent.getAndUpdate { max(it, concurrentCount) }
         if (concurrentCount > prevPeak) {
-            dbOpChannel.trySend(NewPress(trackingDate, concurrentCount))
+            dbOpChannel.trySend(NewPeak(trackingDate, concurrentCount))
         }
     }
 
@@ -120,13 +126,8 @@ class DailyStatsService @Inject constructor(
 
     private fun processDbOp(op: DbOp) {
         when (op) {
-            is NewPress -> {
-                if (op.newPeak != null) {
-                    dailyStatsDAO.updatePeakIfHigher(op.date, op.newPeak)
-                } else {
-                    dailyStatsDAO.incrementTotalPresses(op.date)
-                }
-            }
+            is NewPress -> dailyStatsDAO.incrementTotalPresses(op.date)
+            is NewPeak -> dailyStatsDAO.updatePeakIfHigher(op.date, op.newPeak)
             is NewPresser -> dailyPressersDAO.insertIfAbsent(op.date, op.presserId)
         }
     }
