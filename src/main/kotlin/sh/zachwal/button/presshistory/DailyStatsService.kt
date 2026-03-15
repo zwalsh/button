@@ -40,6 +40,7 @@ class DailyStatsService @Inject constructor(
     internal var clock: Clock = Clock.systemDefaultZone()
 
     private val uniquePresserIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    private val currentlyPressing: MutableSet<Presser> = ConcurrentHashMap.newKeySet()
     private val peakConcurrent = AtomicInteger(0)
     private val totalPressCount = AtomicInteger(0)
 
@@ -95,6 +96,8 @@ class DailyStatsService @Inject constructor(
         if (today != trackingDate) {
             initialize()
         }
+        currentlyPressing.add(presser)
+        updatePeak(currentlyPressing.size)
         val presserId = presser.contact?.id?.toString() ?: presser.remoteHost
         totalPressCount.incrementAndGet()
         val isNewPresser = uniquePresserIds.add(presserId)
@@ -104,9 +107,13 @@ class DailyStatsService @Inject constructor(
         dbOpChannel.trySend(NewPress(today))
     }
 
-    override suspend fun released(presser: Presser) {}
+    override suspend fun released(presser: Presser) {
+        currentlyPressing.remove(presser)
+    }
 
-    override suspend fun disconnected(presser: Presser) {}
+    override suspend fun disconnected(presser: Presser) {
+        currentlyPressing.remove(presser)
+    }
 
     fun updatePeak(concurrentCount: Int) {
         val prevPeak = peakConcurrent.getAndUpdate { max(it, concurrentCount) }

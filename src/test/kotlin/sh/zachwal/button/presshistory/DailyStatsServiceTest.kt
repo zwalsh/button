@@ -114,6 +114,54 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
     }
 
     @Test
+    fun `peak concurrent rises as more pressers press simultaneously`() = runBlocking {
+        val presserA = mockPresser("1.1.1.1")
+        val presserB = mockPresser("2.2.2.2")
+        val presserC = mockPresser("3.3.3.3")
+
+        service.pressed(presserA)
+        assertThat(service.currentStats().peakConcurrent).isEqualTo(1)
+
+        service.pressed(presserB)
+        assertThat(service.currentStats().peakConcurrent).isEqualTo(2)
+
+        service.released(presserA)
+        assertThat(service.currentStats().peakConcurrent).isEqualTo(2) // peak doesn't drop on release
+
+        service.pressed(presserC) // back to 2 concurrent, not a new peak
+        assertThat(service.currentStats().peakConcurrent).isEqualTo(2)
+    }
+
+    @Test
+    fun `peak concurrent is persisted to DB`() = runBlocking {
+        val presserA = mockPresser("1.1.1.1")
+        val presserB = mockPresser("2.2.2.2")
+
+        service.pressed(presserA)
+        service.pressed(presserB)
+        service.released(presserA)
+
+        service.close()
+
+        val row = dailyStatsDAO.findByDate(today)
+        assertThat(row!!.peakConcurrent).isEqualTo(2)
+    }
+
+    @Test
+    fun `disconnected presser is no longer counted toward concurrent`() = runBlocking {
+        val presserA = mockPresser("1.1.1.1")
+        val presserB = mockPresser("2.2.2.2")
+        val presserC = mockPresser("3.3.3.3")
+
+        service.pressed(presserA)
+        service.pressed(presserB)
+        service.disconnected(presserA) // A disconnects without releasing
+
+        service.pressed(presserC) // B + C = 2, not a new peak
+        assertThat(service.currentStats().peakConcurrent).isEqualTo(2)
+    }
+
+    @Test
     fun `concurrent pressed calls are thread-safe`() {
         val executor = Executors.newFixedThreadPool(4)
         val futures = (1..100).map { i ->
@@ -134,8 +182,12 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
 
     @Test
     fun `day rollover resets in-memory stats`() = runBlocking {
-        service.pressed(mockPresser("1.2.3.4"))
-        service.pressed(mockPresser("5.6.7.8"))
+        val presserA = mockPresser("1.2.3.4")
+        val presserB = mockPresser("5.6.7.8")
+        service.pressed(presserA)
+        service.pressed(presserB)
+        service.released(presserA)
+        service.released(presserB)
         assertThat(service.currentStats().totalPresses).isEqualTo(2)
         assertThat(service.currentStats().uniquePressers).isEqualTo(2)
 
@@ -145,7 +197,19 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
         val stats = service.currentStats()
         assertThat(stats.totalPresses).isEqualTo(1)
         assertThat(stats.uniquePressers).isEqualTo(1)
-        assertThat(stats.peakConcurrent).isEqualTo(0)
+        assertThat(stats.peakConcurrent).isEqualTo(1)
+    }
+
+    @Test
+    fun `presser still pressing at midnight is counted toward new day peak`() = runBlocking {
+        val presserA = mockPresser("1.2.3.4")
+        service.pressed(presserA) // pressing at end of day 1, never released
+
+        service.clock = clockFor(today.plusDays(1))
+        service.pressed(mockPresser("5.6.7.8")) // triggers rollover; A is still pressing
+
+        // A + new presser = 2 concurrent
+        assertThat(service.currentStats().peakConcurrent).isEqualTo(2)
     }
 
     @Test
