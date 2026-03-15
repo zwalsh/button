@@ -92,6 +92,42 @@ describe('bootstrap/main', () => {
     expect(renderFloatingPressers).toHaveBeenCalledWith(['bob']);
   });
 
+  it('Snapshot overwrites currentPressers and re-renders', async () => {
+    const socket = await loadModule();
+
+    socket.handlers.onPersonPressing({ type: 'PersonPressing', displayName: 'Alice' });
+    renderFloatingPressers.mockClear();
+
+    socket.handlers.onSnapshot({ type: 'Snapshot', count: 2, names: ['Bob', 'Carol'] });
+
+    expect(renderFloatingPressers).toHaveBeenCalledWith(['Bob', 'Carol']);
+  });
+
+  it('Snapshot updates count DOM elements', async () => {
+    document.body.innerHTML = `
+      <div id="buttonPressCount"></div>
+      <div id="buttonPressCountWhite"></div>
+    `;
+
+    const socket = await loadModule();
+
+    socket.handlers.onSnapshot({ type: 'Snapshot', count: 5, names: [] });
+
+    expect(document.getElementById('buttonPressCount').innerText).toBe('BUTTON PRESSERS: 5');
+    expect(document.getElementById('buttonPressCountWhite').innerText).toBe('BUTTON PRESSERS: 5');
+  });
+
+  it('Snapshot with empty names clears all pressers', async () => {
+    const socket = await loadModule();
+
+    socket.handlers.onPersonPressing({ type: 'PersonPressing', displayName: 'Alice' });
+    renderFloatingPressers.mockClear();
+
+    socket.handlers.onSnapshot({ type: 'Snapshot', count: 0, names: [] });
+
+    expect(renderFloatingPressers).toHaveBeenCalledWith([]);
+  });
+
   it('wires pointer events to sendPressing/sendReleased and shows signup after 16 presses', async () => {
     document.body.innerHTML = `
       <button id="pressMePls"></button>

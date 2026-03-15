@@ -24,6 +24,16 @@ const socket = new Socket({
             setTimeout(() => {
                 renderFloatingPressers(Array.from(currentPressers));
             }, 100);
+        },
+        onSnapshot: (msg) => {
+            currentPressers.clear();
+            msg.names.forEach(name => currentPressers.add(name));
+            renderFloatingPressers(Array.from(currentPressers));
+
+            let buttonPressDiv = document.getElementById("buttonPressCount");
+            let buttonPressDivWhite = document.getElementById("buttonPressCountWhite");
+            if (buttonPressDiv) buttonPressDiv.innerText = "BUTTON PRESSERS: " + msg.count;
+            if (buttonPressDivWhite) buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + msg.count;
         }
     }
 });

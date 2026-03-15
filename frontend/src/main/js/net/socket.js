@@ -2,7 +2,7 @@
 // Behavior:
 // - Automatically connects to provided url on construction.
 // - Reconnects on close using internal capped exponential backoff.
-// - Dispatches parsed server messages for CurrentCount, PersonPressing, PersonReleased to handlers.
+// - Dispatches parsed server messages for CurrentCount, PersonPressing, PersonReleased, Snapshot to handlers.
 // - Outbound press messages are JSON-stringified and sent only when the socket is OPEN; otherwise they are dropped.
 
 class Socket {
@@ -12,6 +12,7 @@ class Socket {
     this.onCurrentCount =  handlers.onCurrentCount || function() {};
     this.onPersonPressing = handlers.onPersonPressing || function() {};
     this.onPersonReleased = handlers.onPersonReleased || function() {};
+    this.onSnapshot = handlers.onSnapshot || function() {};
 
     this.BACKOFF_INITIAL = 1000;
     this.BACKOFF_FACTOR = 1.5;
@@ -87,6 +88,9 @@ class Socket {
         break;
       case 'PersonReleased':
         this.onPersonReleased(msg);
+        break;
+      case 'Snapshot':
+        this.onSnapshot(msg);
         break;
       default:
         console.error('Unknown message type received from server: ', msg.type);

@@ -105,6 +105,18 @@ describe('net/socket', () => {
     socket.close();
   });
 
+  it('dispatches Snapshot messages to onSnapshot handler', () => {
+    const onSnapshot = vi.fn();
+    const socket = new Socket({ url: 'ws://example', handlers: { onSnapshot } });
+    const ws = FakeWebSocket.instances[0];
+
+    ws.emitMessage({ type: 'Snapshot', count: 3, names: ['Alice', 'Bob'] });
+
+    expect(onSnapshot).toHaveBeenCalledWith({ type: 'Snapshot', count: 3, names: ['Alice', 'Bob'] });
+
+    socket.close();
+  });
+
   it('ignores bad JSON from server', () => {
     const handlers = {
       onCurrentCount: vi.fn(),
