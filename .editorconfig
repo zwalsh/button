@@ -1,0 +1,23 @@
+root = true
+
+[*.{kt,kts}]
+ktlint_standard_annotation = disabled                          # 57 violations
+ktlint_standard_annotation-spacing = disabled                  # 2 violations
+ktlint_standard_argument-list-wrapping = disabled              # 26 violations
+ktlint_standard_blank-line-before-declaration = disabled       # 6 violations
+ktlint_standard_chain-method-continuation = disabled           # 22 violations
+ktlint_standard_class-signature = disabled                     # 36 violations
+ktlint_standard_function-expression-body = disabled            # 20 violations
+ktlint_standard_function-signature = disabled                  # 179 violations
+ktlint_standard_indent = disabled                              # 3 violations
+ktlint_standard_max-line-length = disabled                     # 3 violations
+ktlint_standard_multiline-expression-wrapping = disabled       # 133 violations
+ktlint_standard_no-empty-first-line-in-class-body = disabled   # 57 violations
+ktlint_standard_no-empty-first-line-in-method-block = disabled # 2 violations
+ktlint_standard_no-semi = disabled                             # 1 violation
+ktlint_standard_parameter-list-wrapping = disabled             # 18 violations
+ktlint_standard_spacing-between-declarations-with-annotations = disabled # 2 violations
+ktlint_standard_spacing-between-declarations-with-comments = disabled    # 3 violations
+ktlint_standard_string-template-indent = disabled              # 14 violations
+ktlint_standard_trailing-comma-on-call-site = disabled         # 134 violations
+ktlint_standard_trailing-comma-on-declaration-site = disabled  # 42 violations
