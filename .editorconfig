@@ -2,7 +2,6 @@ root = true
 
 [*.{kt,kts}]
 ktlint_standard_annotation = disabled                          # 57 violations
-ktlint_standard_annotation-spacing = disabled                  # 2 violations
 ktlint_standard_argument-list-wrapping = disabled              # 26 violations
 ktlint_standard_blank-line-before-declaration = disabled       # 6 violations
 ktlint_standard_chain-method-continuation = disabled           # 22 violations
