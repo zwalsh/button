@@ -4,12 +4,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.truth.Truth.assertThat
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
 import io.ktor.server.websocket.WebSocketServerSession
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -49,7 +49,7 @@ class PresserTest {
 
         // Fill and overflow the channel while the coroutine is blocked
         presser.sendSnapshot(Snapshot(count = 2, names = listOf("middle"))) // fills channel (capacity 1)
-        presser.sendSnapshot(Snapshot(count = 3, names = listOf("new")))    // should drop "middle", keep "new"
+        presser.sendSnapshot(Snapshot(count = 3, names = listOf("new"))) // should drop "middle", keep "new"
 
         // Unblock all WebSocket sends
         allowSend.complete(Unit)
