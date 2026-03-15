@@ -14,7 +14,6 @@ ktlint_standard_max-line-length = disabled                     # 3 violations
 ktlint_standard_multiline-expression-wrapping = disabled       # 133 violations
 ktlint_standard_no-empty-first-line-in-class-body = disabled   # 57 violations
 ktlint_standard_no-empty-first-line-in-method-block = disabled # 2 violations
-ktlint_standard_no-semi = disabled                             # 1 violation
 ktlint_standard_parameter-list-wrapping = disabled             # 18 violations
 ktlint_standard_spacing-between-declarations-with-annotations = disabled # 2 violations
 ktlint_standard_spacing-between-declarations-with-comments = disabled    # 3 violations
