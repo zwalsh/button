@@ -1,7 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 Button is a Kotlin/Ktor web app where users press a shared button and see how many people are pressing concurrently in real-time via WebSockets. It persists press history in PostgreSQL, optionally sends SMS notifications via Twilio, and includes admin features and seasonal visuals.
