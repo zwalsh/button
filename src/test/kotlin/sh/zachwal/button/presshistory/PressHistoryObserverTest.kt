@@ -61,6 +61,7 @@ internal class PressHistoryObserverTest {
             pressDAO.createPress(remoteHost, null)
         }
     }
+
     @Test
     fun `uses the contact id of the presser on the press`() {
         val presser = mockk<Presser>()
