@@ -66,7 +66,7 @@ class PhoneController @Inject constructor(private val phoneBookService: PhoneBoo
                                                             "someone " +
                                                             "presses the " +
                                                             "button so you can join in!"
-                                                        )
+                                                    )
                                                 }
                                             }
                                             div(classes = "form-group") {
@@ -159,7 +159,7 @@ class PhoneController @Inject constructor(private val phoneBookService: PhoneBoo
                                         "You'll receive texts from now on the first time the button" +
                                             " " +
                                             "is pressed in a given day."
-                                        )
+                                    )
                                 }
                                 a(href = "/", classes = "button") {
                                     span {

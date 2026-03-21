@@ -54,6 +54,7 @@ interface PressDAO {
         """
     )
     fun allPressesForContact(contactId: Int): Stream<Press>
+
     @SqlQuery(
         """
         select min(time) from public.press where contact_id = :contactId

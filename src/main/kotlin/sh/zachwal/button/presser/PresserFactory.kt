@@ -12,12 +12,12 @@ import sh.zachwal.button.presshistory.DailyStatsService
 import sh.zachwal.button.presshistory.PressHistoryObserver
 import sh.zachwal.button.presshistory.PressLogger
 
-@Singleton
 /**
  * Factory for creating Presser instances, wiring them with the appropriate observers and dependencies.
  *
  * Ensures each Presser is connected to the global data flow (via PresserManager, PressHistoryObserver, etc).
  */
+@Singleton
 class PresserFactory @Inject constructor(
     private val presserManager: PresserManager,
     private val dailyStatsService: DailyStatsService,

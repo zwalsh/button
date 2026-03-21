@@ -52,10 +52,13 @@ class Presser constructor(
 
     // updates to the current count of pressers
     private val countUpdateChannel = Channel<Int>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
+
     // person pressing notifications
     private val personPressingChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
+
     // person released notifications
     private val personReleasedChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
+
     // snapshot messages (only need the latest)
     private val snapshotChannel = Channel<Snapshot>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
