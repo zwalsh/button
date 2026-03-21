@@ -115,7 +115,7 @@ class DailyStatsService @Inject constructor(
         currentlyPressing.remove(presser)
     }
 
-    fun updatePeak(concurrentCount: Int) {
+    private fun updatePeak(concurrentCount: Int) {
         val prevPeak = peakConcurrent.getAndUpdate { max(it, concurrentCount) }
         if (concurrentCount > prevPeak) {
             dbOpChannel.trySend(NewPeak(trackingDate, concurrentCount))

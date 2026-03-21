@@ -96,7 +96,6 @@ class PresserManager @Inject constructor(
 
     override suspend fun pressed(presser: Presser) {
         currentlyPressing.add(presser)
-        dailyStatsService.updatePeak(currentlyPressing.size)
         sendCurrentCount()
         sendNewPresser(presser)
         broadcastDailyStats()
