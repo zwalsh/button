@@ -6,9 +6,15 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.jdbi.Contact
+import sh.zachwal.button.presshistory.DailyStatsService
+import sh.zachwal.button.presshistory.DailyStatsSnapshot
 import java.time.Instant
 
 class PersonPressingBroadcastTest {
+    private val dailyStatsService = mockk<DailyStatsService>(relaxed = true).also {
+        every { it.currentStats() } returns DailyStatsSnapshot(0, 0, 0)
+    }
+
     @Test
     fun `broadcasts PersonPressing to all other pressers when a new person presses`() = runBlocking {
         val now = Instant.parse("2025-12-06T16:45:42.742Z")
@@ -18,7 +24,7 @@ class PersonPressingBroadcastTest {
         val presser2 = mockk<Presser>(relaxed = true)
         every { presser1.contact } returns contact1
         every { presser2.contact } returns contact2
-        val manager = PresserManager()
+        val manager = PresserManager(dailyStatsService)
         manager.addPresser(presser1)
         manager.addPresser(presser2)
         // Simulate presser1 pressing
@@ -37,7 +43,7 @@ class PersonPressingBroadcastTest {
         val presser2 = mockk<Presser>(relaxed = true)
         every { presser1.contact } returns contact1
         every { presser2.contact } returns contact2
-        val manager = PresserManager()
+        val manager = PresserManager(dailyStatsService)
         manager.addPresser(presser1)
         manager.addPresser(presser2)
         // Simulate presser1 releasing

@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
+import sh.zachwal.button.presser.protocol.server.DailyStats
 import sh.zachwal.button.presser.protocol.server.ServerMessage
 import sh.zachwal.button.presser.protocol.server.Snapshot
 
@@ -44,12 +45,13 @@ class PresserTest {
         val job = launch(Dispatchers.IO) { presser.watchChannels() }
 
         // Send snapshot 1 — coroutine picks it up immediately and blocks on the WebSocket send
-        presser.sendSnapshot(Snapshot(count = 1, names = listOf("old")))
+        val emptyStats = DailyStats(0, 0, 0)
+        presser.sendSnapshot(Snapshot(count = 1, names = listOf("old"), dailyStats = emptyStats))
         firstSendStarted.await() // coroutine is now stuck in send; snapshotChannel is empty
 
         // Fill and overflow the channel while the coroutine is blocked
-        presser.sendSnapshot(Snapshot(count = 2, names = listOf("middle"))) // fills channel (capacity 1)
-        presser.sendSnapshot(Snapshot(count = 3, names = listOf("new"))) // should drop "middle", keep "new"
+        presser.sendSnapshot(Snapshot(count = 2, names = listOf("middle"), dailyStats = emptyStats)) // fills channel (capacity 1)
+        presser.sendSnapshot(Snapshot(count = 3, names = listOf("new"), dailyStats = emptyStats)) // should drop "middle", keep "new"
 
         // Unblock all WebSocket sends
         allowSend.complete(Unit)
