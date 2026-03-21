@@ -24,6 +24,7 @@ import sh.zachwal.button.presser.protocol.client.ClientMessage
 import sh.zachwal.button.presser.protocol.client.PressState
 import sh.zachwal.button.presser.protocol.client.PressStateChanged
 import sh.zachwal.button.presser.protocol.server.CurrentCount
+import sh.zachwal.button.presser.protocol.server.DailyStats
 import sh.zachwal.button.presser.protocol.server.PersonPressing
 import sh.zachwal.button.presser.protocol.server.PersonReleased
 import sh.zachwal.button.presser.protocol.server.ServerMessage
@@ -61,6 +62,8 @@ class Presser constructor(
 
     // snapshot messages (only need the latest)
     private val snapshotChannel = Channel<Snapshot>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    // daily stats messages (only need the latest)
+    private val dailyStatsChannel = Channel<DailyStats>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     suspend fun watchChannels() {
         val incoming = scope.launch {
@@ -89,11 +92,17 @@ class Presser constructor(
                 sendServerMessage(snapshot)
             }
         }
+        val outgoingDailyStats = scope.launch {
+            for (stats in dailyStatsChannel) {
+                sendServerMessage(stats)
+            }
+        }
         incoming.join()
         outgoingCount.join()
         outgoingPerson.join()
         outgoingReleased.join()
         outgoingSnapshot.join()
+        outgoingDailyStats.join()
         observer.disconnected(this)
     }
 
@@ -151,6 +160,10 @@ class Presser constructor(
 
     suspend fun sendSnapshot(snapshot: Snapshot) {
         snapshotChannel.send(snapshot)
+    }
+
+    suspend fun sendDailyStats(stats: DailyStats) {
+        dailyStatsChannel.send(stats)
     }
 
     fun remote(): String = socketSession.call.request.remote()

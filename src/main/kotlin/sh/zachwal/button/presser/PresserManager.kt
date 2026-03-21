@@ -1,6 +1,7 @@
 package sh.zachwal.button.presser
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
+import com.google.inject.Inject
 import com.google.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -8,7 +9,9 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import sh.zachwal.button.presser.protocol.server.DailyStats
 import sh.zachwal.button.presser.protocol.server.Snapshot
+import sh.zachwal.button.presshistory.DailyStatsService
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
@@ -20,7 +23,9 @@ import kotlin.concurrent.thread
  * changes, and it broadcasts relevant updates to all other Presser instances.
  */
 @Singleton
-class PresserManager : PresserObserver {
+class PresserManager @Inject constructor(
+    private val dailyStatsService: DailyStatsService,
+) : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(PresserManager::class.java)
 
@@ -34,7 +39,16 @@ class PresserManager : PresserObserver {
 
     private fun buildSnapshot(): Snapshot {
         val names = currentlyPressing.mapNotNull { it.contact?.name }
-        return Snapshot(count = currentlyPressing.size, names = names)
+        val stats = dailyStatsService.currentStats()
+        return Snapshot(
+            count = currentlyPressing.size,
+            names = names,
+            dailyStats = DailyStats(
+                uniquePressers = stats.uniquePressers,
+                peakConcurrent = stats.peakConcurrent,
+                totalPresses = stats.totalPresses,
+            ),
+        )
     }
 
     init {
@@ -70,10 +84,21 @@ class PresserManager : PresserObserver {
         }
     }
 
+    private suspend fun broadcastDailyStats() {
+        val stats = dailyStatsService.currentStats()
+        val message = DailyStats(
+            uniquePressers = stats.uniquePressers,
+            peakConcurrent = stats.peakConcurrent,
+            totalPresses = stats.totalPresses,
+        )
+        pressers.forEach { it.sendDailyStats(message) }
+    }
+
     override suspend fun pressed(presser: Presser) {
         currentlyPressing.add(presser)
         sendCurrentCount()
         sendNewPresser(presser)
+        broadcastDailyStats()
     }
 
     override suspend fun released(presser: Presser) {
@@ -97,5 +122,13 @@ class PresserManager : PresserObserver {
         pressers.add(presser)
         presser.updatePressingCount(currentlyPressing.count())
         presser.sendSnapshot(buildSnapshot())
+        val stats = dailyStatsService.currentStats()
+        presser.sendDailyStats(
+            DailyStats(
+                uniquePressers = stats.uniquePressers,
+                peakConcurrent = stats.peakConcurrent,
+                totalPresses = stats.totalPresses,
+            )
+        )
     }
 }

@@ -99,21 +99,6 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
     }
 
     @Test
-    fun `updatePeak with higher count updates peak`() {
-        service.updatePeak(5)
-
-        assertThat(service.currentStats().peakConcurrent).isEqualTo(5)
-    }
-
-    @Test
-    fun `updatePeak with lower count does not lower existing peak`() {
-        service.updatePeak(5)
-        service.updatePeak(3)
-
-        assertThat(service.currentStats().peakConcurrent).isEqualTo(5)
-    }
-
-    @Test
     fun `peak concurrent rises as more pressers press simultaneously`() = runBlocking {
         val presserA = mockPresser("1.1.1.1")
         val presserB = mockPresser("2.2.2.2")

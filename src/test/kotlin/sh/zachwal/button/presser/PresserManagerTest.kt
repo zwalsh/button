@@ -1,17 +1,24 @@
 package sh.zachwal.button.presser
 
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
+import sh.zachwal.button.presshistory.DailyStatsService
+import sh.zachwal.button.presshistory.DailyStatsSnapshot
 
 internal class PresserManagerTest {
 
+    private val dailyStatsService = mockk<DailyStatsService>(relaxed = true).also {
+        every { it.currentStats() } returns DailyStatsSnapshot(0, 0, 0)
+    }
+
     @Test
     fun concurrentOperationsTest() {
-        val pm = PresserManager()
+        val pm = PresserManager(dailyStatsService)
         val pressers = (1..100).map { mockk<Presser>(relaxed = true) }
         runBlocking {
             pressers.forEach {

@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.concurrent.thread
 import kotlin.math.max
 
@@ -30,6 +31,7 @@ data class NewPress(val date: LocalDate) : DbOp()
 data class NewPeak(val date: LocalDate, val newPeak: Int) : DbOp()
 data class NewPresser(val date: LocalDate, val presserId: String) : DbOp()
 
+@Singleton
 class DailyStatsService @Inject constructor(
     private val dailyStatsDAO: DailyStatsDAO,
     private val dailyPressersDAO: DailyPressersDAO,
@@ -115,7 +117,7 @@ class DailyStatsService @Inject constructor(
         currentlyPressing.remove(presser)
     }
 
-    fun updatePeak(concurrentCount: Int) {
+    private fun updatePeak(concurrentCount: Int) {
         val prevPeak = peakConcurrent.getAndUpdate { max(it, concurrentCount) }
         if (concurrentCount > prevPeak) {
             dbOpChannel.trySend(NewPeak(trackingDate, concurrentCount))
