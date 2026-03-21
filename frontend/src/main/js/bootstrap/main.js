@@ -13,6 +13,17 @@ function setPresserCount(n) {
     if (buttonPressDivWhite) buttonPressDivWhite.innerText = "BUTTON PRESSERS: " + n;
 }
 
+function setDailyStats({ uniquePressers, peakConcurrent, totalPresses }) {
+    const presserWord = uniquePressers === 1 ? 'presser' : 'pressers';
+    const pressWord = totalPresses === 1 ? 'press' : 'presses';
+    const peakSegment = uniquePressers > 1 ? ` · ${peakConcurrent} max at once` : '';
+    const text = `${uniquePressers} ${presserWord} today${peakSegment} · ${totalPresses} ${pressWord}`;
+    const el = document.getElementById('dailyStats');
+    const elWhite = document.getElementById('dailyStatsWhite');
+    if (el) el.innerText = text;
+    if (elWhite) elWhite.innerText = text;
+}
+
 const socket = new Socket({
     url: wsUrl, // injected by HomeController
     handlers: {
@@ -34,7 +45,9 @@ const socket = new Socket({
             msg.names.forEach(name => currentPressers.add(name));
             renderFloatingPressers(Array.from(currentPressers));
             setPresserCount(msg.count);
-        }
+            if (msg.dailyStats) setDailyStats(msg.dailyStats);
+        },
+        onDailyStats: (msg) => setDailyStats(msg)
     }
 });
 

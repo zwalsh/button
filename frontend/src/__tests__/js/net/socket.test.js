@@ -117,6 +117,18 @@ describe('net/socket', () => {
     socket.close();
   });
 
+  it('dispatches DailyStats messages to onDailyStats handler', () => {
+    const onDailyStats = vi.fn();
+    const socket = new Socket({ url: 'ws://example', handlers: { onDailyStats } });
+    const ws = FakeWebSocket.instances[0];
+
+    ws.emitMessage({ type: 'DailyStats', uniquePressers: 4, peakConcurrent: 2, totalPresses: 17 });
+
+    expect(onDailyStats).toHaveBeenCalledWith({ type: 'DailyStats', uniquePressers: 4, peakConcurrent: 2, totalPresses: 17 });
+
+    socket.close();
+  });
+
   it('ignores bad JSON from server', () => {
     const handlers = {
       onCurrentCount: vi.fn(),
