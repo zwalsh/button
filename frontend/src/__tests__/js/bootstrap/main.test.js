@@ -130,8 +130,8 @@ describe('bootstrap/main', () => {
       dailyStats: { uniquePressers: 4, peakConcurrent: 2, totalPresses: 17 }
     });
 
-    expect(document.getElementById('dailyStats').innerText).toBe('4 pressers today · 2 at once · 17 presses');
-    expect(document.getElementById('dailyStatsWhite').innerText).toBe('4 pressers today · 2 at once · 17 presses');
+    expect(document.getElementById('dailyStats').innerText).toBe('4 pressers today · 2 max at once · 17 presses');
+    expect(document.getElementById('dailyStatsWhite').innerText).toBe('4 pressers today · 2 max at once · 17 presses');
   });
 
   it('DailyStats message updates daily stats DOM elements', async () => {
@@ -144,8 +144,8 @@ describe('bootstrap/main', () => {
 
     socket.handlers.onDailyStats({ type: 'DailyStats', uniquePressers: 4, peakConcurrent: 2, totalPresses: 17 });
 
-    expect(document.getElementById('dailyStats').innerText).toBe('4 pressers today · 2 at once · 17 presses');
-    expect(document.getElementById('dailyStatsWhite').innerText).toBe('4 pressers today · 2 at once · 17 presses');
+    expect(document.getElementById('dailyStats').innerText).toBe('4 pressers today · 2 max at once · 17 presses');
+    expect(document.getElementById('dailyStatsWhite').innerText).toBe('4 pressers today · 2 max at once · 17 presses');
   });
 
   it('setDailyStats uses singular presser and press for counts of 1', async () => {
@@ -155,7 +155,7 @@ describe('bootstrap/main', () => {
 
     socket.handlers.onDailyStats({ type: 'DailyStats', uniquePressers: 1, peakConcurrent: 1, totalPresses: 1 });
 
-    expect(document.getElementById('dailyStats').innerText).toBe('1 presser today · 1 at once · 1 press');
+    expect(document.getElementById('dailyStats').innerText).toBe('1 presser today · 1 press');
   });
 
   it('setDailyStats does not throw if DOM nodes are missing', async () => {

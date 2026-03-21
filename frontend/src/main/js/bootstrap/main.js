@@ -16,7 +16,8 @@ function setPresserCount(n) {
 function setDailyStats({ uniquePressers, peakConcurrent, totalPresses }) {
     const presserWord = uniquePressers === 1 ? 'presser' : 'pressers';
     const pressWord = totalPresses === 1 ? 'press' : 'presses';
-    const text = `${uniquePressers} ${presserWord} today · ${peakConcurrent} at once · ${totalPresses} ${pressWord}`;
+    const peakSegment = uniquePressers > 1 ? ` · ${peakConcurrent} max at once` : '';
+    const text = `${uniquePressers} ${presserWord} today${peakSegment} · ${totalPresses} ${pressWord}`;
     const el = document.getElementById('dailyStats');
     const elWhite = document.getElementById('dailyStatsWhite');
     if (el) el.innerText = text;
