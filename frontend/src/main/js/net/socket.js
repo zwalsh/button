@@ -13,6 +13,7 @@ class Socket {
     this.onPersonPressing = handlers.onPersonPressing || function() {};
     this.onPersonReleased = handlers.onPersonReleased || function() {};
     this.onSnapshot = handlers.onSnapshot || function() {};
+    this.onDailyStats = handlers.onDailyStats || function() {};
 
     this.BACKOFF_INITIAL = 1000;
     this.BACKOFF_FACTOR = 1.5;
@@ -91,6 +92,9 @@ class Socket {
         break;
       case 'Snapshot':
         this.onSnapshot(msg);
+        break;
+      case 'DailyStats':
+        this.onDailyStats(msg);
         break;
       default:
         console.error('Unknown message type received from server: ', msg.type);

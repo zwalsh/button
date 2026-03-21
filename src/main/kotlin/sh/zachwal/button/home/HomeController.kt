@@ -162,10 +162,16 @@ class HomeController @Inject constructor(
                                     id = "buttonPressCountWhite"
                                     +"BUTTON PRESSERS: 0"
                                 }
+                                div(classes = "dailyStatsText whiteButton") {
+                                    id = "dailyStatsWhite"
+                                }
                             } else {
                                 h1 {
                                     id = "buttonPressCount"
                                     +"BUTTON PRESSERS: 0"
+                                }
+                                div(classes = "dailyStatsText") {
+                                    id = "dailyStats"
                                 }
                             }
                         }

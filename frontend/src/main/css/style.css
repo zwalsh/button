@@ -93,6 +93,15 @@ button:active {
     color: white;
 }
 
+.dailyStatsText {
+    font-size: 0.9em;
+    opacity: 0.6;
+    margin-top: 0.25em;
+    text-align: center;
+    font-family: Avenir, Arial, sans-serif;
+    font-weight: 700;
+}
+
 #signup {
     color: #721c24;
     background-color: #f8d7da;

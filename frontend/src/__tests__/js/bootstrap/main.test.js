@@ -117,6 +117,52 @@ describe('bootstrap/main', () => {
     expect(document.getElementById('buttonPressCountWhite').innerText).toBe('BUTTON PRESSERS: 5');
   });
 
+  it('Snapshot updates daily stats DOM elements', async () => {
+    document.body.innerHTML = `
+      <div id="dailyStats"></div>
+      <div id="dailyStatsWhite"></div>
+    `;
+
+    const socket = await loadModule();
+
+    socket.handlers.onSnapshot({
+      type: 'Snapshot', count: 0, names: [],
+      dailyStats: { uniquePressers: 4, peakConcurrent: 2, totalPresses: 17 }
+    });
+
+    expect(document.getElementById('dailyStats').innerText).toBe('4 pressers today · peak 2 · 17 presses');
+    expect(document.getElementById('dailyStatsWhite').innerText).toBe('4 pressers today · peak 2 · 17 presses');
+  });
+
+  it('DailyStats message updates daily stats DOM elements', async () => {
+    document.body.innerHTML = `
+      <div id="dailyStats"></div>
+      <div id="dailyStatsWhite"></div>
+    `;
+
+    const socket = await loadModule();
+
+    socket.handlers.onDailyStats({ type: 'DailyStats', uniquePressers: 4, peakConcurrent: 2, totalPresses: 17 });
+
+    expect(document.getElementById('dailyStats').innerText).toBe('4 pressers today · peak 2 · 17 presses');
+    expect(document.getElementById('dailyStatsWhite').innerText).toBe('4 pressers today · peak 2 · 17 presses');
+  });
+
+  it('setDailyStats uses singular presser and press for counts of 1', async () => {
+    document.body.innerHTML = `<div id="dailyStats"></div>`;
+
+    const socket = await loadModule();
+
+    socket.handlers.onDailyStats({ type: 'DailyStats', uniquePressers: 1, peakConcurrent: 1, totalPresses: 1 });
+
+    expect(document.getElementById('dailyStats').innerText).toBe('1 presser today · peak 1 · 1 press');
+  });
+
+  it('setDailyStats does not throw if DOM nodes are missing', async () => {
+    const socket = await loadModule();
+    expect(() => socket.handlers.onDailyStats({ type: 'DailyStats', uniquePressers: 1, peakConcurrent: 1, totalPresses: 1 })).not.toThrow();
+  });
+
   it('Snapshot with empty names clears all pressers', async () => {
     const socket = await loadModule();
 
