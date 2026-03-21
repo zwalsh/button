@@ -62,6 +62,7 @@ class Presser constructor(
 
     // snapshot messages (only need the latest)
     private val snapshotChannel = Channel<Snapshot>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
     // daily stats messages (only need the latest)
     private val dailyStatsChannel = Channel<DailyStats>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
