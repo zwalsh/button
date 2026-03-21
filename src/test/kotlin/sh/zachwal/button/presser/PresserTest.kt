@@ -26,7 +26,7 @@ class PresserTest {
     private val mapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
     @Test
-    fun `newer snapshot overwrites older when snapshot channel is full`() = runBlocking {
+    fun `oldest snapshot is dropped when drop-oldest channel overflows`() = runBlocking {
         val session = mockk<WebSocketServerSession>(relaxed = true)
         every { session.incoming } returns Channel<Frame>() // never produces frames
 
@@ -46,12 +46,13 @@ class PresserTest {
 
         // Send snapshot 1 — coroutine picks it up immediately and blocks on the WebSocket send
         val emptyStats = DailyStats(0, 0, 0)
-        presser.sendSnapshot(Snapshot(count = 1, names = listOf("old"), dailyStats = emptyStats))
-        firstSendStarted.await() // coroutine is now stuck in send; snapshotChannel is empty
+        presser.sendSnapshot(Snapshot(count = 1, names = listOf("s1"), dailyStats = emptyStats))
+        firstSendStarted.await() // coroutine is now stuck in send; channel is empty
 
-        // Fill and overflow the channel while the coroutine is blocked
-        presser.sendSnapshot(Snapshot(count = 2, names = listOf("middle"), dailyStats = emptyStats)) // fills channel (capacity 1)
-        presser.sendSnapshot(Snapshot(count = 3, names = listOf("new"), dailyStats = emptyStats)) // should drop "middle", keep "new"
+        // Fill the channel to capacity (2) then overflow it while the coroutine is blocked
+        presser.sendSnapshot(Snapshot(count = 2, names = listOf("s2"), dailyStats = emptyStats)) // fills slot 1
+        presser.sendSnapshot(Snapshot(count = 3, names = listOf("s3"), dailyStats = emptyStats)) // fills slot 2
+        presser.sendSnapshot(Snapshot(count = 4, names = listOf("s4"), dailyStats = emptyStats)) // overflows: drops s2, keeps s3+s4
 
         // Unblock all WebSocket sends
         allowSend.complete(Unit)
@@ -59,12 +60,17 @@ class PresserTest {
         // First message sent: snapshot 1 (was already picked up before the block)
         val firstSent = mapper.readValue<ServerMessage>(withTimeout(1000) { sentTexts.receive() })
         assertThat(firstSent).isInstanceOf(Snapshot::class.java)
-        assertThat((firstSent as Snapshot).names).containsExactly("old")
+        assertThat((firstSent as Snapshot).names).containsExactly("s1")
 
-        // Second message sent: should be snapshot 3 ("new"), not snapshot 2 ("middle")
+        // Second message sent: s3, because s2 (oldest queued) was dropped
         val secondSent = mapper.readValue<ServerMessage>(withTimeout(1000) { sentTexts.receive() })
         assertThat(secondSent).isInstanceOf(Snapshot::class.java)
-        assertThat((secondSent as Snapshot).names).containsExactly("new")
+        assertThat((secondSent as Snapshot).names).containsExactly("s3")
+
+        // Third message sent: s4
+        val thirdSent = mapper.readValue<ServerMessage>(withTimeout(1000) { sentTexts.receive() })
+        assertThat(thirdSent).isInstanceOf(Snapshot::class.java)
+        assertThat((thirdSent as Snapshot).names).containsExactly("s4")
 
         job.cancel()
     }

@@ -51,19 +51,11 @@ class Presser constructor(
     // uses two coroutines, one to accept incoming & one to send outgoing
     private val scope = CoroutineScope(dispatcher)
 
-    // updates to the current count of pressers
-    private val countUpdateChannel = Channel<Int>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    // high-volume messages where we drop new arrivals if the buffer fills
+    private val dropLatestChannel = Channel<ServerMessage>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
 
-    // person pressing notifications
-    private val personPressingChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
-
-    // person released notifications
-    private val personReleasedChannel = Channel<String>(10, onBufferOverflow = BufferOverflow.DROP_LATEST)
-
-    // snapshot messages (only need the latest)
-    private val snapshotChannel = Channel<Snapshot>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    // daily stats messages (only need the latest)
-    private val dailyStatsChannel = Channel<DailyStats>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    // state snapshot messages where we only need the latest; capacity 2 so Snapshot and DailyStats can coexist
+    private val dropOldestChannel = Channel<ServerMessage>(2, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     suspend fun watchChannels() {
         val incoming = scope.launch {
@@ -72,37 +64,19 @@ class Presser constructor(
                 handleIncomingFrame(frame)
             }
         }
-        val outgoingCount = scope.launch {
-            for (updatedCount in countUpdateChannel) {
-                sendServerMessage(CurrentCount(count = updatedCount))
+        val outgoingDropLatest = scope.launch {
+            for (message in dropLatestChannel) {
+                sendServerMessage(message)
             }
         }
-        val outgoingPerson = scope.launch {
-            for (name in personPressingChannel) {
-                sendServerMessage(PersonPressing(displayName = name))
-            }
-        }
-        val outgoingReleased = scope.launch {
-            for (name in personReleasedChannel) {
-                sendServerMessage(PersonReleased(displayName = name))
-            }
-        }
-        val outgoingSnapshot = scope.launch {
-            for (snapshot in snapshotChannel) {
-                sendServerMessage(snapshot)
-            }
-        }
-        val outgoingDailyStats = scope.launch {
-            for (stats in dailyStatsChannel) {
-                sendServerMessage(stats)
+        val outgoingDropOldest = scope.launch {
+            for (message in dropOldestChannel) {
+                sendServerMessage(message)
             }
         }
         incoming.join()
-        outgoingCount.join()
-        outgoingPerson.join()
-        outgoingReleased.join()
-        outgoingSnapshot.join()
-        outgoingDailyStats.join()
+        outgoingDropLatest.join()
+        outgoingDropOldest.join()
         observer.disconnected(this)
     }
 
@@ -147,23 +121,23 @@ class Presser constructor(
     }
 
     suspend fun updatePressingCount(count: Int) {
-        countUpdateChannel.send(count)
+        dropLatestChannel.send(CurrentCount(count = count))
     }
 
     suspend fun notifyPersonPressing(name: String) {
-        personPressingChannel.send(name)
+        dropLatestChannel.send(PersonPressing(displayName = name))
     }
 
     suspend fun notifyPersonReleased(name: String) {
-        personReleasedChannel.send(name)
+        dropLatestChannel.send(PersonReleased(displayName = name))
     }
 
     suspend fun sendSnapshot(snapshot: Snapshot) {
-        snapshotChannel.send(snapshot)
+        dropOldestChannel.send(snapshot)
     }
 
     suspend fun sendDailyStats(stats: DailyStats) {
-        dailyStatsChannel.send(stats)
+        dropOldestChannel.send(stats)
     }
 
     fun remote(): String = socketSession.call.request.remote()
