@@ -158,6 +158,16 @@ describe('bootstrap/main', () => {
     expect(document.getElementById('dailyStats').innerText).toBe('1 presser today · 1 press');
   });
 
+  it('setDailyStats handles zeroes across the board (initial page load)', async () => {
+    document.body.innerHTML = `<div id="dailyStats"></div>`;
+
+    const socket = await loadModule();
+
+    socket.handlers.onDailyStats({ type: 'DailyStats', uniquePressers: 0, peakConcurrent: 0, totalPresses: 0 });
+
+    expect(document.getElementById('dailyStats').innerText).toBe('0 pressers today · 0 presses');
+  });
+
   it('setDailyStats does not throw if DOM nodes are missing', async () => {
     const socket = await loadModule();
     expect(() => socket.handlers.onDailyStats({ type: 'DailyStats', uniquePressers: 1, peakConcurrent: 1, totalPresses: 1 })).not.toThrow();
