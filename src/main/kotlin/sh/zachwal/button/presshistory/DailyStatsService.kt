@@ -7,6 +7,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -35,6 +36,7 @@ data class NewPresser(val date: LocalDate, val presserId: String) : DbOp()
 class DailyStatsService @Inject constructor(
     private val dailyStatsDAO: DailyStatsDAO,
     private val dailyPressersDAO: DailyPressersDAO,
+    private val rolloverCheckIntervalMs: Long = 60_000L,
 ) : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(DailyStatsService::class.java)
@@ -67,6 +69,21 @@ class DailyStatsService @Inject constructor(
                 processDbOp(op)
             } catch (e: Exception) {
                 logger.error("Failed to process DB op: $op", e)
+            }
+        }
+    }
+
+    private val rolloverCheckJob: Job = scope.launch {
+        while (true) {
+            delay(rolloverCheckIntervalMs)
+            try {
+                val today = LocalDate.now(clock)
+                if (today != trackingDate) {
+                    logger.info("Day rolled over to $today, reinitializing stats")
+                    initialize()
+                }
+            } catch (e: Exception) {
+                logger.error("Failed to check for day rollover", e)
             }
         }
     }
@@ -131,6 +148,7 @@ class DailyStatsService @Inject constructor(
     )
 
     fun close() {
+        rolloverCheckJob.cancel()
         dbOpChannel.close()
         runBlocking { consumerJob.join() } // drain remaining ops before stopping the thread pool
         threadPool.shutdown()

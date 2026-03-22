@@ -3,6 +3,7 @@ package sh.zachwal.button.presshistory
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.sqlobject.kotlin.onDemand
@@ -224,6 +225,29 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
         val stats = service.currentStats()
         assertThat(stats.totalPresses).isEqualTo(3)
         assertThat(stats.uniquePressers).isEqualTo(2)
+    }
+
+    @Test
+    fun `timer triggers midnight rollover without a press`() = runBlocking {
+        // Close the 60s-interval service and create one with a short check interval
+        service.close()
+        service = DailyStatsService(dailyStatsDAO, dailyPressersDAO, rolloverCheckIntervalMs = 50L)
+
+        // Build up some stats for today
+        service.pressed(mockPresser("1.2.3.4"))
+        service.pressed(mockPresser("5.6.7.8"))
+        assertThat(service.currentStats().totalPresses).isEqualTo(2)
+
+        // Advance the clock to tomorrow — timer will trigger rollover on next check
+        service.clock = clockFor(today.plusDays(1))
+
+        // Wait for the timer to fire
+        delay(200L)
+
+        val stats = service.currentStats()
+        assertThat(stats.totalPresses).isEqualTo(0)
+        assertThat(stats.uniquePressers).isEqualTo(0)
+        assertThat(stats.peakConcurrent).isEqualTo(0)
     }
 
     @Test
