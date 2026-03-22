@@ -22,6 +22,16 @@ import java.time.ZoneId
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
+// A Clock subclass whose date can be advanced in tests
+private class AdjustableClock(
+    @Volatile var date: LocalDate,
+    private val zone: ZoneId = ZoneId.systemDefault(),
+) : Clock() {
+    override fun getZone(): ZoneId = zone
+    override fun withZone(zone: ZoneId): Clock = AdjustableClock(date, zone)
+    override fun instant(): Instant = date.atStartOfDay(zone).toInstant()
+}
+
 @ExtendWith(DatabaseExtension::class)
 class DailyStatsServiceTest(private val jdbi: Jdbi) {
 
@@ -30,12 +40,18 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
     private lateinit var service: DailyStatsService
 
     private val today = LocalDate.now()
+    private val adjustableClock = AdjustableClock(today)
 
     @BeforeEach
     fun setUp() {
         dailyStatsDAO = jdbi.onDemand()
         dailyPressersDAO = jdbi.onDemand()
-        service = DailyStatsService(dailyStatsDAO, dailyPressersDAO)
+        // Long rollover interval so the timer doesn't fire spontaneously in non-timer tests
+        service = DailyStatsService(
+            dailyStatsDAO,
+            dailyPressersDAO,
+            DailyStatsConfig(adjustableClock, rolloverCheckIntervalMs = 60_000L),
+        )
         service.initialize()
     }
 
@@ -44,11 +60,6 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
         // Drain pending DB ops before DatabaseExtension truncates tables
         service.close()
     }
-
-    private val zone: ZoneId = ZoneId.systemDefault()
-
-    private fun clockFor(date: LocalDate): Clock =
-        Clock.fixed(date.atStartOfDay(zone).toInstant(), zone)
 
     private fun mockPresser(remoteHost: String = "127.0.0.1", contact: Contact? = null): Presser {
         return mockk<Presser>().also {
@@ -176,7 +187,7 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
         assertThat(service.currentStats().totalPresses).isEqualTo(2)
         assertThat(service.currentStats().uniquePressers).isEqualTo(2)
 
-        service.clock = clockFor(today.plusDays(1))
+        adjustableClock.date = today.plusDays(1)
         service.pressed(mockPresser("9.10.11.12"))
 
         val stats = service.currentStats()
@@ -190,7 +201,7 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
         val presserA = mockPresser("1.2.3.4")
         service.pressed(presserA) // pressing at end of day 1, never released
 
-        service.clock = clockFor(today.plusDays(1))
+        adjustableClock.date = today.plusDays(1)
         service.pressed(mockPresser("5.6.7.8")) // triggers rollover; A is still pressing
 
         // A + new presser = 2 concurrent
@@ -206,7 +217,7 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
         dailyStatsDAO.updatePeakIfHigher(tomorrow, 7)
         dailyPressersDAO.insertIfAbsent(tomorrow, "existing-presser")
 
-        service.clock = clockFor(tomorrow)
+        adjustableClock.date = tomorrow
         service.pressed(mockPresser("new-host"))
 
         val stats = service.currentStats()
@@ -238,12 +249,98 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
         dailyPressersDAO.insertIfAbsent(today, "presser-2")
 
         // New service instance simulates a process restart
-        val reloadedService = DailyStatsService(dailyStatsDAO, dailyPressersDAO)
+        val reloadedService = DailyStatsService(
+            dailyStatsDAO,
+            dailyPressersDAO,
+            DailyStatsConfig(Clock.systemDefaultZone(), rolloverCheckIntervalMs = 60_000L),
+        )
         reloadedService.initialize()
 
         val stats = reloadedService.currentStats()
         assertThat(stats.totalPresses).isEqualTo(3)
         assertThat(stats.peakConcurrent).isEqualTo(4)
         assertThat(stats.uniquePressers).isEqualTo(2)
+
+        reloadedService.close()
+    }
+
+    // ---- Timer-triggered rollover tests ----
+
+    private fun timerService(clock: AdjustableClock): DailyStatsService =
+        DailyStatsService(
+            dailyStatsDAO,
+            dailyPressersDAO,
+            DailyStatsConfig(clock, rolloverCheckIntervalMs = 50L),
+        ).also { it.initialize() }
+
+    @Test
+    fun `timer fires at midnight and resets stats - press and release before midnight zeroes everything`() {
+        service.close() // shut down the long-interval setUp service first
+
+        val timerClock = AdjustableClock(today)
+        val svc = timerService(timerClock)
+        try {
+            runBlocking {
+                val presser = mockPresser("1.2.3.4")
+                svc.pressed(presser)
+                svc.released(presser)
+            }
+            assertThat(svc.currentStats().totalPresses).isEqualTo(1)
+
+            timerClock.date = today.plusDays(1)
+            Thread.sleep(200) // let the 50ms timer fire
+
+            val stats = svc.currentStats()
+            assertThat(stats.totalPresses).isEqualTo(0)
+            assertThat(stats.uniquePressers).isEqualTo(0)
+            assertThat(stats.peakConcurrent).isEqualTo(0)
+        } finally {
+            svc.close()
+        }
+    }
+
+    @Test
+    fun `timer fires at midnight and current pressers carry over as unique pressers and peak`() {
+        service.close() // shut down the long-interval setUp service first
+
+        val timerClock = AdjustableClock(today)
+        val svc = timerService(timerClock)
+        try {
+            val presserA = mockPresser("1.2.3.4")
+            runBlocking { svc.pressed(presserA) } // press but never release
+
+            timerClock.date = today.plusDays(1)
+            Thread.sleep(200) // let the 50ms timer fire
+
+            val stats = svc.currentStats()
+            assertThat(stats.totalPresses).isEqualTo(0)
+            assertThat(stats.uniquePressers).isEqualTo(1)
+            assertThat(stats.peakConcurrent).isEqualTo(1)
+        } finally {
+            svc.close()
+        }
+    }
+
+    @Test
+    fun `timer rollover writes currently-pressing users to DB as new day pressers`() {
+        service.close()
+
+        val timerClock = AdjustableClock(today)
+        val svc = timerService(timerClock)
+        try {
+            val presserA = mockPresser("1.2.3.4")
+            runBlocking { svc.pressed(presserA) } // never released
+
+            timerClock.date = today.plusDays(1)
+            Thread.sleep(200)
+
+            svc.close() // drain DB ops
+
+            val tomorrow = today.plusDays(1)
+            val pressers = dailyPressersDAO.findByDate(tomorrow)
+            assertThat(pressers).contains("1.2.3.4")
+        } finally {
+            // svc already closed above; suppress double-close
+        }
     }
 }
