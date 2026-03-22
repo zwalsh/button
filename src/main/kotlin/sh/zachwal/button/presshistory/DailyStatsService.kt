@@ -45,8 +45,9 @@ class DailyStatsService @Inject constructor(
 ) : PresserObserver {
 
     private val logger = LoggerFactory.getLogger(DailyStatsService::class.java)
-
     private val clock: Clock get() = config.clock
+
+    // --- In-memory state ---
 
     private val uniquePresserIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val currentlyPressing: MutableSet<Presser> = ConcurrentHashMap.newKeySet()
@@ -55,6 +56,8 @@ class DailyStatsService @Inject constructor(
 
     @Volatile
     private var trackingDate: LocalDate = LocalDate.now(clock)
+
+    // --- Async DB write infrastructure ---
 
     private val dbOpChannel = Channel<DbOp>(
         capacity = 1000,
@@ -68,7 +71,6 @@ class DailyStatsService @Inject constructor(
         ThreadFactoryBuilder().setNameFormat("daily-stats-db-%d").build()
     )
     private val scope = CoroutineScope(dbThreadPool.asCoroutineDispatcher() + SupervisorJob())
-
     private val consumerJob: Job = scope.launch {
         for (op in dbOpChannel) {
             try {
@@ -79,8 +81,8 @@ class DailyStatsService @Inject constructor(
         }
     }
 
-    // Separate single-threaded pool for the midnight rollover timer — must not share
-    // threads with the DB pool so a slow DB write never delays the rollover check.
+    // Separate pool for the midnight rollover timer — must not share threads with the DB
+    // pool so a slow DB write never delays the rollover check.
     private val rolloverThreadPool = Executors.newSingleThreadScheduledExecutor(
         ThreadFactoryBuilder().setNameFormat("daily-stats-rollover-%d").build()
     )
@@ -101,6 +103,8 @@ class DailyStatsService @Inject constructor(
         )
     }
 
+    // --- Lifecycle ---
+
     /**
      * Loads stats for the current day from the DB. Called on fresh boot.
      * Does not account for any users who may currently be pressing.
@@ -109,48 +113,15 @@ class DailyStatsService @Inject constructor(
         loadNewDay(LocalDate.now(clock))
     }
 
-    /**
-     * Rolls over to a new day. Resets in-memory stats, reloads from DB, and carries
-     * currently-pressing users into the new day as unique pressers and initial peak.
-     * Called both by the periodic timer and by [pressed] when a press detects a date change.
-     */
-    internal fun rollover() {
-        val newDay = LocalDate.now(clock)
-        val pressersAtRollover = currentlyPressing.toSet()
-        loadNewDay(newDay)
-
-        for (presser in pressersAtRollover) {
-            val presserId = presser.contact?.id?.toString() ?: presser.remoteHost
-            val isNew = uniquePresserIds.add(presserId)
-            if (isNew) {
-                dbOpChannel.trySend(NewPresser(newDay, presserId))
-            }
-        }
-        if (pressersAtRollover.isNotEmpty()) {
-            updatePeak(pressersAtRollover.size)
-        }
+    fun close() {
+        rolloverThreadPool.shutdown()
+        rolloverThreadPool.awaitTermination(5, TimeUnit.SECONDS)
+        dbOpChannel.close()
+        runBlocking { consumerJob.join() } // drain remaining ops before stopping the thread pool
+        dbThreadPool.shutdown()
     }
 
-    private fun checkRollover() {
-        val today = LocalDate.now(clock)
-        if (today != trackingDate) {
-            rollover()
-        }
-    }
-
-    private fun loadNewDay(date: LocalDate) {
-        dailyStatsDAO.ensureRow(date)
-        val row = dailyStatsDAO.findByDate(date)
-        uniquePresserIds.clear()
-        peakConcurrent.set(0)
-        totalPressCount.set(0)
-        if (row != null) {
-            peakConcurrent.set(row.peakConcurrent)
-            totalPressCount.set(row.totalPressCount)
-        }
-        uniquePresserIds.addAll(dailyPressersDAO.findByDate(date))
-        trackingDate = date
-    }
+    // --- Public API ---
 
     override suspend fun pressed(presser: Presser) {
         val today = LocalDate.now(clock)
@@ -176,25 +147,62 @@ class DailyStatsService @Inject constructor(
         currentlyPressing.remove(presser)
     }
 
-    private fun updatePeak(concurrentCount: Int) {
-        val prevPeak = peakConcurrent.getAndUpdate { max(it, concurrentCount) }
-        if (concurrentCount > prevPeak) {
-            dbOpChannel.trySend(NewPeak(trackingDate, concurrentCount))
-        }
-    }
-
     fun currentStats(): DailyStatsSnapshot = DailyStatsSnapshot(
         uniquePressers = uniquePresserIds.size,
         peakConcurrent = peakConcurrent.get(),
         totalPresses = totalPressCount.get(),
     )
 
-    fun close() {
-        rolloverThreadPool.shutdown()
-        rolloverThreadPool.awaitTermination(5, TimeUnit.SECONDS)
-        dbOpChannel.close()
-        runBlocking { consumerJob.join() } // drain remaining ops before stopping the thread pool
-        dbThreadPool.shutdown()
+    // --- Rollover implementation ---
+
+    private fun checkRollover() {
+        if (LocalDate.now(clock) != trackingDate) {
+            rollover()
+        }
+    }
+
+    /**
+     * Rolls over to a new day. Resets in-memory stats, reloads from DB, and carries
+     * currently-pressing users into the new day as unique pressers and initial peak.
+     * Called both by the periodic timer and by [pressed] when a press detects a date change.
+     */
+    internal fun rollover() {
+        val newDay = LocalDate.now(clock)
+        val pressersAtRollover = currentlyPressing.toSet()
+        loadNewDay(newDay)
+        for (presser in pressersAtRollover) {
+            val presserId = presser.contact?.id?.toString() ?: presser.remoteHost
+            val isNew = uniquePresserIds.add(presserId)
+            if (isNew) {
+                dbOpChannel.trySend(NewPresser(newDay, presserId))
+            }
+        }
+        if (pressersAtRollover.isNotEmpty()) {
+            updatePeak(pressersAtRollover.size)
+        }
+    }
+
+    private fun loadNewDay(date: LocalDate) {
+        dailyStatsDAO.ensureRow(date)
+        val row = dailyStatsDAO.findByDate(date)
+        uniquePresserIds.clear()
+        peakConcurrent.set(0)
+        totalPressCount.set(0)
+        if (row != null) {
+            peakConcurrent.set(row.peakConcurrent)
+            totalPressCount.set(row.totalPressCount)
+        }
+        uniquePresserIds.addAll(dailyPressersDAO.findByDate(date))
+        trackingDate = date
+    }
+
+    // --- DB write implementation ---
+
+    private fun updatePeak(concurrentCount: Int) {
+        val prevPeak = peakConcurrent.getAndUpdate { max(it, concurrentCount) }
+        if (concurrentCount > prevPeak) {
+            dbOpChannel.trySend(NewPeak(trackingDate, concurrentCount))
+        }
     }
 
     private fun processDbOp(op: DbOp) {
