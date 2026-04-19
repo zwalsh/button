@@ -47,7 +47,7 @@ class DatabaseExtension : ParameterResolver, BeforeEachCallback, AfterEachCallba
     }
 
     private fun getPostgresContainer(context: ExtensionContext): ButtonPostgresContainer {
-        return context
+        return context.root
             .getStore(postgresContainerNamespace)
             .getOrComputeIfAbsent(
                 POSTGRES_CONTAINER_KEY,
@@ -89,7 +89,7 @@ class DatabaseExtension : ParameterResolver, BeforeEachCallback, AfterEachCallba
     }
 
     private fun getJdbiInstance(context: ExtensionContext): Jdbi {
-        return context
+        return context.root
             .getStore(postgresContainerNamespace)
             .getOrComputeIfAbsent(
                 JDBI_KEY,
