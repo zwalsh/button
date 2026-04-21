@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 val ktorVersion = "2.2.4"
 val logbackVersion = "1.2.5"
 val jdbiVersion = "3.14.4"
+val testcontainersVersion = "1.21.4"
 
 plugins {
     kotlin("jvm") version "2.3.10"
@@ -54,7 +55,7 @@ dependencies {
 
     // database
     implementation("com.zaxxer:HikariCP:3.4.5")
-    implementation("org.postgresql:postgresql:42.1.4")
+    implementation("org.postgresql:postgresql:42.7.10")
     implementation("org.jdbi:jdbi3-core")
     implementation("org.jdbi:jdbi3-kotlin")
     implementation("org.jdbi:jdbi3-postgres")
@@ -88,8 +89,8 @@ dependencies {
 
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("com.google.truth:truth:1.1.3")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.7")
-    testImplementation("org.testcontainers:postgresql:1.19.7")
+    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
     testImplementation("org.liquibase:liquibase-core:4.27.0")
     testImplementation("org.jdbi:jdbi3-jackson2:$jdbiVersion")
     testImplementation("com.fasterxml.jackson.core:jackson-databind:2.13.5")

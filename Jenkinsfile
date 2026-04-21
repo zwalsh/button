@@ -42,7 +42,7 @@ pipeline {
                 // Clear testbutton releases
                 sh "rm -rf ~testbutton/releases/*"
                 // Create the release
-                sh "mkdir ~testbutton/releases/$GIT_COMMIT"
+                sh "mkdir -p ~testbutton/releases/$GIT_COMMIT"
                 sh "tar -xvf build/distributions/button.tar -C ~testbutton/releases/$GIT_COMMIT"
                 // Set it as current
                 sh "ln -s ~testbutton/releases/$GIT_COMMIT ~testbutton/releases/current"
@@ -89,10 +89,10 @@ pipeline {
                 sh "ls -t ~button/releases | tail -n +4 | xargs -I {} rm -rf ~button/releases/{}"
 
                 // Create the release
-                sh "mkdir ~button/releases/$GIT_COMMIT"
+                sh "mkdir -p ~button/releases/$GIT_COMMIT"
                 sh "tar -xvf build/distributions/button.tar -C ~button/releases/$GIT_COMMIT"
                 // Set it as current
-                sh "rm ~button/releases/current"
+                sh "rm -f ~button/releases/current"
                 sh "ln -s ~button/releases/$GIT_COMMIT ~button/releases/current"
                 // Restart the button service (only has sudo permissions for this command)
                 sh "sudo systemctl restart button"
