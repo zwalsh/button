@@ -1,0 +1,9 @@
+[Unit]
+Description=Button database backup
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+User=button
+EnvironmentFile=/home/button/button.env
+ExecStart=/home/button/backup/backup.sh
