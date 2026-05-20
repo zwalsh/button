@@ -49,4 +49,34 @@ class PressDAOTest(private val jdbi: Jdbi) {
         assertEquals(1, counts[yesterday])
         assertEquals(null, counts[today])
     }
+
+    @Test
+    fun `countByContactSince returns correct per-contact totals`() {
+        val alice = contactDAO.createContact("Alice", "+15550000003")
+        val bob = contactDAO.createContact("Bob", "+15550000004")
+        val since = Instant.now().minus(1, ChronoUnit.HOURS)
+        // Alice: 3 presses after since, 1 before
+        pressDAO.createPressAtTime("remote", alice.id, since.minus(10, ChronoUnit.MINUTES))
+        pressDAO.createPressAtTime("remote", alice.id, since.plus(1, ChronoUnit.MINUTES))
+        pressDAO.createPressAtTime("remote", alice.id, since.plus(2, ChronoUnit.MINUTES))
+        pressDAO.createPressAtTime("remote", alice.id, since.plus(3, ChronoUnit.MINUTES))
+        // Bob: 1 press after since
+        pressDAO.createPressAtTime("remote", bob.id, since.plus(5, ChronoUnit.MINUTES))
+
+        val counts = pressDAO.countByContactSince(since)
+
+        assertEquals(3L, counts[alice.id])
+        assertEquals(1L, counts[bob.id])
+    }
+
+    @Test
+    fun `countByContactSince excludes anonymous presses`() {
+        val since = Instant.now().minus(1, ChronoUnit.HOURS)
+        // Anonymous press (contact_id is null)
+        pressDAO.createPressAtTime("remote", null, since.plus(1, ChronoUnit.MINUTES))
+
+        val counts = pressDAO.countByContactSince(since)
+
+        assertThat(counts).isEmpty()
+    }
 }

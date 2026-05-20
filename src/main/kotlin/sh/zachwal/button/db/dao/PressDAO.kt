@@ -78,4 +78,16 @@ interface PressDAO {
         startDate: LocalDate,
         endDate: LocalDate
     ): Map<LocalDate, Int>
+
+    @KeyColumn("contact_id")
+    @ValueColumn("count")
+    @SqlQuery(
+        """
+        select contact_id, count(*) as count
+        from press
+        where time >= :since and contact_id is not null
+        group by contact_id
+        """
+    )
+    fun countByContactSince(since: Instant): Map<Int, Long>
 }
