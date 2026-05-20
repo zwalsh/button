@@ -78,7 +78,7 @@ class ContactPressStatsServiceIntegrationTest(private val jdbi: Jdbi) {
         val byName = result.associateBy { it.contact.name }
 
         assertThat(byName["Alice"]!!.count).isEqualTo(14) // 5+7+2
-        assertThat(byName["Bob"]!!.count).isEqualTo(13)   // 8+5
+        assertThat(byName["Bob"]!!.count).isEqualTo(13) // 8+5
         assertThat(result.map { it.count }).isInOrder(Comparator.reverseOrder<Long>())
         assertThat(byName.keys).doesNotContain("Carol")
     }
