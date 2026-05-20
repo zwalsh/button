@@ -29,18 +29,18 @@ entirely. If it starts before today, both sources are queried and merged by `con
 
 ### New files
 
-| File | Purpose |
-|------|---------|
-| `src/main/kotlin/sh/zachwal/button/admin/ContactPressStatsService.kt` | Hybrid query logic |
-| `src/main/kotlin/sh/zachwal/button/admin/ContactPressStatsController.kt` | Route + HTML rendering |
-| `src/test/kotlin/sh/zachwal/button/admin/ContactPressStatsServiceTest.kt` | Unit tests (MockK) |
+| File                                                                      | Purpose                |
+|---------------------------------------------------------------------------|------------------------|
+| `src/main/kotlin/sh/zachwal/button/admin/ContactPressStatsService.kt`     | Hybrid query logic     |
+| `src/main/kotlin/sh/zachwal/button/admin/ContactPressStatsController.kt`  | Route + HTML rendering |
+| `src/test/kotlin/sh/zachwal/button/admin/ContactPressStatsServiceTest.kt` | Unit tests (MockK)     |
 
 ### Modified files
 
-| File | Change |
-|------|--------|
-| `src/main/kotlin/sh/zachwal/button/db/dao/PressDAO.kt` | Add `countByContactSince` |
-| `src/test/kotlin/sh/zachwal/button/db/dao/PressDAOTest.kt` | Test for new DAO method |
+| File                                                         | Change                       |
+|--------------------------------------------------------------|------------------------------|
+| `src/main/kotlin/sh/zachwal/button/db/dao/PressDAO.kt`       | Add `countByContactSince`    |
+| `src/test/kotlin/sh/zachwal/button/db/dao/PressDAOTest.kt`   | Test for new DAO method      |
 | `src/main/kotlin/sh/zachwal/button/admin/AdminController.kt` | Add link under Stats section |
 
 ---
@@ -101,11 +101,11 @@ class ContactPressStatsService @Inject constructor(
     fun pressStats(range: TimeRange): List<ContactPressStat> {
         val today = LocalDate.now(ZoneOffset.UTC)
         val startDate: LocalDate = when (range) {
-            TimeRange.TODAY        -> today
-            TimeRange.LAST_7_DAYS  -> today.minusDays(7)
+            TimeRange.TODAY -> today
+            TimeRange.LAST_7_DAYS -> today.minusDays(7)
             TimeRange.LAST_30_DAYS -> today.minusDays(30)
             TimeRange.YEAR_TO_DATE -> LocalDate.of(today.year, 1, 1)
-            TimeRange.ALL_TIME     -> LocalDate.ofEpochDay(0)
+            TimeRange.ALL_TIME -> LocalDate.ofEpochDay(0)
         }
 
         // Materialized counts (startDate..yesterday)
@@ -157,12 +157,12 @@ Unit tests (use MockK, no real DB):
 - Extract `range` query parameter (default `30d`)
 - Call `service.pressStats(range)`
 - Render page with `respondHtml`:
-  - `headSetup()` + Bootstrap 4
-  - `h1` "Contact Press Stats"
-  - `form(method = FormMethod.get)` with a `select` dropdown for time range and a
-    "Go" submit button; selected option reflects current range
-  - `responsiveTable` with columns: **Name**, **Presses**; one row per `ContactPressStat`
-  
+    - `headSetup()` + Bootstrap 4
+    - `h1` "Contact Press Stats"
+    - `form(method = FormMethod.get)` with a `select` dropdown for time range and a
+      "Go" submit button; selected option reflects current range
+    - `responsiveTable` with columns: **Name**, **Presses**; one row per `ContactPressStat`
+
 Pattern reference: `AdminStatsController.kt` and `AdminContactController.kt`.
 
 **Admin link** — in `AdminController.kt`, inside the Stats `ul` block, add:
@@ -184,9 +184,11 @@ pattern — no manual registration needed, just the `@Controller` annotation).
 
 The implementing agent **must pause and ask the user for feedback before each commit**.
 
-### Commit 1 — DAO layer  
+### Commit 1 — DAO layer
+
 **Files**: `PressDAO.kt`, `PressDAOTest.kt`  
 **TDD steps**:
+
 1. Write failing test for `countByContactSince` in `PressDAOTest`
 2. Run `./gradlew test --tests PressDAOTest` → expect failure
 3. Add method to `PressDAO`
@@ -194,9 +196,11 @@ The implementing agent **must pause and ask the user for feedback before each co
 5. **Pause. Ask user to review the DAO change before committing.**
 6. Commit: `Add countByContactSince to PressDAO`
 
-### Commit 2 — Service layer  
+### Commit 2 — Service layer
+
 **Files**: `ContactPressStatsService.kt`, `ContactPressStatsServiceTest.kt`  
 **TDD steps**:
+
 1. Write failing unit tests for `ContactPressStatsService`
 2. Run tests → expect failure
 3. Implement service and `TimeRange` enum
@@ -204,15 +208,18 @@ The implementing agent **must pause and ask the user for feedback before each co
 5. **Pause. Ask user to review the service before committing.**
 6. Commit: `Add ContactPressStatsService with hybrid materialized/live query`
 
-### Commit 3 — Controller and UI  
+### Commit 3 — Controller and UI
+
 **Files**: `ContactPressStatsController.kt`, `AdminController.kt`  
 **Steps**:
+
 1. Implement controller and add admin index link
 2. Run `./gradlew build` → expect green
 3. **Pause. Ask user to run the app and review the page UI before committing.**
 4. Commit: `Add admin contact press stats page`
 
-### Final step — Push branch and open PR  
+### Final step — Push branch and open PR
+
 After user approves all commits, push the branch and open a GitHub PR against `main`.
 Use `gh pr create` with a descriptive title and summary body.
 
