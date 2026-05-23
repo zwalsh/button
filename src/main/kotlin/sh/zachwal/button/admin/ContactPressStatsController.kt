@@ -20,8 +20,10 @@ import kotlinx.html.th
 import kotlinx.html.thead
 import kotlinx.html.title
 import kotlinx.html.tr
+import kotlinx.html.HTML
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.roles.adminRoute
+import sh.zachwal.button.roles.contactRoute
 import sh.zachwal.button.sharedhtml.headSetup
 import sh.zachwal.button.sharedhtml.responsiveTable
 
@@ -35,43 +37,51 @@ class ContactPressStatsController @Inject constructor(
             get {
                 val range = TimeRange.fromParam(call.request.queryParameters["range"])
                 val stats = service.pressStats(range)
+                call.respondHtml { leaderboardPage(range, stats) }
+            }
+        }
+        contactRoute("/leaderboard") {
+            get {
+                val range = TimeRange.fromParam(call.request.queryParameters["range"])
+                val stats = service.pressStats(range)
+                call.respondHtml { leaderboardPage(range, stats) }
+            }
+        }
+    }
 
-                call.respondHtml {
-                    head {
-                        title { +"Contact Press Stats" }
-                        headSetup()
-                    }
-                    body {
-                        div(classes = "container") {
-                            h1(classes = "mt-4 text-center") { +"Contact Press Stats" }
-                            form(classes = "d-flex align-items-center my-3 px-2", method = FormMethod.get) {
-                                select(classes = "form-control flex-grow-1 mr-2") {
-                                    name = "range"
-                                    TimeRange.entries.forEach { tr ->
-                                        option {
-                                            value = tr.queryParam
-                                            selected = tr == range
-                                            +tr.label
-                                        }
-                                    }
-                                }
-                                submitInput(classes = "btn btn-primary") { value = "Go" }
+    private fun HTML.leaderboardPage(range: TimeRange, stats: List<ContactPressStat>) {
+        head {
+            title { +"Leaderboard" }
+            headSetup()
+        }
+        body {
+            div(classes = "container") {
+                h1(classes = "mt-4 text-center") { +"Leaderboard" }
+                form(classes = "d-flex align-items-center my-3 px-2", method = FormMethod.get) {
+                    select(classes = "form-control flex-grow-1 mr-2") {
+                        name = "range"
+                        TimeRange.entries.forEach { tr ->
+                            option {
+                                value = tr.queryParam
+                                selected = tr == range
+                                +tr.label
                             }
-                            responsiveTable(classes = "mt-3") {
-                                thead {
-                                    tr {
-                                        th { +"Name" }
-                                        th { +"Presses" }
-                                    }
-                                }
-                                tbody {
-                                    stats.forEach { stat ->
-                                        tr {
-                                            td { +stat.contact.name }
-                                            td { +stat.count.toString() }
-                                        }
-                                    }
-                                }
+                        }
+                    }
+                    submitInput(classes = "btn btn-primary") { value = "Go" }
+                }
+                responsiveTable(classes = "mt-3") {
+                    thead {
+                        tr {
+                            th { +"Name" }
+                            th { +"Presses" }
+                        }
+                    }
+                    tbody {
+                        stats.forEach { stat ->
+                            tr {
+                                td { +stat.contact.name }
+                                td { +stat.count.toString() }
                             }
                         }
                     }
