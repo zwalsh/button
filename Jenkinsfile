@@ -37,67 +37,6 @@ pipeline {
                 }
             }
         }
-        stage('test-release') {
-            steps {
-                // Clear testbutton releases
-                sh "rm -rf ~testbutton/releases/*"
-                // Create the release
-                sh "mkdir -p ~testbutton/releases/$GIT_COMMIT"
-                sh "tar -xvf build/distributions/button.tar -C ~testbutton/releases/$GIT_COMMIT"
-                // Set it as current
-                sh "ln -s ~testbutton/releases/$GIT_COMMIT ~testbutton/releases/current"
-                // Restart the button service (only has sudo permissions for this command)
-                sh "sudo systemctl restart testbutton"
-            }
-        }
-        stage('migrate database - testbutton') {
-            when {
-                expression { env.GIT_BRANCH == 'origin/main' }
-            }
-            steps {
-                // Copy migrations & script into ~testbutton
-                sh "rm -rf ~testbutton/migrations/*"
-                sh "cp -r db ~testbutton/migrations"
-
-                // Run migrations as testbutton
-                dir("/home/testbutton/migrations/db") {
-                    sh "sudo -u testbutton ./migrate.sh"
-                }
-            }
-        }
-        stage('migrate database - button') {
-            when {
-                expression { env.GIT_BRANCH == 'origin/main' }
-            }
-            steps {
-                // Copy migrations & script into ~testbutton
-                sh "rm -rf ~button/migrations/*"
-                sh "cp -r db ~button/migrations"
-
-                // Run migrations as testbutton
-                dir("/home/button/migrations/db") {
-                    sh "sudo -u button ./migrate.sh"
-                }
-            }
-        }
-        stage('release') {
-            when {
-                expression { env.GIT_BRANCH == 'origin/main' }
-            }
-            steps {
-                // Delete all but the three most recent releases
-                sh "ls -t ~button/releases | tail -n +4 | xargs -I {} rm -rf ~button/releases/{}"
-
-                // Create the release
-                sh "mkdir -p ~button/releases/$GIT_COMMIT"
-                sh "tar -xvf build/distributions/button.tar -C ~button/releases/$GIT_COMMIT"
-                // Set it as current
-                sh "rm -f ~button/releases/current"
-                sh "ln -s ~button/releases/$GIT_COMMIT ~button/releases/current"
-                // Restart the button service (only has sudo permissions for this command)
-                sh "sudo systemctl restart button"
-            }
-        }
     }
     post {
         success {

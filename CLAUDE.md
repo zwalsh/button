@@ -62,11 +62,13 @@ npm --prefix frontend test            # Run tests
 
 ## Deployment & CI/CD
 
-- **CI/CD Pipeline**: Jenkinsfile orchestrates build, test, lint, and deployment
-- **Environments**: Test environment for pre-production validation; production deployment on merges to main
-- **Migrations**: Liquibase migrations run automatically via CI/CD pipeline
-- **Runtime Config**: Systemd units read environment variables from `EnvironmentFile` (e.g., `/home/{button|testbutton}/button.env`) containing `DB_USER`, `DB_PASSWORD`, `DB_NAME`
-- **Distribution**: `./gradlew assemble` creates `build/distributions/button.tar`; unpacked and run via `button/bin/button`
+- **CI**: Jenkinsfile runs build, lint, and test, then sets a GitHub commit status (`continuous-integration/jenkins`)
+- **CD**: Server-side `scripts/deploy.sh`, triggered by systemd timers (`button-deploy.timer`, `testbutton-deploy.timer`), polls for a new green commit and deploys it
+- **Environments**: `button` (production) deploys `origin/main`; `testbutton` deploys the tip of the most-recently-updated remote branch
+- **Migrations**: `db/migrate.sh` (Liquibase) is run by `deploy.sh` on each deploy
+- **Runtime Config**: Systemd units read environment variables from `EnvironmentFile` (`~/button.env`) containing `DB_USER`, `DB_PASSWORD`, `DB_NAME`, etc.
+- **Distribution**: `./gradlew assemble` creates `build/distributions/button.tar`; unpacked into `~/releases/$SHA/` and symlinked to `~/releases/current`
+- **Credentials**: Deploy key at `~/.ssh/deploy_key` for git access; fine-grained PAT at `~/.github_token` for reading CI status
 
 ## Coding Patterns
 
