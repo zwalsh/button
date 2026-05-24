@@ -77,9 +77,13 @@ log "[$ENV] Unpacking to $RELEASE_DIR"
 mkdir -p "$RELEASE_DIR"
 tar -xf "$REPO/build/distributions/button.tar" -C "$RELEASE_DIR"
 
-# 8. Run database migrations
-log "[$ENV] Running database migrations"
-"$REPO/db/migrate.sh"
+# 8. Run database migrations (testbutton only migrates for commits on main)
+if [[ "$ENV" == "button" ]] || git -C "$REPO" merge-base --is-ancestor "$SHA" origin/main; then
+    log "[$ENV] Running database migrations"
+    "$REPO/db/migrate.sh"
+else
+    log "[$ENV] Skipping database migrations: $SHA is not on main"
+fi
 
 # 9. Atomically update the current symlink
 log "[$ENV] Updating current symlink to $RELEASE_DIR"
