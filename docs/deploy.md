@@ -7,25 +7,9 @@ directory, which is assembled by `./gradlew assemble` with the `application` Gra
 
 ## CI/CD Architecture
 
-Jenkins runs CI (build, lint, test) on ephemeral agents and sets a GitHub commit status.
+Jenkins runs CI (build, lint, test) and sets a GitHub commit status.
 Deployment is handled separately by `scripts/deploy.sh`, triggered by systemd timers on the
-production server. This means Jenkins does not need to be colocated with the server.
-
-```
-Jenkins (any agent)          Production server
-──────────────────           ──────────────────────────────────────────────
-assemble                     [timer fires every 1 min]
-ktlintCheck                  deploy.sh
-gradle check         ──────▶   git fetch (via deploy key)
-frontend test        status    check GitHub status API (via PAT)
-setBuildStatus ◀────────────   git checkout $SHA
-                               ./gradlew assemble
-                               unpack into ~/releases/$SHA/
-                               db/migrate.sh
-                               ln -sfn ~/releases/$SHA ~/releases/current
-                               sudo systemctl restart button
-                               echo $SHA > ~/deployed_commit
-```
+production server.
 
 ## Environments
 
@@ -45,27 +29,6 @@ Two credentials are required on the server, owned by the service user:
 
 The fine-grained PAT is scoped to `zwalsh/button` with **Commit statuses: Read-only** permission.
 The deploy key is read-only.
-
-## Systemd Units
-
-The timer units in `scripts/` fire `deploy.sh` every minute:
-
-```bash
-sudo cp scripts/button-deploy.service    /etc/systemd/system/
-sudo cp scripts/button-deploy.timer      /etc/systemd/system/
-sudo cp scripts/testbutton-deploy.service /etc/systemd/system/
-sudo cp scripts/testbutton-deploy.timer   /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now button-deploy.timer
-sudo systemctl enable --now testbutton-deploy.timer
-```
-
-View recent deploy logs:
-
-```bash
-journalctl -u button-deploy.service -n 50
-journalctl -u testbutton-deploy.service -n 50
-```
 
 ## Dependencies
 
