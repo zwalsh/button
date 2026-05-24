@@ -3,7 +3,7 @@ Description=Testbutton deployment timer
 
 [Timer]
 OnBootSec=1min
-OnUnitActiveSec=1min
+OnUnitInactiveSec=1min
 Unit=testbutton-deploy.service
 
 [Install]
