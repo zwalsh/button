@@ -19,7 +19,7 @@ green commit on the target branch, pulls source, builds locally, migrates, and r
 ```
 Jenkins (any agent)          Production server
 ──────────────────           ──────────────────────────────────────────────
-assemble                     [timer fires every 5 min]
+assemble                     [timer fires every 1 min]
 ktlintCheck                  deploy.sh
 gradle check         ──────▶   git fetch (via deploy key)
 frontend test        status    check GitHub status API (via fine-grained PAT)
@@ -38,7 +38,7 @@ Two separate credentials are needed on the server, owned by the service user:
 
 | Credential       | Type            | Purpose                            | Location on server            |
 |------------------|-----------------|------------------------------------|-------------------------------|
-| Deploy Key       | SSH private key | `git fetch` from GitHub            | `~/.ssh/button_deploy_key`    |
+| Deploy Key       | SSH private key | `git fetch` from GitHub            | `~/.ssh/deploy_key`           |
 | Fine-grained PAT | HTTP token      | Read commit status from GitHub API | `~/.github_token` (chmod 600) |
 
 The fine-grained PAT should be scoped to the `zwalsh/button` repository, with only
@@ -78,21 +78,21 @@ deployment is driven by the server-side deploy scripts and systemd timers.
 
 ### `scripts/deploy.sh`
 
-Parameterized deploy script. Called by both systemd services. Accepts `--env button` or
-`--env testbutton` to control which branch to target and which service to restart. Logic:
+Parameterized deploy script. Called by both systemd services. Accepts `--env prod` or
+`--env test` to control which branch to target and which service to restart. Logic:
 
-1. `git -C ~/src fetch origin`
+1. `git -C ~/button fetch origin`
 2. Resolve target SHA:
-    - `button`: `git rev-parse origin/main`
-    - `testbutton`: tip of most-recently-updated remote branch (`git for-each-ref
+    - `prod`: `git rev-parse origin/main`
+    - `test`: tip of most-recently-updated remote branch (`git for-each-ref
      --sort=-committerdate`)
 3. Read `~/deployed_commit`; exit 0 if already deployed
 4. Query `https://api.github.com/repos/zwalsh/button/commits/$SHA/statuses`; exit 0 if not
    `success`
-5. `git -C ~/src checkout $SHA`
-6. `~/src/gradlew assemble` → produces `~/src/build/distributions/button.tar`
+5. `git -C ~/button checkout $SHA`  // Confirm right place to check out the code.
+6. `~/button/gradlew assemble` → produces `~/button/build/distributions/button.tar`
 7. `mkdir -p ~/releases/$SHA && tar -xf ... -C ~/releases/$SHA`
-8. Run `~/src/db/migrate.sh` (unchanged; reads credentials from `~/button.env` via `find ~`)
+8. Run `~/button/db/migrate.sh` (unchanged; reads credentials from `~/button.env` via `find ~`)
 9. `ln -sfn ~/releases/$SHA ~/releases/current`
 10. `sudo systemctl restart button` (or `testbutton`)
 11. `echo $SHA > ~/deployed_commit`
@@ -104,7 +104,7 @@ Systemd service unit that runs `deploy.sh --env button` as the `button` user.
 
 ### `scripts/button-deploy.timer`
 
-Systemd timer unit that triggers `button-deploy.service` every 5 minutes.
+Systemd timer unit that triggers `button-deploy.service` every 1 minute.
 
 ### `scripts/testbutton-deploy.service`
 
@@ -112,7 +112,7 @@ Systemd service unit that runs `deploy.sh --env testbutton` as the `testbutton` 
 
 ### `scripts/testbutton-deploy.timer`
 
-Systemd timer unit that triggers `testbutton-deploy.service` every 5 minutes.
+Systemd timer unit that triggers `testbutton-deploy.service` every 1 minute.
 
 ## Dependencies on the Server
 
@@ -129,20 +129,20 @@ The following must be present for the service users on the production host:
 
 These cannot be scripted from this repo and must be done by hand:
 
-### 1. Generate the deploy key
+### 1. Generate the deploy key (DONE)
 
 ```bash
-ssh-keygen -t ed25519 -f ~/.ssh/button_deploy_key -C "button-deploy" -N ""
+ssh-keygen -t ed25519 -f ~/.ssh/deploy_key -C "deploy" -N ""
 ```
 
 Run this once; the same keypair can be placed under both `button` and `testbutton` users.
 
-### 2. Register the public key on GitHub
+### 2. Register the public key on GitHub (DONE)
 
 In `https://github.com/zwalsh/button` → Settings → Deploy keys → Add deploy key.
-Paste the contents of `~/.ssh/button_deploy_key.pub`. Select **read-only** (no write access).
+Paste the contents of `~/.ssh/deploy_key.pub`. Select **read-only** (no write access).
 
-### 3. Create the fine-grained PAT
+### 3. Create the fine-grained PAT (DONE)
 
 In GitHub → Settings → Developer Settings → Fine-grained tokens → Generate new token:
 
@@ -151,20 +151,20 @@ In GitHub → Settings → Developer Settings → Fine-grained tokens → Genera
 - Permissions → Repository permissions → Commit statuses: **Read-only**
 - Expiration: **No expiration**
 
-### 4. Set up credentials on the server (repeat for both users)
+### 4. Set up credentials on the server (repeat for both users) (DONE)
 
 As `button` (and separately as `testbutton`):
 
 ```bash
 # Deploy key
 mkdir -p ~/.ssh
-# Copy private key content to ~/.ssh/button_deploy_key
-chmod 600 ~/.ssh/button_deploy_key
+# Copy private key content to ~/.ssh/deploy_key
+chmod 600 ~/.ssh/deploy_key
 
 # SSH config so git uses the deploy key for github.com
 cat >> ~/.ssh/config <<'EOF'
 Host github.com
-    IdentityFile ~/.ssh/button_deploy_key
+    IdentityFile ~/.ssh/deploy_key
     IdentitiesOnly yes
 EOF
 chmod 600 ~/.ssh/config
@@ -174,13 +174,13 @@ echo "ghp_xxxxxxxxxxxxxxxxxxxx" > ~/.github_token
 chmod 600 ~/.github_token
 ```
 
-### 5. Clone the repo on the server (repeat for both users)
+### 5. Clone the repo on the server (repeat for both users) (DONE)
 
 ```bash
-git clone git@github.com:zwalsh/button.git ~/src
+git clone git@github.com:zwalsh/button.git ~/button 
 ```
 
-### 6. Update sudoers
+### 6. Update sudoers (DONE)
 
 The service users need permission to restart their own systemd unit. Add (via `visudo` or a
 file in `/etc/sudoers.d/`):
