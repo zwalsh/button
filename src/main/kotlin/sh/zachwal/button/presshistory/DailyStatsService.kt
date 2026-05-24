@@ -147,6 +147,7 @@ class DailyStatsService @Inject constructor(
         currentlyPressing.remove(presser)
     }
 
+    @Synchronized
     fun currentStats(): DailyStatsSnapshot = DailyStatsSnapshot(
         uniquePressers = uniquePresserIds.size,
         peakConcurrent = peakConcurrent.get(),
@@ -165,9 +166,13 @@ class DailyStatsService @Inject constructor(
      * Rolls over to a new day. Resets in-memory stats, reloads from DB, and carries
      * currently-pressing users into the new day as unique pressers and initial peak.
      * Called both by the periodic timer and by [pressed] when a press detects a date change.
+     * Synchronized to prevent concurrent rollovers and to make currentStats() reads atomic
+     * with respect to the clear-then-reload sequence in loadNewDay.
      */
+    @Synchronized
     internal fun rollover() {
         val newDay = LocalDate.now(clock)
+        if (newDay == trackingDate) return // already rolled over by another caller
         val pressersAtRollover = currentlyPressing.toSet()
         loadNewDay(newDay)
         for (presser in pressersAtRollover) {
