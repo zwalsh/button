@@ -1,0 +1,10 @@
+[Unit]
+Description=Button deployment
+After=network.target
+
+[Service]
+Type=oneshot
+User=button
+ExecStart=%h/button/scripts/deploy.sh --env button
+StandardOutput=journal
+StandardError=journal
