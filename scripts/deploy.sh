@@ -65,7 +65,7 @@ trap 'on_error $LINENO' ERR
 
 # 5. Check out the target commit
 log "[$ENV] Checking out $SHA"
-git -C "$REPO" checkout -f "$SHA"
+git -C "$REPO" -c advice.detachedHead=false checkout -f "$SHA"
 
 # 6. Build
 log "[$ENV] Building"
