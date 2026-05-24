@@ -288,7 +288,12 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
             assertThat(svc.currentStats().totalPresses).isEqualTo(1)
 
             timerClock.date = today.plusDays(1)
-            Thread.sleep(200) // let the 50ms timer fire
+            // Poll until the timer fires and rollover resets totalPresses to 0.
+            // Avoids a fixed sleep that races with the 50ms timer on loaded CI machines.
+            val deadline = System.currentTimeMillis() + 5_000L
+            while (svc.currentStats().totalPresses > 0 && System.currentTimeMillis() < deadline) {
+                Thread.sleep(10)
+            }
 
             val stats = svc.currentStats()
             assertThat(stats.totalPresses).isEqualTo(0)
@@ -310,7 +315,12 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
             runBlocking { svc.pressed(presserA) } // press but never release
 
             timerClock.date = today.plusDays(1)
-            Thread.sleep(200) // let the 50ms timer fire
+            // Poll until the timer fires and rollover resets totalPresses to 0.
+            // Avoids a fixed sleep that races with the 50ms timer on loaded CI machines.
+            val deadline = System.currentTimeMillis() + 5_000L
+            while (svc.currentStats().totalPresses > 0 && System.currentTimeMillis() < deadline) {
+                Thread.sleep(10)
+            }
 
             val stats = svc.currentStats()
             assertThat(stats.totalPresses).isEqualTo(0)
