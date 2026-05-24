@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=oneshot
 User=button
-EnvironmentFile=%h/button.env
-ExecStart=%h/button/scripts/deploy.sh --env button
+EnvironmentFile=/home/button/button.env
+ExecStart=/home/button/button/scripts/deploy.sh --env button
 StandardOutput=journal
 StandardError=journal
