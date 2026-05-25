@@ -23,13 +23,8 @@ import kotlinx.html.input
 import kotlinx.html.meta
 import kotlinx.html.p
 import kotlinx.html.script
-import kotlinx.html.table
-import kotlinx.html.tbody
-import kotlinx.html.td
-import kotlinx.html.th
-import kotlinx.html.thead
+import kotlinx.html.strong
 import kotlinx.html.title
-import kotlinx.html.tr
 import org.slf4j.LoggerFactory
 import sh.zachwal.button.admin.ContactPressStat
 import sh.zachwal.button.admin.ContactPressStatsService
@@ -89,7 +84,7 @@ class AdminContactController @Inject constructor(
                                 +"Contacts"
                             }
                             searchForm(query, activeFilter)
-                            contactsTable(filtered)
+                            contactCards(filtered)
                         }
                     }
                 }
@@ -142,44 +137,33 @@ class AdminContactController @Inject constructor(
         }
     }
 
-    private fun FlowContent.contactsTable(rows: List<ContactPressStat>) {
-        if (rows.isNotEmpty()) {
-            table(classes = "table") {
-                thead {
-                    tr {
-                        th { +"Name" }
-                        th { +"Number" }
-                        th { +"Active" }
-                        th { +"Presses (90d)" }
-                        th { +"Update" }
+    private fun FlowContent.contactCards(rows: List<ContactPressStat>) {
+        if (rows.isEmpty()) {
+            p { +"No contacts found" }
+            return
+        }
+        rows.forEach { row ->
+            val c = row.contact
+            div(classes = "card mb-2") {
+                div(classes = "card-body d-flex justify-content-between align-items-center py-2") {
+                    div {
+                        strong { +c.name }
+                        div(classes = "text-muted") { +c.phoneNumber }
                     }
-                }
-                tbody {
-                    rows.forEach { row ->
-                        val c = row.contact
-                        tr {
-                            td { +c.name }
-                            td { +c.phoneNumber }
-                            td {
-                                if (c.active) +"✅" else +"❌"
-                            }
-                            td { +row.count.toString() }
-                            td {
-                                val bootstrapButtonClass = if (c.active) "btn-danger" else "btn-success"
-                                val buttonText = if (c.active) "Deactivate" else "Activate"
-                                button(classes = "contact-update btn $bootstrapButtonClass") {
-                                    attributes["data-contact-id"] = c.id.toString()
-                                    attributes["data-contact-active"] = c.active.not().toString()
-                                    +buttonText
-                                }
-                            }
+                    div(classes = "text-right") {
+                        div {
+                            if (c.active) +"✅" else +"❌"
+                            +" ${row.count} presses"
+                        }
+                        val bootstrapButtonClass = if (c.active) "btn-danger" else "btn-success"
+                        val buttonText = if (c.active) "Deactivate" else "Activate"
+                        button(classes = "contact-update btn btn-sm $bootstrapButtonClass mt-1") {
+                            attributes["data-contact-id"] = c.id.toString()
+                            attributes["data-contact-active"] = c.active.not().toString()
+                            +buttonText
                         }
                     }
                 }
-            }
-        } else {
-            p {
-                +"No contacts found"
             }
         }
     }
