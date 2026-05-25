@@ -23,19 +23,23 @@ trap 'on_error $LINENO' ERR
 # Keeps testbutton's schema in sync with main, independent of PR deploys.
 # =============================================================================
 
-log "[testbutton] Checking latest GitHub release"
-TAG=$(GITHUB_TOKEN="$TOKEN" gh release list \
-    --repo zwalsh/button \
-    --json tagName,isLatest \
-    --jq '.[] | select(.isLatest) | .tagName')
+run_migrations() {
+    log "[testbutton] Checking latest GitHub release"
+    local TAG
+    TAG=$(GITHUB_TOKEN="$TOKEN" gh release list \
+        --repo zwalsh/button \
+        --json tagName,isLatest \
+        --jq '.[] | select(.isLatest) | .tagName')
 
-if [[ -z "$TAG" ]]; then
-    log "[testbutton] No release found, skipping migrations"
-else
-    RELEASE_SHA="${TAG#sha-}"
+    if [[ -z "$TAG" ]]; then
+        log "[testbutton] No release found, skipping migrations"
+        return 0
+    fi
+
+    local RELEASE_SHA="${TAG#sha-}"
     log "[testbutton] Latest release: $TAG (SHA: $RELEASE_SHA)"
 
-    MIGRATED_TAG=""
+    local MIGRATED_TAG=""
     if [[ -f "$MIGRATED_FILE" ]]; then
         MIGRATED_TAG=$(cat "$MIGRATED_FILE")
     fi
@@ -43,26 +47,31 @@ else
 
     if [[ "$MIGRATED_TAG" == "$TAG" ]]; then
         log "[testbutton] Migrations already up to date"
-    else
-        RELEASE_STATUS=$(curl -s "https://api.github.com/repos/zwalsh/button/commits/$RELEASE_SHA/status" \
-            -H "Authorization: token $TOKEN" | jq -r '.state // empty') || true
-        log "[testbutton] CI status for release $TAG: ${RELEASE_STATUS:-<empty>}"
-
-        if [[ "$RELEASE_STATUS" != "success" ]]; then
-            log "[testbutton] Release CI not green, skipping migrations"
-        else
-            log "[testbutton] Checking out $TAG for migrations"
-            git -C "$REPO" fetch origin
-            git -C "$REPO" -c advice.detachedHead=false checkout -f "$RELEASE_SHA"
-
-            log "[testbutton] Running database migrations"
-            "$REPO/db/migrate.sh"
-
-            echo "$TAG" > "$MIGRATED_FILE"
-            log "[testbutton] Migrations complete for $TAG"
-        fi
+        return 0
     fi
-fi
+
+    local RELEASE_STATUS
+    RELEASE_STATUS=$(curl -s "https://api.github.com/repos/zwalsh/button/commits/$RELEASE_SHA/status" \
+        -H "Authorization: token $TOKEN" | jq -r '.state // empty') || true
+    log "[testbutton] CI status for release $TAG: ${RELEASE_STATUS:-<empty>}"
+
+    if [[ "$RELEASE_STATUS" != "success" ]]; then
+        log "[testbutton] Release CI not green, skipping migrations"
+        return 0
+    fi
+
+    log "[testbutton] Checking out $TAG for migrations"
+    git -C "$REPO" fetch origin
+    git -C "$REPO" -c advice.detachedHead=false checkout -f "$RELEASE_SHA"
+
+    log "[testbutton] Running database migrations"
+    "$REPO/db/migrate.sh"
+
+    echo "$TAG" > "$MIGRATED_FILE"
+    log "[testbutton] Migrations complete for $TAG"
+}
+
+run_migrations
 
 # =============================================================================
 # Part 2: Deploy the most-recently-updated open PR labeled deploy-test
