@@ -13,6 +13,7 @@ enum class TimeRange(val label: String, val queryParam: String) {
     TODAY("Today", "today"),
     LAST_7_DAYS("Last 7 Days", "7d"),
     LAST_30_DAYS("Last 30 Days", "30d"),
+    LAST_90_DAYS("Last 90 Days", "90d"),
     YEAR_TO_DATE("Year to Date", "ytd"),
     ALL_TIME("All Time", "all");
 
@@ -30,12 +31,20 @@ class ContactPressStatsService @Inject constructor(
     private val contactPressCountDAO: ContactPressCountDAO,
     private val pressDAO: PressDAO,
 ) {
+    fun allContactStats(range: TimeRange): List<ContactPressStat> {
+        val statsById = pressStats(range).associateBy { it.contact.id }
+        return contactDAO.selectContacts()
+            .map { c -> statsById[c.id] ?: ContactPressStat(c, 0L) }
+            .sortedByDescending { it.count }
+    }
+
     fun pressStats(range: TimeRange): List<ContactPressStat> {
         val today = LocalDate.now(ZoneOffset.UTC)
         val startDate: LocalDate = when (range) {
             TimeRange.TODAY -> today
             TimeRange.LAST_7_DAYS -> today.minusDays(7)
             TimeRange.LAST_30_DAYS -> today.minusDays(30)
+            TimeRange.LAST_90_DAYS -> today.minusDays(90)
             TimeRange.YEAR_TO_DATE -> LocalDate.of(today.year, 1, 1)
             TimeRange.ALL_TIME -> LocalDate.ofEpochDay(0)
         }
