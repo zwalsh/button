@@ -37,6 +37,19 @@ pipeline {
                 }
             }
         }
+        stage('release') {
+            when { branch 'main' }
+            steps {
+                sh '''
+                    gh release create "sha-${GIT_COMMIT}" \
+                      build/distributions/button.tar \
+                      --title "sha-${GIT_COMMIT}" \
+                      --notes "" \
+                      --latest \
+                      --repo zwalsh/button
+                '''
+            }
+        }
     }
     post {
         success {
