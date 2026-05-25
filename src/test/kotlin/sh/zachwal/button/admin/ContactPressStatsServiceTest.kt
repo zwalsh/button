@@ -241,7 +241,64 @@ class ContactPressStatsServiceTest {
         assertThat(result.map { it.count }).containsExactly(10L, 5L, 2L).inOrder()
     }
 
+    // --- allContactStats ---
+
+    @Test
+    fun `allContactStats includes contacts with zero presses`() {
+        val alice = contact(1, "Alice")
+        val bob = contact(2, "Bob")
+        every { contactDAO.selectContacts() } returns listOf(alice, bob)
+        every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 5)
+        every { pressDAO.countByContactSince(any()) } returns emptyMap()
+
+        val result = service.allContactStats(TimeRange.LAST_90_DAYS)
+
+        assertThat(result.map { it.contact }).containsExactly(alice, bob)
+    }
+
+    @Test
+    fun `allContactStats sorts by press count descending with zero-press contacts at the end`() {
+        val alice = contact(1, "Alice")
+        val bob = contact(2, "Bob")
+        val carol = contact(3, "Carol")
+        every { contactDAO.selectContacts() } returns listOf(alice, bob, carol)
+        every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(3 to 10, 1 to 3)
+        every { pressDAO.countByContactSince(any()) } returns emptyMap()
+
+        val result = service.allContactStats(TimeRange.LAST_90_DAYS)
+
+        assertThat(result.map { it.contact }).containsExactly(carol, alice, bob).inOrder()
+        assertThat(result.map { it.count }).containsExactly(10L, 3L, 0L).inOrder()
+    }
+
+    @Test
+    fun `allContactStats returns correct counts for contacts with presses`() {
+        val alice = contact(1, "Alice")
+        every { contactDAO.selectContacts() } returns listOf(alice)
+        every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 7)
+        every { pressDAO.countByContactSince(any()) } returns mapOf(1 to 3L)
+
+        val result = service.allContactStats(TimeRange.LAST_90_DAYS)
+
+        assertThat(result).hasSize(1)
+        assertThat(result[0].count).isEqualTo(10L)
+    }
+
     // --- TimeRange.fromParam ---
+
+    @Test
+    fun `pressStats LAST_90_DAYS queries materialized from 90 days ago through yesterday`() {
+        val startSlot = slot<LocalDate>()
+        val endSlot = slot<LocalDate>()
+        every { contactDAO.selectContacts() } returns emptyList()
+        every { contactPressCountDAO.aggregateCountsByContact(capture(startSlot), capture(endSlot)) } returns emptyMap()
+        every { pressDAO.countByContactSince(any()) } returns emptyMap()
+
+        service.pressStats(TimeRange.LAST_90_DAYS)
+
+        assertThat(startSlot.captured).isEqualTo(today.minusDays(90))
+        assertThat(endSlot.captured).isEqualTo(yesterday)
+    }
 
     @Test
     fun `TimeRange fromParam falls back to LAST_30_DAYS for null, empty, and unknown params`() {
@@ -255,6 +312,7 @@ class ContactPressStatsServiceTest {
         assertThat(TimeRange.fromParam("today")).isEqualTo(TimeRange.TODAY)
         assertThat(TimeRange.fromParam("7d")).isEqualTo(TimeRange.LAST_7_DAYS)
         assertThat(TimeRange.fromParam("30d")).isEqualTo(TimeRange.LAST_30_DAYS)
+        assertThat(TimeRange.fromParam("90d")).isEqualTo(TimeRange.LAST_90_DAYS)
         assertThat(TimeRange.fromParam("ytd")).isEqualTo(TimeRange.YEAR_TO_DATE)
         assertThat(TimeRange.fromParam("all")).isEqualTo(TimeRange.ALL_TIME)
     }
