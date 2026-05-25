@@ -6,6 +6,6 @@ After=network.target
 Type=oneshot
 User=testbutton
 EnvironmentFile=/home/testbutton/button.env
-ExecStart=/home/testbutton/button/scripts/deploy.sh --env testbutton
+ExecStart=/home/testbutton/button/scripts/test-deploy.sh
 StandardOutput=journal
 StandardError=journal
