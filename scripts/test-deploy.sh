@@ -5,7 +5,7 @@ log() {
     echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $*"
 }
 
-REPO=~/button
+REPO="${BUTTON_REPO:-$HOME/button}"
 TOKEN=$(cat ~/.github_token)
 DEPLOYED_FILE=~/deployed_commit
 
@@ -24,6 +24,9 @@ PR_JSON=$(GITHUB_TOKEN="$TOKEN" gh pr list \
     --state open \
     --json number,headRefName,headRefOid,updatedAt \
     --repo zwalsh/button)
+
+PR_COUNT=$(echo "$PR_JSON" | jq 'length')
+log "[testbutton] Found $PR_COUNT open PR(s) labeled deploy-test"
 
 SHA=$(echo "$PR_JSON" | jq -r 'sort_by(.updatedAt) | last | .headRefOid // empty')
 
@@ -47,7 +50,12 @@ if [[ "$STATUS" != "success" ]]; then
 fi
 
 # 4. Exit if SHA already deployed
-if [[ -f "$DEPLOYED_FILE" ]] && [[ "$(cat "$DEPLOYED_FILE")" == "$SHA" ]]; then
+DEPLOYED_SHA=""
+if [[ -f "$DEPLOYED_FILE" ]]; then
+    DEPLOYED_SHA=$(cat "$DEPLOYED_FILE")
+fi
+log "[testbutton] Currently deployed: ${DEPLOYED_SHA:-<none>}"
+if [[ "$DEPLOYED_SHA" == "$SHA" ]]; then
     log "[testbutton] SHA $SHA already deployed, nothing to do"
     exit 0
 fi
