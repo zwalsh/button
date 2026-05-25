@@ -38,7 +38,9 @@ pipeline {
             }
         }
         stage('release') {
-            when { branch 'main' }
+            when {
+                expression { env.GIT_BRANCH == 'origin/main' }
+            }
             steps {
                 sh '''
                     gh release create "sha-${GIT_COMMIT}" \
