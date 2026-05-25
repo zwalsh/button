@@ -25,17 +25,22 @@ DEPLOYED_FILE=~/deployed_commit
 on_error() {
     local exit_code=$?
     local line=$1
-    log "[$ENV] DEPLOY FAILED at line $line (exit code $exit_code)"
+    log "[$ENV] *** DEPLOY FAILED *** at line $line (exit code $exit_code)"
+    log "[$ENV] Check the lines above for the error output from the failing command"
 }
 trap 'on_error $LINENO' ERR
 
 if [[ "$ENV" == "button" ]]; then
     # 1. Get latest release tag from GitHub
     log "[button] Fetching latest release"
-    TAG=$(GITHUB_TOKEN="$TOKEN" gh release view --latest \
+    TAG=$(GITHUB_TOKEN="$TOKEN" gh release list \
         --repo zwalsh/button \
-        --json tagName \
-        --jq '.tagName' 2>/dev/null) || { log "[button] No release found"; exit 0; }
+        --json tagName,isLatest \
+        --jq '.[] | select(.isLatest) | .tagName')
+    if [[ -z "$TAG" ]]; then
+        log "[button] No release found"
+        exit 0
+    fi
     SHA="${TAG#sha-}"
     log "[button] Latest release: $TAG (SHA: $SHA)"
 
