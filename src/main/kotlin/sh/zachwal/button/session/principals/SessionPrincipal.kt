@@ -14,10 +14,12 @@ interface SessionPrincipal {
 
     fun isValid(): Boolean {
         val curEpochMilli = Instant.now().toEpochMilli()
-        logger.info(
-            "Validating $this " +
-                "expiring at $expiration cur time $curEpochMilli, " +
-                "valid: ${expiration > curEpochMilli}"
+        logger.debug(
+            "Validating {} expiring at {} cur time {}, valid: {}",
+            this,
+            expiration,
+            curEpochMilli,
+            expiration > curEpochMilli
         )
         return expiration > curEpochMilli
     }
