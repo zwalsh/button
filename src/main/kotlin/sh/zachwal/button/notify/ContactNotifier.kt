@@ -93,7 +93,11 @@ class ContactNotifier @Inject constructor(
         val active = contactDAO.selectActiveContacts()
         val contacts = active.filter { c ->
             val enabled = c.notificationPreferences.notificationsEnabled
-            if (!enabled) logger.debug("Skipping contact ${c.id}: notifications disabled")
+            if (enabled) {
+                logger.info("Sending notification to contact id=${c.id} name=${c.name}")
+            } else {
+                logger.info("Skipping contact id=${c.id} name=${c.name}: notifications disabled")
+            }
             enabled
         }
         val endDate = LocalDate.now()
