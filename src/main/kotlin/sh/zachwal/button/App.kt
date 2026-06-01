@@ -14,6 +14,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.request.path
 import io.ktor.server.routing.routing
 import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
@@ -77,6 +78,9 @@ fun Application.module(testing: Boolean = false) {
 
     install(CallLogging) {
         level = Level.INFO
+        filter { call ->
+            !call.request.path().startsWith("/static")
+        }
     }
     install(DefaultHeaders)
     install(WebSockets) {
