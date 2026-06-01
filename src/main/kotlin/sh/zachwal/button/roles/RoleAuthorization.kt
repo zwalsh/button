@@ -56,10 +56,10 @@ class RoleAuthorization internal constructor(config: Configuration) {
             }
 
             config.provider.authorizationFunction(call, roles, session)?.let {
-                logger.info("Passing user ${session.user} with role $it")
+                logger.debug("Passing user {} with role {}", session.user, it)
                 return@intercept
             } ?: run {
-                logger.info("Failing user ${session.user} for roles $roles")
+                logger.warn("Failing user {} for roles {}", session.user, roles)
                 call.respond(HttpStatusCode.Forbidden)
                 finish()
             }
