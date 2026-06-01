@@ -1,5 +1,6 @@
 package sh.zachwal.button.testing
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.application.install
@@ -80,7 +81,7 @@ private fun Application.installContactTestPlugins(contactId: Int) {
                     expiration = Instant.now().plusSeconds(3600).toEpochMilli()
                 )
             )
-            call.respond(io.ktor.http.HttpStatusCode.OK)
+            call.respond(HttpStatusCode.OK)
         }
     }
 }

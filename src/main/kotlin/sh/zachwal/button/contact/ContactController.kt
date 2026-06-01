@@ -45,8 +45,10 @@ import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.roles.contactRoute
 import sh.zachwal.button.session.principals.ContactSessionPrincipal
+import sh.zachwal.button.sharedhtml.bootstrapJs
 import sh.zachwal.button.sharedhtml.card
 import sh.zachwal.button.sharedhtml.headSetup
+import sh.zachwal.button.sharedhtml.jqueryJs
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -133,7 +135,8 @@ class ContactController @Inject constructor(
                     head {
                         title { +"Settings" }
                         headSetup()
-                        script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js") {}
+                        jqueryJs()
+                        bootstrapJs()
                         script(src = "/static/src/contact/toast.js") {}
                     }
                     body {
