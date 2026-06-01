@@ -37,8 +37,8 @@ flat fields on `Contact`.
 
 ### Filtering point
 
-All three preference checks are applied in `ContactNotifier.contactsToNotify()`, after fetching active
-contacts and before sorting by press counts.
+All preference checks are applied in `ContactNotifier.contactsToNotify()`, after fetching active contacts
+and before sorting by press counts.
 
 ### Quiet hours are best-effort
 
@@ -59,11 +59,13 @@ renders the stored value as selected.
 
 ## Phases
 
-| Phase | PR | What changes | Contacts notice? |
-|-------|----|-------------|-----------------|
-| 1 | PR_1 | DB migration + data model | No |
-| 2 | PR_2 | Backend filtering + `POST /contact/preferences` | Possibly (if any contact has prefs set, but none do yet) |
-| 3 | PR_3 | Contact page UI | Yes |
-| 4 | PR_4 | Admin visibility of prefs + snoozed-until | No |
+Each phase ships one end-to-end working feature. Within each phase, the migration PR deploys first.
+
+| Phase | What ships | PRs |
+|-------|-----------|-----|
+| 1 | Opt-out toggle | 1a: migration + model + DAO · 1b: filtering + endpoint + UI |
+| 2 | Snooze | 2a: migration + model + DAO · 2b: filtering + endpoint + UI |
+| 3 | Quiet hours | 3a: migration + model + DAO · 3b: filtering + endpoint + UI |
+| 4 | Admin visibility | Single PR: read-only prefs on admin contact cards |
 
 Phases deploy in order. Each PR is independently mergeable and safe to run on testbutton before production.

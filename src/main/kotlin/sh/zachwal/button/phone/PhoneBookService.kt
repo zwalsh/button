@@ -52,6 +52,9 @@ class PhoneBookService @Inject constructor(
         // TODO check if phone number already exists
         val contact = contactDAO.createContact(name, validNumber)
 
+        // TODO: Once the opt-in flow is built, notifications_enabled should default to false here.
+        // The contact proves phone ownership by clicking the SMS link, landing on /contact, and toggling on.
+
         scope.launch {
             messagingService.sendMessage(
                 messagingConfig.adminPhone,
