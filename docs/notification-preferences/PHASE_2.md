@@ -11,7 +11,8 @@ Depends on Phase 1. Adds the ability to silence notifications for a fixed durati
 Add one column to `contact`:
 
 ```sql
-ALTER TABLE contact ADD COLUMN snoozed_until TIMESTAMPTZ;
+ALTER TABLE contact
+    ADD COLUMN snoozed_until TIMESTAMPTZ;
 ```
 
 ### Update `NotificationPreferences`
@@ -28,13 +29,15 @@ data class NotificationPreferences(
 Extend the existing method to include the new field:
 
 ```kotlin
-@SqlUpdate("""
+@SqlUpdate(
+    """
     UPDATE contact SET
         notifications_enabled = :notificationsEnabled,
         snoozed_until = :snoozedUntil
     WHERE id = :contactId
     RETURNING *
-""")
+"""
+)
 fun updateNotificationPreferences(
     @Bind("contactId") contactId: Int,
     @Bind("notificationsEnabled") notificationsEnabled: Boolean,
@@ -65,8 +68,8 @@ Log at DEBUG when skipped: `"Skipping contact ${c.id}: snoozed until ${prefs.sno
 
 Add one new field to the form handler:
 
-| Form field | Type | Notes |
-|---|---|---|
+| Form field     | Type                                   | Notes                          |
+|----------------|----------------------------------------|--------------------------------|
 | `snoozePreset` | `"none"`, `"1"`, `"7"`, `"30"`, `"90"` | Days from now; `"none"` clears |
 
 Parse `snoozePreset`: if not `"none"`, compute `Instant.now().plus(days.toLong(), ChronoUnit.DAYS)`.
@@ -89,6 +92,6 @@ Snooze for:  [None]  [1 day]  [7 days]  [30 days]  [90 days]
 
 ### Tests
 
-- `snoozePreset = "7"` → `snoozedUntil` is approximately 7 days in the future (within a second)
+- `snoozePreset = "7"` → `snoozedUntil` is approximately 7 days in the future (within a few seconds)
 - `snoozePreset = "none"` → `snoozedUntil` is null
 - Manual smoke test: snooze for 1 day, verify it appears in the form and filtering skips the contact

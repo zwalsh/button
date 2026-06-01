@@ -10,12 +10,12 @@ read-only information for debugging.
 `AdminContactController` renders Bootstrap cards for each contact. Add a "Notifications" row to each card
 showing all applicable states:
 
-| State | Display |
-|---|---|
-| `notificationsEnabled = false` | Notifications off |
-| `snoozedUntil` non-null and in the future | Snoozed until {date} |
-| Quiet hours set | Quiet {start}–{end} {timezone display name} |
-| All defaults | Notifications on |
+| State                                     | Display                                     |
+|-------------------------------------------|---------------------------------------------|
+| `notificationsEnabled = false`            | Notifications off                           |
+| `snoozedUntil` non-null and in the future | Snoozed until {date}                        |
+| Quiet hours set                           | Quiet {start}–{end} {timezone display name} |
+| All defaults                              | Notifications on                            |
 
 A contact could be snoozed AND have quiet hours — show both lines.
 

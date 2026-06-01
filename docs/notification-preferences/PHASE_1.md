@@ -11,7 +11,8 @@ Ships the `notifications_enabled` flag end-to-end: DB → filtering → contact 
 Add one column to `contact`:
 
 ```sql
-ALTER TABLE contact ADD COLUMN notifications_enabled BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE contact
+    ADD COLUMN notifications_enabled BOOLEAN NOT NULL DEFAULT true;
 ```
 
 Follow the addColumn changeset format from existing migrations (see `db/11_create_contact_press_counts.json`).
@@ -54,11 +55,13 @@ Add an update method. Since the form (PR 1b) will submit all preference fields t
 update method that grows with each phase:
 
 ```kotlin
-@SqlUpdate("""
+@SqlUpdate(
+    """
     UPDATE contact SET notifications_enabled = :notificationsEnabled
     WHERE id = :contactId
     RETURNING *
-""")
+"""
+)
 fun updateNotificationPreferences(
     @Bind("contactId") contactId: Int,
     @Bind("notificationsEnabled") notificationsEnabled: Boolean,
@@ -92,11 +95,12 @@ Log at DEBUG when a contact is skipped: `"Skipping contact ${c.id}: notification
 
 Add to `ContactController`. Receives a standard HTML form POST. For Phase 1, only one field matters:
 
-| Form field | Type | Notes |
-|---|---|---|
+| Form field             | Type     | Notes                          |
+|------------------------|----------|--------------------------------|
 | `notificationsEnabled` | checkbox | Present = true, absent = false |
 
 Handler:
+
 1. Parse `notificationsEnabled` (checkbox present → true, absent → false).
 2. Call `contactDAO.updateNotificationPreferences(contactId, notificationsEnabled)`.
 3. Redirect to `GET /contact?saved=true`.
@@ -110,8 +114,8 @@ Add a "Notification Settings" section to the `contactInfo()` GET handler, below 
 Render a `<form method="post" action="/contact/preferences">` with:
 
 - A Bootstrap form-check switch: `[toggle] Receive text messages from The Button`
-  - `name="notificationsEnabled"`, checked when `notificationPreferences.notificationsEnabled == true`
-  - When unchecked: muted note "You won't receive any texts until you turn this back on."
+    - `name="notificationsEnabled"`, checked when `notificationPreferences.notificationsEnabled == true`
+    - When unchecked: muted note "You won't receive any texts until you turn this back on."
 - A submit button: "Save settings"
 
 Later phases will add snooze and quiet hours sections to this same form.
@@ -122,15 +126,16 @@ In `GET /contact`, check for `?saved=true` query param. When present, render a B
 
 ```html
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="savedToast" class="toast align-items-center text-bg-success border-0" role="alert">
-    <div class="d-flex">
-      <div class="toast-body">Settings saved.</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    <div id="savedToast" class="toast align-items-center text-bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">Settings saved.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
     </div>
-  </div>
 </div>
-<script>new bootstrap.Toast(document.getElementById('savedToast')).show();</script>
 ```
+
+Add a new js file to trigger the toast following `frontend/README.md` patterns.
 
 ### Tests
 

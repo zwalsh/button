@@ -146,8 +146,8 @@ Auckland             Pacific/Auckland
 ... (add others as needed)
 ```
 
-Pre-select the saved `timezone` when set. When not yet set, pre-select via browser detection with an
-inline script (run after DOM load):
+Pre-select the saved `timezone` when set. When not yet set, pre-select via browser detection with a script added via 
+`frontend/README.md` conventions:
 
 ```javascript
 const sel = document.getElementById('timezone-select');
