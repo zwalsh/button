@@ -77,6 +77,7 @@ class ContactNotifier @Inject constructor(
             val contacts = contactsToNotify()
             logger.info("Sending a notification to {} contacts.", contacts.size)
             contacts.forEach { c ->
+                logger.info("Sending notification to contact id=${c.id} name=${c.name}")
                 val linkForContact = linkForContact(c)
                 controlledContactMessagingService.sendMessage(
                     contact = c,
@@ -93,9 +94,7 @@ class ContactNotifier @Inject constructor(
         val active = contactDAO.selectActiveContacts()
         val contacts = active.filter { c ->
             val enabled = c.notificationPreferences.notificationsEnabled
-            if (enabled) {
-                logger.info("Sending notification to contact id=${c.id} name=${c.name}")
-            } else {
+            if (!enabled) {
                 logger.info("Skipping contact id=${c.id} name=${c.name}: notifications disabled")
             }
             enabled
