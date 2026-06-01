@@ -90,7 +90,12 @@ class ContactNotifier @Inject constructor(
      * Prioritized list of contacts based on recent press activity.
      */
     private fun contactsToNotify(): List<Contact> {
-        val contacts = contactDAO.selectActiveContacts()
+        val active = contactDAO.selectActiveContacts()
+        val contacts = active.filter { c ->
+            val enabled = c.notificationPreferences.notificationsEnabled
+            if (!enabled) logger.debug("Skipping contact ${c.id}: notifications disabled")
+            enabled
+        }
         val endDate = LocalDate.now()
         val startDate = endDate.minusDays(90)
         val aggregatedCounts = contactPressCountDAO.aggregateCountsByContact(startDate, endDate)
