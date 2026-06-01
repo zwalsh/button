@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.ContactPressCountDAO
 import sh.zachwal.button.db.dao.PressDAO
-import sh.zachwal.button.db.jdbi.Contact
-import sh.zachwal.button.db.jdbi.NotificationPreferences
+import sh.zachwal.button.db.jdbi.contact
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -26,15 +25,6 @@ class ContactPressStatsServiceTest {
     private val today = LocalDate.now(ZoneOffset.UTC)
     private val yesterday = today.minusDays(1)
     private val todayMidnight = today.atStartOfDay(ZoneOffset.UTC).toInstant()
-
-    private fun contact(id: Int, name: String) = Contact(
-        id = id,
-        createdDate = Instant.EPOCH,
-        name = name,
-        phoneNumber = "+15550000000",
-        active = true,
-        notificationPreferences = NotificationPreferences(notificationsEnabled = true),
-    )
 
     // --- TODAY range ---
 
@@ -133,7 +123,7 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `pressStats sums materialized and today counts for the same contact`() {
-        val alice = contact(1, "Alice")
+        val alice = contact(id = 1, name = "Alice")
         every { contactDAO.selectContacts() } returns listOf(alice)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 10)
         every { pressDAO.countByContactSince(any()) } returns mapOf(1 to 3L)
@@ -146,7 +136,7 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `pressStats contact with only materialized count appears with correct total`() {
-        val alice = contact(1, "Alice")
+        val alice = contact(id = 1, name = "Alice")
         every { contactDAO.selectContacts() } returns listOf(alice)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 7)
         every { pressDAO.countByContactSince(any()) } returns emptyMap()
@@ -159,7 +149,7 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `pressStats contact with only today count appears with correct total`() {
-        val alice = contact(1, "Alice")
+        val alice = contact(id = 1, name = "Alice")
         every { contactDAO.selectContacts() } returns listOf(alice)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns emptyMap()
         every { pressDAO.countByContactSince(any()) } returns mapOf(1 to 4L)
@@ -172,8 +162,8 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `pressStats multiple contacts with overlapping data merge correctly`() {
-        val alice = contact(1, "Alice")
-        val bob = contact(2, "Bob")
+        val alice = contact(id = 1, name = "Alice")
+        val bob = contact(id = 2, name = "Bob")
         every { contactDAO.selectContacts() } returns listOf(alice, bob)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 10, 2 to 3)
         every { pressDAO.countByContactSince(any()) } returns mapOf(1 to 2L)
@@ -189,8 +179,8 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `pressStats excludes contacts with zero total count`() {
-        val alice = contact(1, "Alice")
-        val bob = contact(2, "Bob")
+        val alice = contact(id = 1, name = "Alice")
+        val bob = contact(id = 2, name = "Bob")
         every { contactDAO.selectContacts() } returns listOf(alice, bob)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 5)
         every { pressDAO.countByContactSince(any()) } returns emptyMap()
@@ -203,7 +193,7 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `pressStats excludes contact IDs in press data that are absent from contactDAO`() {
-        val alice = contact(1, "Alice")
+        val alice = contact(id = 1, name = "Alice")
         every { contactDAO.selectContacts() } returns listOf(alice)
         // Contact ID 99 appears in press data but not in contactDAO (FK mismatch)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 3, 99 to 10)
@@ -217,7 +207,7 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `pressStats returns empty list when no presses in range`() {
-        every { contactDAO.selectContacts() } returns listOf(contact(1, "Alice"))
+        every { contactDAO.selectContacts() } returns listOf(contact(id = 1, name = "Alice"))
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns emptyMap()
         every { pressDAO.countByContactSince(any()) } returns emptyMap()
 
@@ -230,9 +220,9 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `pressStats result is sorted by count descending`() {
-        val alice = contact(1, "Alice")
-        val bob = contact(2, "Bob")
-        val carol = contact(3, "Carol")
+        val alice = contact(id = 1, name = "Alice")
+        val bob = contact(id = 2, name = "Bob")
+        val carol = contact(id = 3, name = "Carol")
         every { contactDAO.selectContacts() } returns listOf(alice, bob, carol)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 2, 2 to 10, 3 to 5)
         every { pressDAO.countByContactSince(any()) } returns emptyMap()
@@ -247,8 +237,8 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `allContactStats includes contacts with zero presses`() {
-        val alice = contact(1, "Alice")
-        val bob = contact(2, "Bob")
+        val alice = contact(id = 1, name = "Alice")
+        val bob = contact(id = 2, name = "Bob")
         every { contactDAO.selectContacts() } returns listOf(alice, bob)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 5)
         every { pressDAO.countByContactSince(any()) } returns emptyMap()
@@ -260,9 +250,9 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `allContactStats sorts by press count descending with zero-press contacts at the end`() {
-        val alice = contact(1, "Alice")
-        val bob = contact(2, "Bob")
-        val carol = contact(3, "Carol")
+        val alice = contact(id = 1, name = "Alice")
+        val bob = contact(id = 2, name = "Bob")
+        val carol = contact(id = 3, name = "Carol")
         every { contactDAO.selectContacts() } returns listOf(alice, bob, carol)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(3 to 10, 1 to 3)
         every { pressDAO.countByContactSince(any()) } returns emptyMap()
@@ -275,7 +265,7 @@ class ContactPressStatsServiceTest {
 
     @Test
     fun `allContactStats returns correct counts for contacts with presses`() {
-        val alice = contact(1, "Alice")
+        val alice = contact(id = 1, name = "Alice")
         every { contactDAO.selectContacts() } returns listOf(alice)
         every { contactPressCountDAO.aggregateCountsByContact(any(), any()) } returns mapOf(1 to 7)
         every { pressDAO.countByContactSince(any()) } returns mapOf(1 to 3L)

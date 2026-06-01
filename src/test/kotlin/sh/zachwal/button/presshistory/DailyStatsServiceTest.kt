@@ -14,7 +14,7 @@ import sh.zachwal.button.db.dao.DailyPressersDAO
 import sh.zachwal.button.db.dao.DailyStatsDAO
 import sh.zachwal.button.db.extension.DatabaseExtension
 import sh.zachwal.button.db.jdbi.Contact
-import sh.zachwal.button.db.jdbi.NotificationPreferences
+import sh.zachwal.button.db.jdbi.contact
 import sh.zachwal.button.presser.Presser
 import java.time.Clock
 import java.time.Instant
@@ -101,8 +101,7 @@ class DailyStatsServiceTest(private val jdbi: Jdbi) {
 
     @Test
     fun `authenticated presser uses contact id as presser identity`() = runBlocking {
-        val contact =
-            Contact(id = 42, createdDate = Instant.now(), name = "Alice", phoneNumber = "", active = true, notificationPreferences = NotificationPreferences(notificationsEnabled = true))
+        val contact = contact(id = 42, name = "Alice")
         // authenticated presser from one host, anonymous from the same host — counted separately
         service.pressed(mockPresser("1.2.3.4", contact = contact))
         service.pressed(mockPresser("1.2.3.4", contact = null))

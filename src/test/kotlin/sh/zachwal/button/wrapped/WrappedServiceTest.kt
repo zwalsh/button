@@ -6,11 +6,10 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
-import sh.zachwal.button.db.jdbi.Contact
-import sh.zachwal.button.db.jdbi.NotificationPreferences
 import sh.zachwal.button.db.jdbi.Press
 import sh.zachwal.button.db.jdbi.WrappedLink
 import sh.zachwal.button.db.jdbi.WrappedRank
+import sh.zachwal.button.db.jdbi.contact
 import sh.zachwal.button.sms.ControlledContactMessagingService
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -39,14 +38,7 @@ class WrappedServiceTest {
         )
     }
     private val contactDao: ContactDAO = mockk {
-        every { findContact(any()) } returns Contact(
-            1,
-            Instant.now(),
-            "Zach",
-            "+18001234567",
-            active = true,
-            notificationPreferences = NotificationPreferences(notificationsEnabled = true),
-        )
+        every { findContact(any()) } returns contact(name = "Zach", phoneNumber = "+18001234567")
     }
     private val messagingService: ControlledContactMessagingService = mockk()
     private val service = WrappedService(contactDao, wrappedDao, messagingService, "localhost")
