@@ -1,0 +1,29 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "15_add_notifications_enabled",
+        "author": "zach",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "contact",
+              "columns": [
+                {
+                  "column": {
+                    "name": "notifications_enabled",
+                    "type": "boolean",
+                    "defaultValueBoolean": true,
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

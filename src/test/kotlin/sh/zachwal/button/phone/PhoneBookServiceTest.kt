@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import sh.zachwal.button.config.MessagingConfig
 import sh.zachwal.button.db.dao.ContactDAO
-import sh.zachwal.button.db.jdbi.Contact
+import sh.zachwal.button.db.jdbi.contact
 import sh.zachwal.button.sms.InvalidNumber
 import sh.zachwal.button.sms.MessageQueued
 import sh.zachwal.button.sms.MessagingService
@@ -27,8 +27,8 @@ internal class PhoneBookServiceTest {
     private val messagingConfig = MessagingConfig(monthlyLimit = 600, adminPhone = "+18001234567")
     private val phoneBookService = PhoneBookService(messagingService, contactDAO, messagingConfig)
 
-    private val zachContact = Contact(1, Instant.now(), "Zach", "+18001234567", active = true)
-    private val jackieContact = Contact(2, Instant.now(), "Jackie", "+18001225555", active = true)
+    private val zachContact = contact(id = 1, name = "Zach", phoneNumber = "+18001234567")
+    private val jackieContact = contact(id = 2, name = "Jackie", phoneNumber = "+18001225555")
 
     @BeforeEach
     fun setup() {
@@ -40,7 +40,7 @@ internal class PhoneBookServiceTest {
             ValidNumber(firstArg())
         }
         every { contactDAO.createContact(any(), any()) } answers {
-            Contact(1, Instant.now(), firstArg(), secondArg(), true)
+            contact(name = firstArg(), phoneNumber = secondArg())
         }
     }
 

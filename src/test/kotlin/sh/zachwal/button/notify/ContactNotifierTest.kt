@@ -17,8 +17,8 @@ import sh.zachwal.button.auth.contact.ContactTokenStore
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.ContactPressCountDAO
 import sh.zachwal.button.db.dao.NotificationDAO
-import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.Notification
+import sh.zachwal.button.db.jdbi.contact
 import sh.zachwal.button.home.TOKEN_PARAMETER
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.sms.ControlledContactMessagingService
@@ -46,8 +46,8 @@ internal class ContactNotifierTest {
         contactTokenStore = contactTokenStore
     )
 
-    private val zachContact = Contact(1, Instant.now(), "Zach", "+18001234567", active = true)
-    private val jackieContact = Contact(2, Instant.now(), "Jackie", "+18001225555", active = true)
+    private val zachContact = contact(id = 1, name = "Zach", phoneNumber = "+18001234567")
+    private val jackieContact = contact(id = 2, name = "Jackie", phoneNumber = "+18001225555")
     private val presser: Presser = mockk {
         every { contact } returns null
         every { remote() } returns "remote"
@@ -91,7 +91,7 @@ internal class ContactNotifierTest {
 
     @Test
     fun `contacts with zero presses are notified last`() {
-        val zeroPressContact = Contact(3, Instant.parse("2025-12-06T21:15:12.338Z"), "Zero", "+18009998888", active = true)
+        val zeroPressContact = contact(id = 3, name = "Zero", phoneNumber = "+18009998888")
         every { notificationDAO.getLatestNotification() } returns Notification(
             1,
             Instant.now().minus(25, ChronoUnit.HOURS)

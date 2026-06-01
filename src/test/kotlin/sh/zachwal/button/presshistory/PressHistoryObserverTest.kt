@@ -7,8 +7,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.dao.PressDAO
-import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.db.jdbi.Press
+import sh.zachwal.button.db.jdbi.contact
 import sh.zachwal.button.presser.Presser
 import java.time.Instant
 import java.util.concurrent.CountDownLatch
@@ -67,7 +67,7 @@ internal class PressHistoryObserverTest {
         val presser = mockk<Presser>()
         val remoteHost = "192.168.0.1"
         every { presser.remoteHost } returns remoteHost
-        every { presser.contact } returns Contact(id = 10, Instant.now(), "", "", true)
+        every { presser.contact } returns contact(id = 10)
         every { pressDAO.createPress(any(), any()) } returns Press(Instant.now(), "", 1)
 
         runBlocking {
