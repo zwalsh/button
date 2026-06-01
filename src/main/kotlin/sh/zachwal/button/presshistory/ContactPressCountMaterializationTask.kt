@@ -23,18 +23,18 @@ class ContactPressCountMaterializationTask @Inject constructor(
         val yesterday = today.minusDays(1)
         val contacts = contactDAO.selectActiveContacts()
         for (contact in contacts) {
-            logger.info("Materializing press counts for contact id=${contact.id}, name=${contact.name}")
+            logger.info("Materializing press counts for contact id={}, name={}", contact.id, contact.name)
             val contactId = contact.id
             val firstPressTimestamp = pressDAO.firstPressTimestampForContact(contactId) ?: continue
             val firstPressDate = firstPressTimestamp.toInstant().atZone(ZoneOffset.UTC).toLocalDate()
-            logger.info("Contact's first press date is $firstPressDate")
+            logger.info("Contact's first press date is {}", firstPressDate)
             val lastMaterialized = contactPressCountDAO.findAllForContact(contactId).maxByOrNull { it.date }?.date
-            logger.info("Contact's last materialized date is $lastMaterialized")
+            logger.info("Contact's last materialized date is {}", lastMaterialized)
             val startDate = lastMaterialized?.plusDays(1) ?: firstPressDate
             if (startDate > yesterday) continue
             val pressCounts = pressDAO.aggregatePressCountsByDate(contactId, startDate, yesterday)
             for ((date, count) in pressCounts) {
-                logger.info("Contact pressed $count times on $date")
+                logger.info("Contact pressed {} times on {}", count, date)
                 contactPressCountDAO.upsert(ContactPressCount(contactId, date, count))
             }
         }

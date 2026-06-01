@@ -89,7 +89,7 @@ class Presser constructor(
         when (frame) {
             is Text -> handleIncomingText(frame)
             else -> {
-                logger.info("Got unexpected frame: $frame, disconnecting.")
+                logger.info("Got unexpected frame: {}, disconnecting.", frame)
                 observer.disconnected(this@Presser)
                 socketSession.close(CloseReason(Codes.PROTOCOL_ERROR, "Invalid frame type"))
             }

@@ -201,7 +201,7 @@ class HomeController @Inject constructor(
         if (token != null) {
             val contactId = contactTokenStore.checkToken(token)
             if (contactId != null) {
-                logger.info("Received valid token associated with id $contactId, creating session.")
+                logger.info("Received valid token associated with id {}, creating session.", contactId)
                 sessionService.createContactSession(call, contactId)
             } else {
                 logger.info("Received token, but it was not associated with a contact id.")

@@ -130,7 +130,7 @@ class PhoneController @Inject constructor(private val phoneBookService: PhoneBoo
                             "&badNumber=true"
                     )
                 }
-                logger.info("Created contact $contact.")
+                logger.info("Created contact {}.", contact)
                 call.respondRedirect("/phone/postSignup?name=$name")
             }
         }

@@ -11,9 +11,10 @@ class ContactTokenCleanupTask @Inject constructor(private val contactTokenDAO: C
     private val logger = LoggerFactory.getLogger(ContactTokenCleanupTask::class.java)
 
     fun cleanup() {
-        logger.info("Cleaning up expired contact tokens")
-        contactTokenDAO.deleteExpiredBefore(Instant.now()).forEach {
-            logger.info("Deleted contact token $it, expired at ${it.expiration}")
+        val deleted = contactTokenDAO.deleteExpiredBefore(Instant.now())
+        logger.info("Cleaned up {} expired contact tokens", deleted.size)
+        deleted.forEach {
+            logger.debug("Deleted contact token {}, expired at {}", it, it.expiration)
         }
     }
 

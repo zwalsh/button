@@ -66,16 +66,16 @@ class ContactNotifier @Inject constructor(
                 return@launch
             }
             logger.info(
-                "Last notification was at ${lastNotification?.sentDate}, " +
-                    "sending a new one " +
-                    "triggered by contact=${presser.contact} " +
-                    "at remote=${presser.remote()}"
+                "Last notification was at {}, sending a new one triggered by contact={} at remote={}",
+                lastNotification?.sentDate,
+                presser.contact,
+                presser.remote()
             )
             // TODO: Create the notification with the triggering contact id & remote address
             notificationDAO.createNotification()
 
             val contacts = contactsToNotify()
-            logger.info("Sending a notification to ${contacts.size} contacts.")
+            logger.info("Sending a notification to {} contacts.", contacts.size)
             contacts.forEach { c ->
                 val linkForContact = linkForContact(c)
                 controlledContactMessagingService.sendMessage(

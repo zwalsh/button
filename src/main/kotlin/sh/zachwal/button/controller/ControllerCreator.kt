@@ -15,13 +15,13 @@ private const val PACKAGE_NAME = "sh.zachwal.button"
 fun Application.createControllers(injector: Injector) {
     val controllers = getControllerClassesWithReflections()
     controllers.forEach { controller ->
-        logger.info("Found controller $controller")
+        logger.info("Found controller {}", controller)
     }
     routing {
         controllers.forEach { controller ->
             val c = injector.getInstance(controller)
             val routeMethods = controller.declaredMethods.filter(Method::isRoutingMethod)
-            logger.info("Controller $controller has ${routeMethods.size} routing methods")
+            logger.info("Controller {} has {} routing methods", controller, routeMethods.size)
             routeMethods.forEach { m ->
                 logger.debug(m.name)
                 m.invoke(c, this@routing)

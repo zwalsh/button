@@ -15,7 +15,7 @@ class UserService @Inject constructor(private val userDAO: UserDAO) {
         return try {
             userDAO.getByUsername(username)
         } catch (e: Exception) {
-            logger.info("Error retrieving user $username.", e)
+            logger.warn("Error retrieving user {}", username, e)
             null
         }
     }
@@ -24,7 +24,7 @@ class UserService @Inject constructor(private val userDAO: UserDAO) {
         return try {
             userDAO.getById(id)
         } catch (e: Exception) {
-            logger.info("User with id $id could not be found", e)
+            logger.warn("User with id {} could not be found", id, e)
             null
         }
     }
@@ -33,7 +33,7 @@ class UserService @Inject constructor(private val userDAO: UserDAO) {
         try {
             BCrypt.checkpw(password, it.hashedPassword)
         } catch (e: Exception) {
-            logger.warn("Failed to check password for user $username", e)
+            logger.warn("Failed to check password for user {}", username, e)
             false
         }
     }
@@ -43,7 +43,7 @@ class UserService @Inject constructor(private val userDAO: UserDAO) {
         return try {
             userDAO.createUser(username, hash)
         } catch (e: UnableToExecuteStatementException) {
-            logger.error("Failed to create user $username", e)
+            logger.error("Failed to create user {}", username, e)
             null
         }
     }
