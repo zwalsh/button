@@ -17,6 +17,14 @@ fun HEAD.bootstrapCss() {
     )
 }
 
+fun HEAD.jqueryJs() {
+    script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js") {}
+}
+
+fun HEAD.bootstrapJs() {
+    script(src = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js") {}
+}
+
 fun HEAD.favicon() {
     link(href = "/static/favicon.png", rel = "icon", type = "image/png")
 }

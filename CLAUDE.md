@@ -78,7 +78,7 @@ npm --prefix frontend test            # Run tests
 
 **Side Effects**: Use observer pattern (e.g., `PressHistoryObserver`) rather than inline side effects in services.
 
-**Testing**: Backend uses TestContainers with PostgreSQL for integration tests. Frontend uses Vitest + jsdom.
+**Testing**: Backend uses TestContainers with PostgreSQL for DAO/DB integration tests. Frontend uses Vitest + jsdom. For HTTP-layer tests (form parsing, redirects, auth gating), use `withContactTestApp` from `src/test/kotlin/sh/zachwal/button/testing/KtorTestApp.kt` — see the KDoc there for when to reach for it. Prefer unit tests (mockk) for service logic; keep Ktor integration tests to one file per controller, testing only what cannot be exercised without a real request cycle.
 
 ## External Integrations
 

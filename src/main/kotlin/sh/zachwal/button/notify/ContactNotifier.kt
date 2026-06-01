@@ -77,6 +77,7 @@ class ContactNotifier @Inject constructor(
             val contacts = contactsToNotify()
             logger.info("Sending a notification to {} contacts.", contacts.size)
             contacts.forEach { c ->
+                logger.info("Sending notification to contact id=${c.id} name=${c.name}")
                 val linkForContact = linkForContact(c)
                 controlledContactMessagingService.sendMessage(
                     contact = c,
@@ -90,7 +91,14 @@ class ContactNotifier @Inject constructor(
      * Prioritized list of contacts based on recent press activity.
      */
     private fun contactsToNotify(): List<Contact> {
-        val contacts = contactDAO.selectActiveContacts()
+        val active = contactDAO.selectActiveContacts()
+        val contacts = active.filter { c ->
+            val enabled = c.notificationPreferences.notificationsEnabled
+            if (!enabled) {
+                logger.info("Skipping contact id=${c.id} name=${c.name}: notifications disabled")
+            }
+            enabled
+        }
         val endDate = LocalDate.now()
         val startDate = endDate.minusDays(90)
         val aggregatedCounts = contactPressCountDAO.aggregateCountsByContact(startDate, endDate)
