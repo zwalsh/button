@@ -56,7 +56,7 @@ class ButtonConfigService @Inject constructor(
     private var buttonShapeOverride: ButtonShape? = null
     fun setOverride(shape: ButtonShape?) {
         buttonShapeOverride = shape
-        logger.info("Set override to $shape")
+        logger.info("Set override to {}", shape)
     }
 
     // This is in memory but should eventually probably go in the database

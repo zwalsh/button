@@ -11,9 +11,10 @@ class SessionCleanupTask @Inject constructor(private val sessionDAO: SessionDAO)
     private val logger = LoggerFactory.getLogger(SessionCleanupTask::class.java)
 
     fun cleanup() {
-        logger.info("Cleaning up expired sessions")
-        sessionDAO.deleteExpiredBefore(Instant.now()).forEach {
-            logger.info("Deleted session ${it.id}, expired at ${it.expiration}")
+        val deleted = sessionDAO.deleteExpiredBefore(Instant.now())
+        logger.info("Cleaned up {} expired sessions", deleted.size)
+        deleted.forEach {
+            logger.debug("Deleted session {}, expired at {}", it.id, it.expiration)
         }
     }
 

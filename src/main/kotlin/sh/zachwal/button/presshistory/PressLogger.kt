@@ -40,7 +40,7 @@ class PressLogger @Inject constructor() : PresserObserver {
                 try {
                     if (pressCounts.isNotEmpty()) {
                         pressCounts.forEach { (name, count) ->
-                            logger.info("$name pressed $count times")
+                            logger.info("{} pressed {} times", name, count)
                         }
                         pressCounts.clear()
                     }

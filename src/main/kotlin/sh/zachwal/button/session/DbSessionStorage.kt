@@ -29,26 +29,24 @@ class DbSessionStorage(
     private fun dbId(id: String) = "${sessionPrefix}_$id"
 
     override suspend fun invalidate(id: String) {
-        logger.debug("Clearing $id")
+        logger.debug("Clearing {}", id)
         withContext(Dispatchers.IO) {
             sessionDAO.deleteSession(dbId(id))
         }
     }
 
     override suspend fun read(id: String): String {
-        logger.debug("Reading session ${dbId(id)}")
+        logger.debug("Reading session {}", dbId(id))
         return withContext(Dispatchers.IO) {
             val bytes = sessionDAO.getById(dbId(id))?.data
                 ?: throw NoSuchElementException("No session with id ${dbId(id)}")
-            bytes.decodeToString().also {
-                logger.debug("Got $it")
-            }
+            bytes.decodeToString()
         }
     }
 
     override suspend fun write(id: String, value: String) {
         // Note that this function is called every time the session is used.
-        logger.debug("Writing ${dbId(id)} as $value")
+        logger.debug("Writing {}", dbId(id))
         withContext(Dispatchers.IO) {
             val session = Session(
                 id = dbId(id),

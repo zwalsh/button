@@ -83,9 +83,7 @@ class AdminConfigController @Inject constructor(
                 val buttonShape = try {
                     ButtonShape.valueOf(shape)
                 } catch (e: IllegalArgumentException) {
-                    logger.error(
-                        "Tried to set button override to $shape, which is not a ButtonShape", e
-                    )
+                    logger.error("Tried to set button override to {}, which is not a ButtonShape", shape, e)
                     call.respond(
                         HttpStatusCode.BadRequest,
                         "Cannot override button shape to $shape"
@@ -93,7 +91,7 @@ class AdminConfigController @Inject constructor(
                     return@post
                 }
 
-                logger.info("Setting button override to $buttonShape")
+                logger.info("Setting button override to {}", buttonShape)
                 buttonConfigService.setOverride(buttonShape)
                 call.respondRedirect("/admin/config")
             }

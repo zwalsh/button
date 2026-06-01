@@ -172,7 +172,7 @@ class AdminContactController @Inject constructor(
         adminRoute("/admin/contacts/update") {
             post {
                 val request = call.receive<UpdateContactRequest>()
-                logger.info("Received request to set active=${request.active} for ${request.contactId}")
+                logger.info("Received request to set active={} for {}", request.active, request.contactId)
                 when (
                     val result = phoneBookService.updateContactStatus(
                         request.contactId, request.active
@@ -182,9 +182,7 @@ class AdminContactController @Inject constructor(
                         NotFound, "Contact with id ${request.contactId} does not exist."
                     )
                     is UpdatedContact -> {
-                        logger.info(
-                            "Contact ${result.contact.id} status set to ${result.contact.active}"
-                        )
+                        logger.info("Contact {} status set to {}", result.contact.id, result.contact.active)
                         call.respond("Success")
                     }
                 }

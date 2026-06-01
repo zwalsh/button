@@ -93,14 +93,14 @@ class WrappedService @Inject constructor(
         )
 
         contactIds.forEach { contactId ->
-            logger.info("Generating link for $contactId")
+            logger.info("Generating link for {}", contactId)
             val wrappedId = randomStringGenerator.newToken(20)
             val wrappedLink = WrappedLink(
                 wrappedId,
                 year,
                 contactId
             )
-            logger.info("Generated link with id $wrappedId for year $year.")
+            logger.info("Generated link with id {} for year {}.", wrappedId, year)
             wrappedDAO.insertWrappedLink(wrappedLink)
         }
     }
@@ -111,7 +111,7 @@ class WrappedService @Inject constructor(
 
     fun sendWrappedNotification(year: Int) {
         val links = wrappedDAO.wrappedLinks().filter { it.year == year }
-        logger.info("Sending ${links.size} wrapped notifications for year $year.")
+        logger.info("Sending {} wrapped notifications for year {}.", links.size, year)
 
         scope.launch {
             links.forEach { l ->
@@ -119,7 +119,7 @@ class WrappedService @Inject constructor(
                 val linkForContact = "$link/wrapped/$year/${l.wrappedId}"
                 val message = "What a year, ${contact.name}!" +
                     " Check out your Button Wrapped, $year: $linkForContact"
-                logger.info("Sending message to ${contact.id}: $message")
+                logger.info("Sending message to {}: {}", contact.id, message)
                 controlledContactMessagingService.sendMessage(
                     contact = contact,
                     body = message
@@ -132,7 +132,7 @@ class WrappedService @Inject constructor(
 
     private fun wrappedRanks(fromInstant: Instant, toInstant: Instant): List<WrappedRank> {
         return wrappedRanksCache.get(fromInstant to toInstant) {
-            logger.info("Fetching wrapped ranks for $fromInstant to $toInstant.")
+            logger.info("Fetching wrapped ranks for {} to {}.", fromInstant, toInstant)
             wrappedDAO.wrappedRanks(fromInstant, toInstant)
         }
     }
@@ -153,7 +153,7 @@ class WrappedService @Inject constructor(
     }
 
     private fun buildWrapped(year: Int, contact: Contact): Wrapped {
-        logger.info("Building wrapped for $year and contact=$contact")
+        logger.info("Building wrapped for {} and contact={}", year, contact)
         val presses = wrappedDAO.selectBetweenForContact(
             begin = startOfYearInstant(year),
             end = endOfYearInstant(year),

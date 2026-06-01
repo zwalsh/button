@@ -33,15 +33,15 @@ class WebSocketController @Inject constructor(
             val contactSession = call.sessions.get<ContactSessionPrincipal>()
             val contact = contactSession?.contactId?.let { contactDAO.findContact(it) }
             if (contact != null) {
-                logger.info("New connection from contact id=${contact.id} name=${contact.name} at $remote")
+                logger.info("New connection from contact id={} name={} at {}", contact.id, contact.name, remote)
             } else {
-                logger.info("New connection from $remote")
+                logger.info("New connection from {}", remote)
             }
 
             val presser = presserFactory.createPresser(this, remote, contact)
             manager.addPresser(presser)
             presser.watchChannels()
-            logger.info("$remote disconnected")
+            logger.info("{} disconnected", remote)
         }
     }
 }

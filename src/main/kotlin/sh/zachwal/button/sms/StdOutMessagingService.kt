@@ -15,12 +15,12 @@ class StdOutMessagingService @Inject constructor() : MessagingService {
     private val logger = LoggerFactory.getLogger(StdOutMessagingService::class.java)
 
     override suspend fun validateNumber(phoneNumber: String): PhoneNumberValidation {
-        logger.info("Validating $phoneNumber")
+        logger.info("Validating {}", phoneNumber)
         return ValidNumber("+1$phoneNumber")
     }
 
     override suspend fun sendMessage(toPhoneNumber: String, body: String): MessageStatus {
-        logger.info("Sending $body to $toPhoneNumber")
+        logger.info("Sending {} to {}", body, toPhoneNumber)
         return MessageQueued(UUID.randomUUID().toString(), Instant.now())
     }
 }

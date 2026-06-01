@@ -75,7 +75,7 @@ class TwilioMessagingService constructor(
 
             when (message.status) {
                 QUEUED, ACCEPTED -> {
-                    logger.info("Sent message to $maskedNumber with id ${message.sid}.")
+                    logger.info("Sent message to {} with id {}.", maskedNumber, message.sid)
 
                     MessageQueued(
                         id = message.sid,
@@ -84,16 +84,16 @@ class TwilioMessagingService constructor(
                 }
                 FAILED -> {
                     logger.warn(
-                        "Failed to send message to $maskedNumber: ${message.sid}, " +
-                            "${message.errorMessage}."
+                        "Failed to send message to {}: {}, {}.",
+                        maskedNumber, message.sid, message.errorMessage
                     )
 
                     MessageFailed(message.errorMessage)
                 }
                 else -> {
                     logger.error(
-                        "Got unhandled message status from Twilio when sending message to " +
-                            "$maskedNumber: ${message.status}, ${message.errorMessage}"
+                        "Got unhandled message status from Twilio when sending message to {}: {}, {}",
+                        maskedNumber, message.status, message.errorMessage
                     )
                     throw RuntimeException("Unhandled Twilio message status: ${message.status}")
                 }

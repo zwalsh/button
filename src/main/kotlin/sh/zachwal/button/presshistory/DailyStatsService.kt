@@ -63,7 +63,7 @@ class DailyStatsService @Inject constructor(
         capacity = 1000,
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     ) { undeliveredDbOp ->
-        logger.error("Dropping a database write due to a buffer overflow: $undeliveredDbOp")
+        logger.error("Dropping a database write due to a buffer overflow: {}", undeliveredDbOp)
     }
 
     // Single-threaded pool for DB writes (consumer of dbOpChannel)
@@ -76,7 +76,7 @@ class DailyStatsService @Inject constructor(
             try {
                 processDbOp(op)
             } catch (e: Exception) {
-                logger.error("Failed to process DB op: $op", e)
+                logger.error("Failed to process DB op: {}", op, e)
             }
         }
     }

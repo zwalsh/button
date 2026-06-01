@@ -28,7 +28,7 @@ class ControlledContactMessagingService @Inject constructor(
 
     suspend fun sendMessage(contact: Contact, body: String): MessageStatus {
         if (contact.active.not()) {
-            logger.info("Contact ${contact.id} is not active, not sending message")
+            logger.info("Contact {} is not active, not sending message", contact.id)
             return MessageFailed("Contact is not active")
         }
 
