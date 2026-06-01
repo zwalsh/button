@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.WrappedDAO
 import sh.zachwal.button.db.jdbi.Contact
+import sh.zachwal.button.db.jdbi.NotificationPreferences
 import sh.zachwal.button.db.jdbi.Press
 import sh.zachwal.button.db.jdbi.WrappedLink
 import sh.zachwal.button.db.jdbi.WrappedRank
@@ -43,7 +44,8 @@ class WrappedServiceTest {
             Instant.now(),
             "Zach",
             "+18001234567",
-            active = true
+            active = true,
+            notificationPreferences = NotificationPreferences(notificationsEnabled = true),
         )
     }
     private val messagingService: ControlledContactMessagingService = mockk()

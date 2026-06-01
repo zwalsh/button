@@ -49,5 +49,17 @@ interface ContactDAO {
         active: Boolean
     ): Contact?
 
+    @SqlQuery(
+        """
+        UPDATE contact SET notifications_enabled = :notificationsEnabled
+        WHERE id = :contactId
+        RETURNING *
+        """
+    )
+    fun updateNotificationPreferences(
+        @Bind("contactId") contactId: Int,
+        @Bind("notificationsEnabled") notificationsEnabled: Boolean,
+    ): Contact?
+
     // TODO deactivate number
 }

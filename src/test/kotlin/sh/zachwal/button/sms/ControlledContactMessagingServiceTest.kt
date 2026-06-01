@@ -13,6 +13,7 @@ import org.junit.jupiter.api.assertThrows
 import sh.zachwal.button.config.MessagingConfig
 import sh.zachwal.button.db.dao.SentMessageDAO
 import sh.zachwal.button.db.jdbi.Contact
+import sh.zachwal.button.db.jdbi.NotificationPreferences
 import sh.zachwal.button.db.jdbi.SentMessage
 import java.time.Instant
 
@@ -28,7 +29,8 @@ internal class ControlledContactMessagingServiceTest {
         messagingService, sentMessageDAO, messagingConfig
     )
 
-    private val contact = Contact(1, Instant.now(), "Zach", "+18001234567", active = true)
+    private val contact =
+        Contact(1, Instant.now(), "Zach", "+18001234567", active = true, notificationPreferences = NotificationPreferences(notificationsEnabled = true))
 
     @BeforeEach
     fun setup() {

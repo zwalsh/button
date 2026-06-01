@@ -10,6 +10,7 @@ import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.ContactPressCountDAO
 import sh.zachwal.button.db.dao.PressDAO
 import sh.zachwal.button.db.jdbi.Contact
+import sh.zachwal.button.db.jdbi.NotificationPreferences
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -32,6 +33,7 @@ class ContactPressStatsServiceTest {
         name = name,
         phoneNumber = "+15550000000",
         active = true,
+        notificationPreferences = NotificationPreferences(notificationsEnabled = true),
     )
 
     // --- TODAY range ---
