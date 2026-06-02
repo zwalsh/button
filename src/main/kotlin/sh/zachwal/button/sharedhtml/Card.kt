@@ -6,6 +6,7 @@ import kotlinx.html.div
 fun DIV.card(
     cardHeader: String? = null,
     classes: String = "mt-4 h-100",
+    cardBodyClasses: String = "card-body",
     cardBody: DIV.() -> Unit,
 ) {
     div(classes = "card $classes") {
@@ -14,6 +15,6 @@ fun DIV.card(
                 +cardHeader
             }
         }
-        div(classes = "card-body", block = cardBody)
+        div(classes = cardBodyClasses, block = cardBody)
     }
 }

@@ -199,6 +199,23 @@ internal class ContactNotifierTest {
     }
 
     @Test
+    fun `does not notify contacts with notifications disabled`() {
+        val disabledContact = contact(id = 3, name = "Opted Out", phoneNumber = "+18005550000", notificationsEnabled = false)
+        every { notificationDAO.getLatestNotification() } returns Notification(
+            1,
+            Instant.now().minus(25, ChronoUnit.HOURS)
+        )
+        every { contactDao.selectActiveContacts() } returns listOf(zachContact, disabledContact)
+
+        runBlocking {
+            notifier.pressed(presser)
+        }
+
+        coVerify(timeout = 2000) { messagingService.sendMessage(zachContact, any()) }
+        coVerify(exactly = 0, timeout = 1000) { messagingService.sendMessage(disabledContact, any()) }
+    }
+
+    @Test
     fun `creates new notification record`() {
         val overOneDayAgo = Instant.now().minus(25, ChronoUnit.HOURS)
         every { notificationDAO.getLatestNotification() } returns Notification(1, overOneDayAgo)

@@ -5,22 +5,36 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.html.respondHtml
+import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondOutputStream
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
+import kotlinx.html.ButtonType
+import kotlinx.html.DIV
+import kotlinx.html.FlowContent
+import kotlinx.html.FormMethod
+import kotlinx.html.InputType
 import kotlinx.html.ThScope
 import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
+import kotlinx.html.form
 import kotlinx.html.h1
 import kotlinx.html.h2
 import kotlinx.html.head
+import kotlinx.html.id
+import kotlinx.html.input
+import kotlinx.html.label
 import kotlinx.html.p
+import kotlinx.html.script
+import kotlinx.html.span
 import kotlinx.html.table
 import kotlinx.html.td
 import kotlinx.html.th
@@ -28,9 +42,13 @@ import kotlinx.html.title
 import kotlinx.html.tr
 import sh.zachwal.button.controller.Controller
 import sh.zachwal.button.db.dao.ContactDAO
+import sh.zachwal.button.db.jdbi.Contact
 import sh.zachwal.button.roles.contactRoute
 import sh.zachwal.button.session.principals.ContactSessionPrincipal
+import sh.zachwal.button.sharedhtml.bootstrapJs
+import sh.zachwal.button.sharedhtml.card
 import sh.zachwal.button.sharedhtml.headSetup
+import sh.zachwal.button.sharedhtml.jqueryJs
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,43 +59,94 @@ class ContactController @Inject constructor(
     private val contactDataService: ContactDataService,
 ) {
 
-    internal fun Routing.contactInfo() {
+    private fun DIV.contactInfoCard(contact: Contact) {
+        card(cardHeader = "Contact Info", classes = "mt-4", cardBodyClasses = "card-body p-0") {
+            table(classes = "table mb-0") {
+                tr {
+                    th {
+                        scope = ThScope.row
+                        +"Name"
+                    }
+                    td { +contact.name }
+                }
+                tr {
+                    th {
+                        scope = ThScope.row
+                        +"Phone number"
+                    }
+                    td { +contact.phoneNumber }
+                }
+            }
+        }
+    }
+
+    private fun DIV.notificationSettingsCard(contact: Contact) {
+        card(cardHeader = "Notification Settings", classes = "mt-4") {
+            form(action = "/contact/preferences", method = FormMethod.post) {
+                div(classes = "form-group") {
+                    div(classes = "custom-control custom-switch") {
+                        input(type = InputType.checkBox, classes = "custom-control-input") {
+                            id = "notificationsEnabled"
+                            name = "notificationsEnabled"
+                            checked = contact.notificationPreferences.notificationsEnabled
+                        }
+                        label(classes = "custom-control-label") {
+                            attributes["for"] = "notificationsEnabled"
+                            +"Receive text messages from The Button"
+                        }
+                    }
+                    if (!contact.notificationPreferences.notificationsEnabled) {
+                        p(classes = "text-muted mt-2 mb-0") {
+                            +"You won't receive any texts until you turn this back on."
+                        }
+                    }
+                }
+                div(classes = "d-flex justify-content-end") {
+                    button(type = ButtonType.submit, classes = "btn btn-primary") {
+                        +"Save"
+                    }
+                }
+            }
+        }
+    }
+
+    private fun FlowContent.savedAlert() {
+        div(classes = "alert alert-success alert-dismissible fade show fixed-bottom mb-0") {
+            id = "savedAlert"
+            attributes["role"] = "alert"
+            +"Settings saved."
+            button(classes = "close") {
+                attributes["data-dismiss"] = "alert"
+                span { +"×" }
+            }
+        }
+    }
+
+    internal fun Routing.contactSettings() {
         contactRoute("/contact") {
             get {
                 val contactSession = call.sessions.get<ContactSessionPrincipal>()!!
                 val contact = contactDAO.findContact(contactSession.contactId) ?: run {
-                    call.respond(
-                        HttpStatusCode.NotFound,
-                        "Contact not found"
-                    )
+                    call.respond(HttpStatusCode.NotFound, "Contact not found")
                     return@get
                 }
+                val saved = call.request.queryParameters["saved"] == "true"
                 call.respondHtml {
                     head {
-                        title { +"Contact" }
+                        title { +"Settings" }
                         headSetup()
+                        jqueryJs()
+                        bootstrapJs()
+                        script(src = "/static/src/contact/toast.js") {}
                     }
                     body {
                         div(classes = "container") {
-                            h1(classes = "mt-4 mx-2") {
-                                +"Contact Info"
-                            }
-                            table(classes = "table mt-4") {
-                                tr {
-                                    th {
-                                        scope = ThScope.row
-                                        +"Name"
-                                    }
-                                    td { +contact.name }
-                                }
-                                tr {
-                                    th {
-                                        scope = ThScope.row
-                                        +"Phone number"
-                                    }
-                                    td { +contact.phoneNumber }
-                                }
-                            }
+                            h1(classes = "mt-4 text-center font-weight-bold") { +"Settings" }
+                            contactInfoCard(contact)
+                            notificationSettingsCard(contact)
+                        }
+                        if (saved) {
+                            savedAlert()
                         }
                     }
                 }
@@ -131,6 +200,22 @@ class ContactController @Inject constructor(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    internal fun Routing.contactPreferences() {
+        contactRoute("/contact/preferences") {
+            post {
+                val contactSession = call.sessions.get<ContactSessionPrincipal>()!!
+                val params = call.receiveParameters()
+                val notificationsEnabled = params["notificationsEnabled"] != null
+                val updated = contactDAO.updateNotificationPreferences(contactSession.contactId, notificationsEnabled)
+                if (updated == null) {
+                    call.respond(HttpStatusCode.NotFound, "Contact not found")
+                    return@post
+                }
+                call.respondRedirect("/contact?saved=true")
             }
         }
     }
