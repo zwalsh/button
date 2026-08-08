@@ -1,8 +1,10 @@
 package sh.zachwal.button.presser
 
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.jdbi.contact
@@ -43,8 +45,10 @@ class SnapshotTest {
         val contact1 = contact(id = 1, name = "Alice")
         val presser1 = mockk<Presser>(relaxed = true)
         every { presser1.contact } returns contact1
+        every { presser1.name() } returns contact1.name
         val anonymousPresser = mockk<Presser>(relaxed = true)
         every { anonymousPresser.contact } returns null
+        every { anonymousPresser.name() } returns "🐱"
         val newPresser = mockk<Presser>(relaxed = true)
         every { newPresser.contact } returns null
 
@@ -56,16 +60,21 @@ class SnapshotTest {
 
         manager.addPresser(newPresser)
 
-        coVerify { newPresser.sendSnapshot(snapshotWithDailyStats(count = 2, names = listOf("Alice"))) }
+        val sent = slot<Snapshot>()
+        coVerify { newPresser.sendSnapshot(capture(sent)) }
+        assertThat(sent.captured.count).isEqualTo(2)
+        assertThat(sent.captured.names).containsExactly("Alice", "🐱")
     }
 
     @Test
-    fun `snapshot only includes authenticated presser names, not anonymous`() = runBlocking {
+    fun `snapshot includes anonymous presser names as their assigned animal emoji`() = runBlocking {
         val contact = contact(id = 1, name = "Alice")
         val authenticatedPresser = mockk<Presser>(relaxed = true)
         every { authenticatedPresser.contact } returns contact
+        every { authenticatedPresser.name() } returns contact.name
         val anonymousPresser = mockk<Presser>(relaxed = true)
         every { anonymousPresser.contact } returns null
+        every { anonymousPresser.name() } returns "🐶"
         val newPresser = mockk<Presser>(relaxed = true)
         every { newPresser.contact } returns null
 
@@ -77,7 +86,10 @@ class SnapshotTest {
 
         manager.addPresser(newPresser)
 
-        // count is 2 (both pressing), but names only contains authenticated user
-        coVerify { newPresser.sendSnapshot(snapshotWithDailyStats(count = 2, names = listOf("Alice"))) }
+        // count is 2 (both pressing), names contains the authenticated user and the anonymous presser's emoji
+        val sent = slot<Snapshot>()
+        coVerify { newPresser.sendSnapshot(capture(sent)) }
+        assertThat(sent.captured.count).isEqualTo(2)
+        assertThat(sent.captured.names).containsExactly("Alice", "🐶")
     }
 }

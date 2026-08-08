@@ -26,6 +26,13 @@ class PresserTest {
     private val mapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
     @Test
+    fun `name returns the name it was constructed with`() {
+        val presser = Presser(mockk(relaxed = true), mockk(relaxed = true), "host", null, "🐱", mapper, Dispatchers.IO)
+
+        assertThat(presser.name()).isEqualTo("🐱")
+    }
+
+    @Test
     fun `oldest snapshot is dropped when drop-oldest channel overflows`() = runBlocking {
         val session = mockk<WebSocketServerSession>(relaxed = true)
         every { session.incoming } returns Channel<Frame>() // never produces frames
@@ -41,7 +48,7 @@ class PresserTest {
             sentTexts.send((firstArg<Frame>() as Frame.Text).readText())
         }
 
-        val presser = Presser(session, mockk(relaxed = true), "host", null, mapper, Dispatchers.IO)
+        val presser = Presser(session, mockk(relaxed = true), "host", null, "🐱", mapper, Dispatchers.IO)
         val job = launch(Dispatchers.IO) { presser.watchChannels() }
 
         // Send snapshot 1 — coroutine picks it up immediately and blocks on the WebSocket send

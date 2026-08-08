@@ -21,7 +21,9 @@ class PersonPressingBroadcastTest {
         val presser1 = mockk<Presser>(relaxed = true)
         val presser2 = mockk<Presser>(relaxed = true)
         every { presser1.contact } returns contact1
+        every { presser1.name() } returns contact1.name
         every { presser2.contact } returns contact2
+        every { presser2.name() } returns contact2.name
         val manager = PresserManager(dailyStatsService)
         manager.addPresser(presser1)
         manager.addPresser(presser2)
@@ -39,7 +41,9 @@ class PersonPressingBroadcastTest {
         val presser1 = mockk<Presser>(relaxed = true)
         val presser2 = mockk<Presser>(relaxed = true)
         every { presser1.contact } returns contact1
+        every { presser1.name() } returns contact1.name
         every { presser2.contact } returns contact2
+        every { presser2.name() } returns contact2.name
         val manager = PresserManager(dailyStatsService)
         manager.addPresser(presser1)
         manager.addPresser(presser2)

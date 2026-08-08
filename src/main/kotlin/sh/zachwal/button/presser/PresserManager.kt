@@ -38,7 +38,7 @@ class PresserManager @Inject constructor(
     private val scope = CoroutineScope(threadPool.asCoroutineDispatcher() + SupervisorJob())
 
     private fun buildSnapshot(): Snapshot {
-        val names = currentlyPressing.mapNotNull { it.contact?.name }
+        val names = currentlyPressing.map { it.name() }
         val stats = dailyStatsService.currentStats()
         return Snapshot(
             count = currentlyPressing.size,
@@ -76,11 +76,9 @@ class PresserManager @Inject constructor(
     }
 
     private suspend fun sendNewPresser(presser: Presser) {
-        presser.contact?.name?.let { name ->
-            pressers
-                .forEach { p ->
-                    p.notifyPersonPressing(name)
-                }
+        val name = presser.name()
+        pressers.forEach { p ->
+            p.notifyPersonPressing(name)
         }
     }
 
@@ -104,10 +102,9 @@ class PresserManager @Inject constructor(
     override suspend fun released(presser: Presser) {
         currentlyPressing.remove(presser)
         sendCurrentCount()
-        presser.contact?.name?.let { name ->
-            pressers.forEach { p ->
-                p.notifyPersonReleased(name)
-            }
+        val name = presser.name()
+        pressers.forEach { p ->
+            p.notifyPersonReleased(name)
         }
     }
 
