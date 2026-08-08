@@ -118,6 +118,10 @@ tasks.test {
         "--add-opens", "java.base/java.lang=ALL-UNNAMED",
         "--add-opens", "java.base/java.util=ALL-UNNAMED"
     )
+    if (System.getenv("JENKINS_URL") != null) {
+        maxHeapSize = "256m"
+        maxParallelForks = 1
+    }
 }
 
 // Frontend integration tasks: copy frontend assets

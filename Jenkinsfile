@@ -23,13 +23,16 @@ pipeline {
             }
         }
         stage('test') {
-            parallel {
+            stages {
                 stage('Gradle test') {
                     steps {
                         sh './gradlew check'
                     }
                 }
                 stage('frontend test') {
+                    environment {
+                        NODE_OPTIONS = '--max-old-space-size=256'
+                    }
                     steps {
                         sh './frontend/preflight.sh'
                         sh './frontend/test.sh'
