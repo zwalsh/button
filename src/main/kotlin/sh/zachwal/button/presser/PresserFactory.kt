@@ -27,6 +27,7 @@ class PresserFactory @Inject constructor(
     @Named("presserDispatcher")
     private val presserDispatcher: CoroutineDispatcher,
     private val mapper: ObjectMapper,
+    private val animalEmojiAssigner: AnimalEmojiAssigner,
 ) {
 
     fun createPresser(
@@ -44,6 +45,7 @@ class PresserFactory @Inject constructor(
             observer = observer,
             remoteHost = remoteHost,
             contact = contact,
+            name = contact?.name ?: animalEmojiAssigner.next(),
             objectMapper = mapper,
             dispatcher = presserDispatcher,
         )

@@ -42,6 +42,7 @@ class Presser constructor(
     private val observer: PresserObserver,
     val remoteHost: String,
     val contact: Contact?,
+    private val name: String,
     private val objectMapper: ObjectMapper,
     dispatcher: CoroutineDispatcher
 ) {
@@ -139,6 +140,8 @@ class Presser constructor(
     suspend fun sendDailyStats(stats: DailyStats) {
         dropOldestChannel.send(stats)
     }
+
+    fun name(): String = name
 
     fun remote(): String = socketSession.call.request.remote()
 }
