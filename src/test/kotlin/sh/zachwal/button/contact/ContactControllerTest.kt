@@ -28,7 +28,7 @@ internal class ContactControllerTest {
     fun `POST preferences with notificationsEnabled present calls DAO with true`() =
         withContactTestApp(contactId = 1) {
             routing { with(controller) { contactPreferences() } }
-            every { contactDAO.updateNotificationPreferences(1, true) } returns contact(id = 1)
+            every { contactDAO.updateNotificationPreferences(1, true, null) } returns contact(id = 1)
 
             val client = createClient { install(HttpCookies) }
             client.get("/test/set-session")
@@ -40,14 +40,14 @@ internal class ContactControllerTest {
 
             assertEquals(HttpStatusCode.Found, response.status)
             assertEquals("/contact?saved=true", response.headers[HttpHeaders.Location])
-            verify { contactDAO.updateNotificationPreferences(1, true) }
+            verify { contactDAO.updateNotificationPreferences(1, true, null) }
         }
 
     @Test
     fun `POST preferences with notificationsEnabled absent calls DAO with false`() =
         withContactTestApp(contactId = 1) {
             routing { with(controller) { contactPreferences() } }
-            every { contactDAO.updateNotificationPreferences(1, false) } returns contact(id = 1)
+            every { contactDAO.updateNotificationPreferences(1, false, null) } returns contact(id = 1)
 
             val client = createClient { install(HttpCookies) }
             client.get("/test/set-session")
@@ -59,6 +59,6 @@ internal class ContactControllerTest {
 
             assertEquals(HttpStatusCode.Found, response.status)
             assertEquals("/contact?saved=true", response.headers[HttpHeaders.Location])
-            verify { contactDAO.updateNotificationPreferences(1, false) }
+            verify { contactDAO.updateNotificationPreferences(1, false, null) }
         }
 }

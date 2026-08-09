@@ -210,7 +210,11 @@ class ContactController @Inject constructor(
                 val contactSession = call.sessions.get<ContactSessionPrincipal>()!!
                 val params = call.receiveParameters()
                 val notificationsEnabled = params["notificationsEnabled"] != null
-                val updated = contactDAO.updateNotificationPreferences(contactSession.contactId, notificationsEnabled)
+                val updated = contactDAO.updateNotificationPreferences(
+                    contactSession.contactId,
+                    notificationsEnabled,
+                    snoozedUntil = null,
+                )
                 if (updated == null) {
                     call.respond(HttpStatusCode.NotFound, "Contact not found")
                     return@post

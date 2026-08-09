@@ -74,6 +74,11 @@
       "include": {
         "file": "15_add_notifications_enabled.json"
       }
+    },
+    {
+      "include": {
+        "file": "16_add_snoozed_until.json"
+      }
     }
   ]
 }

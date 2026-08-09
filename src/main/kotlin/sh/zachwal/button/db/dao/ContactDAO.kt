@@ -3,6 +3,7 @@ package sh.zachwal.button.db.dao
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import sh.zachwal.button.db.jdbi.Contact
+import java.time.Instant
 
 interface ContactDAO {
 
@@ -51,7 +52,9 @@ interface ContactDAO {
 
     @SqlQuery(
         """
-        UPDATE contact SET notifications_enabled = :notificationsEnabled
+        UPDATE contact SET
+            notifications_enabled = :notificationsEnabled,
+            snoozed_until = :snoozedUntil
         WHERE id = :contactId
         RETURNING *
         """
@@ -59,6 +62,7 @@ interface ContactDAO {
     fun updateNotificationPreferences(
         @Bind("contactId") contactId: Int,
         @Bind("notificationsEnabled") notificationsEnabled: Boolean,
+        @Bind("snoozedUntil") snoozedUntil: Instant?,
     ): Contact?
 
     // TODO deactivate number
