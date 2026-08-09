@@ -80,6 +80,14 @@ internal fun formatSnoozedUntil(instant: Instant, now: Instant = Instant.now()):
     return DateTimeFormatter.ofPattern(pattern, Locale.US).format(zoned)
 }
 
+/**
+ * Friendly display name for a timezone, matching the curated options in the contact page's
+ * timezone selector. Falls back to the raw IANA string if not found in the curated list.
+ */
+internal fun timezoneDisplayName(zoneId: String): String {
+    return (TIMEZONE_OPTIONS + OTHER_TIMEZONE_OPTIONS).find { it.zoneId == zoneId }?.display ?: zoneId
+}
+
 private data class TimezoneOption(val display: String, val zoneId: String) {
     /**
      * The offset shifts with DST, so this is computed per-request rather than once at startup.
