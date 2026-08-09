@@ -58,7 +58,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private val SNOOZE_PRESETS = listOf(
-    "none" to "None",
     "1" to "1 day",
     "7" to "7 days",
     "30" to "30 days",
@@ -102,62 +101,60 @@ class ContactController @Inject constructor(
     }
 
     private fun DIV.notificationSettingsCard(contact: Contact) {
+        val enabled = contact.notificationPreferences.notificationsEnabled
         card(cardHeader = "Notification Settings", classes = "mt-4") {
-            form(action = "/contact/preferences", method = FormMethod.post) {
-                div(classes = "form-group") {
-                    div(classes = "custom-control custom-switch") {
-                        input(type = InputType.checkBox, classes = "custom-control-input") {
-                            id = "notificationsEnabled"
-                            name = "notificationsEnabled"
-                            checked = contact.notificationPreferences.notificationsEnabled
-                        }
-                        label(classes = "custom-control-label") {
-                            attributes["for"] = "notificationsEnabled"
-                            +"Receive text messages from The Button"
-                        }
-                    }
-                    if (!contact.notificationPreferences.notificationsEnabled) {
-                        p(classes = "text-muted mt-2 mb-0") {
-                            +"You won't receive any texts until you turn this back on."
-                        }
+            div(classes = "d-flex justify-content-between align-items-center") {
+                if (enabled) {
+                    span { +"Receive text messages from The Button" }
+                } else {
+                    span(classes = "text-muted") {
+                        +"You won't receive any texts until you turn this back on."
                     }
                 }
-                if (contact.notificationPreferences.notificationsEnabled) {
-                    snoozeSection(contact)
-                }
-                div(classes = "d-flex justify-content-end") {
-                    button(type = ButtonType.submit, classes = "btn btn-primary") {
-                        +"Save"
+                form(action = "/contact/preferences/notifications", method = FormMethod.post) {
+                    input(type = InputType.hidden, name = "notificationsEnabled") {
+                        value = (!enabled).toString()
+                    }
+                    button(type = ButtonType.submit, classes = "btn btn-outline-secondary") {
+                        +if (enabled) "Turn Off" else "Turn On"
                     }
                 }
+            }
+            if (enabled) {
+                snoozeSection(contact)
             }
         }
     }
 
-    private fun FlowContent.snoozeSection(contact: Contact) {
-        div(classes = "form-group mt-3") {
-            label { +"Snooze for:" }
-            div(classes = "btn-group btn-group-toggle d-flex flex-wrap") {
-                attributes["data-toggle"] = "buttons"
-                SNOOZE_PRESETS.forEach { (presetValue, display) ->
-                    val labelClasses = if (presetValue == "none") {
-                        "btn btn-outline-secondary active"
-                    } else {
-                        "btn btn-outline-secondary"
+    private fun DIV.snoozeSection(contact: Contact) {
+        val snoozedUntil = contact.notificationPreferences.snoozedUntil
+        div(classes = "mt-3") {
+            if (snoozedUntil != null && snoozedUntil.isAfter(Instant.now())) {
+                div(classes = "d-flex justify-content-between align-items-center") {
+                    span(classes = "text-muted") {
+                        +"Snoozed until ${formatSnoozedUntil(snoozedUntil)}"
                     }
-                    label(classes = labelClasses) {
-                        input(type = InputType.radio, name = "snoozePreset") {
-                            value = presetValue
-                            checked = presetValue == "none"
+                    form(action = "/contact/preferences/snooze", method = FormMethod.post) {
+                        button(type = ButtonType.submit, classes = "btn btn-outline-secondary") {
+                            +"Clear Snooze"
                         }
-                        +display
                     }
                 }
-            }
-            val snoozedUntil = contact.notificationPreferences.snoozedUntil
-            if (snoozedUntil != null && snoozedUntil.isAfter(Instant.now())) {
-                p(classes = "text-muted mt-2 mb-0") {
-                    +"Snoozed until ${formatSnoozedUntil(snoozedUntil)}"
+            } else {
+                label { +"Snooze for:" }
+                div(classes = "d-flex flex-wrap") {
+                    SNOOZE_PRESETS.forEach { (days, display) ->
+                        form(
+                            action = "/contact/preferences/snooze",
+                            method = FormMethod.post,
+                            classes = "mr-2 mb-2"
+                        ) {
+                            input(type = InputType.hidden, name = "days") { value = days }
+                            button(type = ButtonType.submit, classes = "btn btn-outline-secondary") {
+                                +display
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -257,18 +254,35 @@ class ContactController @Inject constructor(
         }
     }
 
-    internal fun Routing.contactPreferences() {
-        contactRoute("/contact/preferences") {
+    internal fun Routing.contactNotificationsToggle() {
+        contactRoute("/contact/preferences/notifications") {
             post {
                 val contactSession = call.sessions.get<ContactSessionPrincipal>()!!
                 val params = call.receiveParameters()
-                val notificationsEnabled = params["notificationsEnabled"] != null
-                val snoozeDays = params["snoozePreset"]?.toLongOrNull()
-                val snoozedUntil = snoozeDays?.let { Instant.now().plus(it, ChronoUnit.DAYS) }
-                val updated = contactDAO.updateNotificationPreferences(
+                val notificationsEnabled = params["notificationsEnabled"] == "true"
+                val updated = contactDAO.updateNotificationsEnabled(
                     contactSession.contactId,
                     notificationsEnabled,
-                    snoozedUntil = snoozedUntil,
+                )
+                if (updated == null) {
+                    call.respond(HttpStatusCode.NotFound, "Contact not found")
+                    return@post
+                }
+                call.respondRedirect("/contact?saved=true")
+            }
+        }
+    }
+
+    internal fun Routing.contactSnooze() {
+        contactRoute("/contact/preferences/snooze") {
+            post {
+                val contactSession = call.sessions.get<ContactSessionPrincipal>()!!
+                val params = call.receiveParameters()
+                val snoozeDays = params["days"]?.toLongOrNull()
+                val snoozedUntil = snoozeDays?.let { Instant.now().plus(it, ChronoUnit.DAYS) }
+                val updated = contactDAO.updateSnoozedUntil(
+                    contactSession.contactId,
+                    snoozedUntil,
                 )
                 if (updated == null) {
                     call.respond(HttpStatusCode.NotFound, "Contact not found")

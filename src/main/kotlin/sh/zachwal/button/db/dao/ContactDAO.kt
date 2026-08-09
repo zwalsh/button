@@ -52,16 +52,25 @@ interface ContactDAO {
 
     @SqlQuery(
         """
-        UPDATE contact SET
-            notifications_enabled = :notificationsEnabled,
-            snoozed_until = :snoozedUntil
+        UPDATE contact SET notifications_enabled = :notificationsEnabled
         WHERE id = :contactId
         RETURNING *
         """
     )
-    fun updateNotificationPreferences(
+    fun updateNotificationsEnabled(
         @Bind("contactId") contactId: Int,
         @Bind("notificationsEnabled") notificationsEnabled: Boolean,
+    ): Contact?
+
+    @SqlQuery(
+        """
+        UPDATE contact SET snoozed_until = :snoozedUntil
+        WHERE id = :contactId
+        RETURNING *
+        """
+    )
+    fun updateSnoozedUntil(
+        @Bind("contactId") contactId: Int,
         @Bind("snoozedUntil") snoozedUntil: Instant?,
     ): Contact?
 
