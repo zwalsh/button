@@ -14,12 +14,14 @@ import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.ContactPressCountDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.jdbi.Contact
+import sh.zachwal.button.db.jdbi.NotificationPreferences
 import sh.zachwal.button.home.TOKEN_PARAMETER
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.presser.PresserObserver
 import sh.zachwal.button.sms.ControlledContactMessagingService
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
@@ -103,12 +105,31 @@ class ContactNotifier @Inject constructor(
                 logger.info("Skipping contact id=${c.id} name=${c.name}: snoozed until ${prefs.snoozedUntil}")
                 return@filter false
             }
+            if (isInQuietHours(prefs, now)) {
+                logger.info(
+                    "Skipping contact ${c.id}: in quiet hours (${prefs.quietHoursStart}–${prefs.quietHoursEnd} ${prefs.timezone})"
+                )
+                return@filter false
+            }
             true
         }
         val endDate = LocalDate.now()
         val startDate = endDate.minusDays(90)
         val aggregatedCounts = contactPressCountDAO.aggregateCountsByContact(startDate, endDate)
         return contacts.sortedByDescending { c -> aggregatedCounts[c.id] ?: 0 }
+    }
+
+    internal fun isInQuietHours(prefs: NotificationPreferences, now: Instant): Boolean {
+        val tz = prefs.timezone ?: return false
+        val start = prefs.quietHoursStart ?: return false
+        val end = prefs.quietHoursEnd ?: return false
+        val localTime = now.atZone(ZoneId.of(tz)).toLocalTime()
+        return if (start <= end) {
+            localTime >= start && localTime < end
+        } else {
+            // Wraps midnight, e.g. 23:00-07:00
+            localTime >= start || localTime < end
+        }
     }
 
     private fun linkForContact(contact: Contact): String {

@@ -77,16 +77,21 @@ fun updateQuietHours(
 
 ---
 
-## PR 3b — Filtering, Endpoint, UI
+## PR 3b — Filtering
 
-### `ContactNotifier` — `isInQuietHours()`
+**Scope note:** the original plan bundled filtering, endpoint, and UI into one PR. That was split at
+implementation time: this PR ships filtering only; endpoint + UI move to [PR 3c](#pr-3c--endpoint-ui) below
+(not yet started). Until 3c ships, quiet hours can only be set directly in the database — there's no
+user-facing way to configure them yet, so the filter is effectively inert in production but fully tested.
 
-Add private helper and filter:
+### `ContactNotifier` — `isInQuietHours()` — shipped
+
+Added as an `internal` (not `private`) helper so it's directly unit-testable, and a filter clause:
 
 ```kotlin
 .filter { c -> !isInQuietHours(c.notificationPreferences, now) }
 
-private fun isInQuietHours(prefs: NotificationPreferences, now: Instant): Boolean {
+internal fun isInQuietHours(prefs: NotificationPreferences, now: Instant): Boolean {
     val tz = prefs.timezone ?: return false
     val start = prefs.quietHoursStart ?: return false
     val end = prefs.quietHoursEnd ?: return false
@@ -100,7 +105,25 @@ private fun isInQuietHours(prefs: NotificationPreferences, now: Instant): Boolea
 }
 ```
 
-Log at DEBUG when skipped: `"Skipping contact ${c.id}: in quiet hours (${prefs.quietHoursStart}–${prefs.quietHoursEnd} ${prefs.timezone})"`.
+Logs at INFO when skipped (matching the existing disabled/snoozed filters, not DEBUG as originally planned):
+`"Skipping contact ${c.id}: in quiet hours (${prefs.quietHoursStart}–${prefs.quietHoursEnd} ${prefs.timezone})"`.
+
+### Tests — shipped
+
+Unit tests for `isInQuietHours` in `ContactNotifierTest.kt`:
+- Standard window (22:00–23:00 UTC): time inside, outside, at each boundary
+- Midnight-wrapping window (23:00–07:00 UTC): same, both sides of midnight
+- Null timezone / null start returns false
+
+Plus one `pressed()`-level integration test confirming a contact whose quiet window contains the current
+time is skipped while another contact is still notified.
+
+---
+
+## PR 3c — Endpoint, UI
+
+Not started. Adds the `POST /contact/preferences/quiet-hours` endpoint and the contact-page UI for setting
+quiet hours, described below (unchanged from the original plan).
 
 ### `POST /contact/preferences/quiet-hours` — new endpoint
 
@@ -175,11 +198,6 @@ if (!sel.value) {
 ```
 
 ### Tests
-
-Unit tests for `isInQuietHours`:
-- Standard window (e.g. 22:00–06:00): time inside, outside, at boundary
-- Midnight-wrapping window (e.g. 23:00–07:00): same
-- Null timezone / null start returns false
 
 Integration test for quiet hours round-trip via `POST /contact/preferences/quiet-hours`.
 

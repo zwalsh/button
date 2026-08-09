@@ -18,13 +18,17 @@ import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.dao.ContactPressCountDAO
 import sh.zachwal.button.db.dao.NotificationDAO
 import sh.zachwal.button.db.jdbi.Notification
+import sh.zachwal.button.db.jdbi.NotificationPreferences
 import sh.zachwal.button.db.jdbi.contact
 import sh.zachwal.button.home.TOKEN_PARAMETER
 import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.sms.ControlledContactMessagingService
 import sh.zachwal.button.sms.MessageQueued
 import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 internal class ContactNotifierTest {
@@ -256,6 +260,98 @@ internal class ContactNotifierTest {
         }
 
         coVerify(timeout = 2000) { messagingService.sendMessage(expiredSnoozeContact, any()) }
+    }
+
+    @Test
+    fun `does not notify contacts who are in quiet hours`() {
+        // Window built from the actual current UTC time so it always contains "now",
+        // regardless of when the test runs (the real code calls Instant.now() internally).
+        val nowLocal = LocalTime.now(ZoneOffset.UTC)
+        val quietContact = contact(
+            id = 3,
+            name = "Quiet",
+            phoneNumber = "+18005553333",
+            quietHoursStart = nowLocal.minusMinutes(1),
+            quietHoursEnd = nowLocal.plusHours(1),
+            timezone = "UTC",
+        )
+        every { notificationDAO.getLatestNotification() } returns Notification(
+            1,
+            Instant.now().minus(25, ChronoUnit.HOURS)
+        )
+        every { contactDao.selectActiveContacts() } returns listOf(zachContact, quietContact)
+
+        runBlocking {
+            notifier.pressed(presser)
+        }
+
+        coVerify(timeout = 2000) { messagingService.sendMessage(zachContact, any()) }
+        coVerify(exactly = 0, timeout = 1000) { messagingService.sendMessage(quietContact, any()) }
+    }
+
+    @Test
+    fun `isInQuietHours - standard window`() {
+        // window 22:00-23:00 UTC, not wrapping
+        val prefs = NotificationPreferences(
+            notificationsEnabled = true,
+            snoozedUntil = null,
+            quietHoursStart = LocalTime.of(22, 0),
+            quietHoursEnd = LocalTime.of(23, 0),
+            timezone = "UTC",
+        )
+        val inside = Instant.parse("2026-01-01T22:30:00Z")
+        val outside = Instant.parse("2026-01-01T21:00:00Z")
+        val atStart = Instant.parse("2026-01-01T22:00:00Z")
+        val atEnd = Instant.parse("2026-01-01T23:00:00Z")
+
+        assertTrue(notifier.isInQuietHours(prefs, inside))
+        assertFalse(notifier.isInQuietHours(prefs, outside))
+        assertTrue(notifier.isInQuietHours(prefs, atStart))
+        assertFalse(notifier.isInQuietHours(prefs, atEnd))
+    }
+
+    @Test
+    fun `isInQuietHours - midnight-wrapping window`() {
+        val prefs = NotificationPreferences(
+            notificationsEnabled = true,
+            snoozedUntil = null,
+            quietHoursStart = LocalTime.of(23, 0),
+            quietHoursEnd = LocalTime.of(7, 0),
+            timezone = "UTC",
+        )
+        val insideBeforeMidnight = Instant.parse("2026-01-01T23:30:00Z")
+        val insideAfterMidnight = Instant.parse("2026-01-01T03:00:00Z")
+        val outside = Instant.parse("2026-01-01T12:00:00Z")
+        val atStart = Instant.parse("2026-01-01T23:00:00Z")
+        val atEnd = Instant.parse("2026-01-01T07:00:00Z")
+
+        assertTrue(notifier.isInQuietHours(prefs, insideBeforeMidnight))
+        assertTrue(notifier.isInQuietHours(prefs, insideAfterMidnight))
+        assertFalse(notifier.isInQuietHours(prefs, outside))
+        assertTrue(notifier.isInQuietHours(prefs, atStart))
+        assertFalse(notifier.isInQuietHours(prefs, atEnd))
+    }
+
+    @Test
+    fun `isInQuietHours - null timezone or start returns false`() {
+        val noTimezone = NotificationPreferences(
+            notificationsEnabled = true,
+            snoozedUntil = null,
+            quietHoursStart = LocalTime.of(23, 0),
+            quietHoursEnd = LocalTime.of(7, 0),
+            timezone = null,
+        )
+        val noStart = NotificationPreferences(
+            notificationsEnabled = true,
+            snoozedUntil = null,
+            quietHoursStart = null,
+            quietHoursEnd = LocalTime.of(7, 0),
+            timezone = "UTC",
+        )
+        val now = Instant.now()
+
+        assertFalse(notifier.isInQuietHours(noTimezone, now))
+        assertFalse(notifier.isInQuietHours(noStart, now))
     }
 
     @Test
