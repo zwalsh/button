@@ -117,3 +117,30 @@ button:active {
 .pointerparent {
     touch-action: none;
 }
+
+.settings-gear {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    color: #aaa;
+    opacity: 0.7;
+    line-height: 0;
+    z-index: 20;
+    transition: opacity .15s ease-in;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    outline: none;
+}
+
+.settings-gear svg {
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
+
+.settings-gear:hover,
+.settings-gear:focus {
+    opacity: 1;
+    color: #888;
+}
