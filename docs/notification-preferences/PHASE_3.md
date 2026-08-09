@@ -121,10 +121,19 @@ time is skipped while another contact is still notified.
 
 ---
 
-## PR 3c — Endpoint, UI
+## PR 3c — Endpoint, UI — shipped
 
-Not started. Adds the `POST /contact/preferences/quiet-hours` endpoint and the contact-page UI for setting
-quiet hours, described below (unchanged from the original plan).
+Adds the `POST /contact/preferences/quiet-hours` endpoint and the contact-page UI for setting quiet hours.
+Two changes from the original plan below, made during manual QA:
+
+- **No browser-detection JS.** `timezone` has had a DB-level default of `America/New_York` since migration
+  `17_add_quiet_hours.json`, so `NotificationPreferences.timezone` is never actually `null` in practice — the
+  placeholder option and `Intl.DateTimeFormat()` detection script were dead code (the select was never empty
+  for the script to fill in). Dropped both; the `<select>` always has the contact's saved zone (or
+  `America/New_York`) pre-selected, and the user picks manually if that's wrong.
+- **Added a "Clear Quiet Hours" button**, shown only when quiet hours are currently set. It's a second
+  `<form>` (same pattern as "Clear Snooze") posting hidden empty `quietHoursStart`/`quietHoursEnd` fields
+  plus the currently-saved `timezone`, so clearing the window doesn't also drop the timezone preference.
 
 ### `POST /contact/preferences/quiet-hours` — new endpoint
 
@@ -186,17 +195,8 @@ Auckland             Pacific/Auckland
 ... (add others as needed)
 ```
 
-Pre-select the saved `timezone` when set. When not yet set, pre-select via browser detection with a script added via 
-`frontend/README.md` conventions:
-
-```javascript
-const sel = document.getElementById('timezone-select');
-if (!sel.value) {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const opt = sel.querySelector(`option[value="${CSS.escape(tz)}"]`);
-    if (opt) sel.value = tz;
-}
-```
+Pre-select the saved `timezone` (see as-built note above — always set in practice, so no browser-detection
+fallback was needed).
 
 ### Tests
 

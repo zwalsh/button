@@ -33,8 +33,10 @@ import kotlinx.html.hr
 import kotlinx.html.id
 import kotlinx.html.input
 import kotlinx.html.label
+import kotlinx.html.option
 import kotlinx.html.p
 import kotlinx.html.script
+import kotlinx.html.select
 import kotlinx.html.span
 import kotlinx.html.table
 import kotlinx.html.td
@@ -50,9 +52,12 @@ import sh.zachwal.button.sharedhtml.bootstrapJs
 import sh.zachwal.button.sharedhtml.card
 import sh.zachwal.button.sharedhtml.headSetup
 import sh.zachwal.button.sharedhtml.jqueryJs
+import java.time.DateTimeException
 import java.time.Instant
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 import javax.inject.Inject
@@ -67,11 +72,47 @@ private val SNOOZE_PRESETS = listOf(
 
 private val SNOOZE_ZONE = ZoneId.of("America/New_York")
 
+private val QUIET_HOURS_TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
 internal fun formatSnoozedUntil(instant: Instant, now: Instant = Instant.now()): String {
     val zoned = instant.atZone(SNOOZE_ZONE)
     val pattern = if (zoned.year == now.atZone(SNOOZE_ZONE).year) "MMM d" else "MMM d, yyyy"
     return DateTimeFormatter.ofPattern(pattern, Locale.US).format(zoned)
 }
+
+private data class TimezoneOption(val display: String, val zoneId: String)
+
+private val TIMEZONE_OPTIONS = listOf(
+    TimezoneOption("Eastern Time (US)", "America/New_York"),
+    TimezoneOption("Central Time (US)", "America/Chicago"),
+    TimezoneOption("Mountain Time (US)", "America/Denver"),
+    TimezoneOption("Pacific Time (US)", "America/Los_Angeles"),
+)
+
+private val OTHER_TIMEZONE_OPTIONS = listOf(
+    TimezoneOption("Alaska", "America/Anchorage"),
+    TimezoneOption("Hawaii", "Pacific/Honolulu"),
+    TimezoneOption("Atlantic (Canada)", "America/Halifax"),
+    TimezoneOption("Mexico City", "America/Mexico_City"),
+    TimezoneOption("Sao Paulo", "America/Sao_Paulo"),
+    TimezoneOption("London / UTC", "Europe/London"),
+    TimezoneOption("Central Europe", "Europe/Paris"),
+    TimezoneOption("Eastern Europe", "Europe/Helsinki"),
+    TimezoneOption("Moscow", "Europe/Moscow"),
+    TimezoneOption("Johannesburg", "Africa/Johannesburg"),
+    TimezoneOption("Cairo", "Africa/Cairo"),
+    TimezoneOption("Dubai", "Asia/Dubai"),
+    TimezoneOption("Karachi", "Asia/Karachi"),
+    TimezoneOption("India", "Asia/Kolkata"),
+    TimezoneOption("Bangkok", "Asia/Bangkok"),
+    TimezoneOption("Singapore / HK", "Asia/Singapore"),
+    TimezoneOption("Shanghai", "Asia/Shanghai"),
+    TimezoneOption("Tokyo", "Asia/Tokyo"),
+    TimezoneOption("Seoul", "Asia/Seoul"),
+    TimezoneOption("Sydney", "Australia/Sydney"),
+    TimezoneOption("Perth", "Australia/Perth"),
+    TimezoneOption("Auckland", "Pacific/Auckland"),
+)
 
 @Controller
 @Singleton
@@ -108,6 +149,8 @@ class ContactController @Inject constructor(
             if (enabled) {
                 hr(classes = "my-3")
                 snoozeSection(contact)
+                hr(classes = "my-3")
+                quietHoursSection(contact)
             }
         }
     }
@@ -166,6 +209,96 @@ class ContactController @Inject constructor(
                                 +display
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun DIV.quietHoursSection(contact: Contact) {
+        val prefs = contact.notificationPreferences
+        div(classes = "mt-3") {
+            label { +"Quiet hours" }
+            form(
+                action = "/contact/preferences/quiet-hours",
+                method = FormMethod.post,
+                classes = "form-row align-items-end"
+            ) {
+                div(classes = "form-group col-auto mb-2") {
+                    label(classes = "small text-muted mb-1") {
+                        htmlFor = "quietHoursStart"
+                        +"From"
+                    }
+                    input(
+                        type = InputType.time,
+                        name = "quietHoursStart",
+                        classes = "form-control form-control-sm"
+                    ) {
+                        id = "quietHoursStart"
+                        value = prefs.quietHoursStart?.format(QUIET_HOURS_TIME_FORMAT) ?: ""
+                    }
+                }
+                div(classes = "form-group col-auto mb-2") {
+                    label(classes = "small text-muted mb-1") {
+                        htmlFor = "quietHoursEnd"
+                        +"To"
+                    }
+                    input(
+                        type = InputType.time,
+                        name = "quietHoursEnd",
+                        classes = "form-control form-control-sm"
+                    ) {
+                        id = "quietHoursEnd"
+                        value = prefs.quietHoursEnd?.format(QUIET_HOURS_TIME_FORMAT) ?: ""
+                    }
+                }
+                div(classes = "form-group col-auto mb-2") {
+                    label(classes = "small text-muted mb-1") {
+                        htmlFor = "timezone-select"
+                        +"Timezone"
+                    }
+                    select(classes = "form-control form-control-sm") {
+                        name = "timezone"
+                        val selectedZone = prefs.timezone ?: "America/New_York"
+                        TIMEZONE_OPTIONS.forEach { tz ->
+                            option {
+                                value = tz.zoneId
+                                selected = tz.zoneId == selectedZone
+                                +tz.display
+                            }
+                        }
+                        option {
+                            disabled = true
+                            +"──────────────────"
+                        }
+                        OTHER_TIMEZONE_OPTIONS.forEach { tz ->
+                            option {
+                                value = tz.zoneId
+                                selected = tz.zoneId == selectedZone
+                                +tz.display
+                            }
+                        }
+                    }
+                }
+                div(classes = "form-group col-auto mb-2") {
+                    button(type = ButtonType.submit, classes = "btn btn-outline-secondary btn-sm") {
+                        +"Save"
+                    }
+                }
+            }
+            if (prefs.quietHoursStart != null) {
+                form(
+                    action = "/contact/preferences/quiet-hours",
+                    method = FormMethod.post,
+                    classes = "mt-2"
+                ) {
+                    input(type = InputType.hidden, name = "quietHoursStart") { value = "" }
+                    input(type = InputType.hidden, name = "quietHoursEnd") { value = "" }
+                    prefs.timezone?.let { tz ->
+                        input(type = InputType.hidden, name = "timezone") { value = tz }
+                    }
+                    button(type = ButtonType.submit, classes = "btn btn-outline-secondary btn-sm") {
+                        +"Clear Quiet Hours"
                     }
                 }
             }
@@ -295,6 +428,59 @@ class ContactController @Inject constructor(
                 val updated = contactDAO.updateSnoozedUntil(
                     contactSession.contactId,
                     snoozedUntil,
+                )
+                if (updated == null) {
+                    call.respond(HttpStatusCode.NotFound, "Contact not found")
+                    return@post
+                }
+                call.respondRedirect("/contact?saved=true")
+            }
+        }
+    }
+
+    internal fun Routing.contactQuietHours() {
+        contactRoute("/contact/preferences/quiet-hours") {
+            post {
+                val contactSession = call.sessions.get<ContactSessionPrincipal>()!!
+                val params = call.receiveParameters()
+                val startParam = params["quietHoursStart"]?.takeIf { it.isNotBlank() }
+                val endParam = params["quietHoursEnd"]?.takeIf { it.isNotBlank() }
+                val timezoneParam = params["timezone"]?.takeIf { it.isNotBlank() }
+
+                if ((startParam == null) != (endParam == null)) {
+                    call.respond(HttpStatusCode.BadRequest, "quietHoursStart and quietHoursEnd must be set together")
+                    return@post
+                }
+
+                if (timezoneParam != null) {
+                    try {
+                        ZoneId.of(timezoneParam)
+                    } catch (e: DateTimeException) {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid timezone: $timezoneParam")
+                        return@post
+                    }
+                }
+
+                if (startParam != null && timezoneParam == null) {
+                    call.respond(HttpStatusCode.BadRequest, "timezone is required when quiet hours are set")
+                    return@post
+                }
+
+                val quietHoursStart: LocalTime?
+                val quietHoursEnd: LocalTime?
+                try {
+                    quietHoursStart = startParam?.let { LocalTime.parse(it) }
+                    quietHoursEnd = endParam?.let { LocalTime.parse(it) }
+                } catch (e: DateTimeParseException) {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid time format, expected HH:mm")
+                    return@post
+                }
+
+                val updated = contactDAO.updateQuietHours(
+                    contactSession.contactId,
+                    quietHoursStart,
+                    quietHoursEnd,
+                    timezoneParam,
                 )
                 if (updated == null) {
                     call.respond(HttpStatusCode.NotFound, "Contact not found")

@@ -10,7 +10,7 @@ Give contacts self-service control over SMS notifications from the `/contact` pa
 
 ## Current State
 
-_Last updated 2026-08-09, after Phase 2a shipped, PR 2b in progress, PR 3a in progress._
+_Last updated 2026-08-09, after Phase 3 shipped._
 
 **Phase 1 (opt-out toggle) is shipped** — see `PHASE_1.md` for as-built details. The `contact` table now has
 a `notifications_enabled` column (migration `15_add_notifications_enabled.json`), exposed on `Contact` via a
@@ -25,13 +25,14 @@ table now has a nullable `snoozed_until` column (migration `16_add_snoozed_until
 `NotificationPreferences` as `snoozedUntil: Instant?` and to `ContactDAO.updateNotificationPreferences`.
 PR 2b (filtering, endpoint, UI) is in progress.
 
-**Phase 3a (quiet hours migration, model, DAO) is in progress** — see `PHASE_3.md`. The `contact` table now
-has `quiet_hours_start`/`quiet_hours_end` (nullable `time`) and `timezone` (nullable `VARCHAR(64)`, defaults
+**Phase 3 (quiet hours) is shipped** — see `PHASE_3.md` for as-built details. The `contact` table has
+`quiet_hours_start`/`quiet_hours_end` (nullable `time`) and `timezone` (nullable `VARCHAR(64)`, defaults
 to `America/New_York`) columns (migration `17_add_quiet_hours.json`), with a CHECK constraint requiring
 `timezone` whenever either quiet-hours column is set. `NotificationPreferences` gained
 `quietHoursStart`/`quietHoursEnd`/`timezone`, and `ContactDAO.updateQuietHours` updates all three together.
-PR 3b (filtering only — split from the originally-planned filtering+endpoint+UI PR, see `PHASE_3.md`) is
-in progress. PR 3c (endpoint, UI) has not started.
+`ContactNotifier.contactsToNotify()` filters out contacts currently in their quiet window. The `/contact`
+page has a quiet hours form (From/To time inputs + timezone select) in the Notification Settings card,
+posting to `/contact/preferences/quiet-hours`, plus a "Clear Quiet Hours" button when a window is set.
 
 Phase 4 (admin visibility) is not started.
 
@@ -84,8 +85,8 @@ Each phase ships one end-to-end working feature. Within each phase, the migratio
 | Phase | What ships | PRs | Status |
 |-------|-----------|-----|--------|
 | 1 | Opt-out toggle | 1a: migration + model + DAO · 1b: filtering + endpoint + UI | Shipped |
-| 2 | Snooze | 2a: migration + model + DAO · 2b: filtering + endpoint + UI | 2a shipped, 2b in progress |
-| 3 | Quiet hours | 3a: migration + model + DAO · 3b: filtering · 3c: endpoint + UI | 3a in progress, 3b in progress |
+| 2 | Snooze | 2a: migration + model + DAO · 2b: filtering + endpoint + UI | Shipped |
+| 3 | Quiet hours | 3a: migration + model + DAO · 3b: filtering · 3c: endpoint + UI | Shipped |
 | 4 | Admin visibility | Single PR: read-only prefs on admin contact cards | Not started |
 
 Phases deploy in order. Each PR is independently mergeable and safe to run on testbutton before production.
