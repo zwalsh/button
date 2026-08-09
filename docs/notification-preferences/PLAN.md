@@ -30,7 +30,8 @@ has `quiet_hours_start`/`quiet_hours_end` (nullable `time`) and `timezone` (null
 to `America/New_York`) columns (migration `17_add_quiet_hours.json`), with a CHECK constraint requiring
 `timezone` whenever either quiet-hours column is set. `NotificationPreferences` gained
 `quietHoursStart`/`quietHoursEnd`/`timezone`, and `ContactDAO.updateQuietHours` updates all three together.
-PR 3b (filtering, endpoint, UI) has not started.
+PR 3b (filtering only — split from the originally-planned filtering+endpoint+UI PR, see `PHASE_3.md`) is
+in progress. PR 3c (endpoint, UI) has not started.
 
 Phase 4 (admin visibility) is not started.
 
@@ -84,7 +85,7 @@ Each phase ships one end-to-end working feature. Within each phase, the migratio
 |-------|-----------|-----|--------|
 | 1 | Opt-out toggle | 1a: migration + model + DAO · 1b: filtering + endpoint + UI | Shipped |
 | 2 | Snooze | 2a: migration + model + DAO · 2b: filtering + endpoint + UI | 2a shipped, 2b in progress |
-| 3 | Quiet hours | 3a: migration + model + DAO · 3b: filtering + endpoint + UI | 3a in progress |
+| 3 | Quiet hours | 3a: migration + model + DAO · 3b: filtering · 3c: endpoint + UI | 3a in progress, 3b in progress |
 | 4 | Admin visibility | Single PR: read-only prefs on admin contact cards | Not started |
 
 Phases deploy in order. Each PR is independently mergeable and safe to run on testbutton before production.
