@@ -79,6 +79,11 @@
       "include": {
         "file": "16_add_snoozed_until.json"
       }
+    },
+    {
+      "include": {
+        "file": "17_add_quiet_hours.json"
+      }
     }
   ]
 }

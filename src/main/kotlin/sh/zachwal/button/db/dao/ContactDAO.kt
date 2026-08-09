@@ -4,6 +4,7 @@ import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import sh.zachwal.button.db.jdbi.Contact
 import java.time.Instant
+import java.time.LocalTime
 
 interface ContactDAO {
 
@@ -72,6 +73,23 @@ interface ContactDAO {
     fun updateSnoozedUntil(
         @Bind("contactId") contactId: Int,
         @Bind("snoozedUntil") snoozedUntil: Instant?,
+    ): Contact?
+
+    @SqlQuery(
+        """
+        UPDATE contact SET
+            quiet_hours_start = :quietHoursStart,
+            quiet_hours_end   = :quietHoursEnd,
+            timezone          = :timezone
+        WHERE id = :contactId
+        RETURNING *
+        """
+    )
+    fun updateQuietHours(
+        @Bind("contactId") contactId: Int,
+        @Bind("quietHoursStart") quietHoursStart: LocalTime?,
+        @Bind("quietHoursEnd") quietHoursEnd: LocalTime?,
+        @Bind("timezone") timezone: String?,
     ): Contact?
 
     // TODO deactivate number
