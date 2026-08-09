@@ -121,10 +121,33 @@ time is skipped while another contact is still notified.
 
 ---
 
-## PR 3c — Endpoint, UI
+## PR 3c — Endpoint, UI — shipped
 
-Not started. Adds the `POST /contact/preferences/quiet-hours` endpoint and the contact-page UI for setting
-quiet hours, described below (unchanged from the original plan).
+Adds the `POST /contact/preferences/quiet-hours` endpoint and the contact-page UI for setting quiet hours.
+Two changes from the original plan below, made during manual QA:
+
+- **No browser-detection JS.** `timezone` has had a DB-level default of `America/New_York` since migration
+  `17_add_quiet_hours.json`, so `NotificationPreferences.timezone` is never actually `null` in practice — the
+  placeholder option and `Intl.DateTimeFormat()` detection script were dead code (the select was never empty
+  for the script to fill in). Dropped both; the `<select>` always has the contact's saved zone (or
+  `America/New_York`) pre-selected, and the user picks manually if that's wrong.
+- **Added a "Clear Quiet Hours" button**, shown only when quiet hours are currently set. It's a second
+  `<form>` (same pattern as "Clear Snooze") posting hidden empty `quietHoursStart`/`quietHoursEnd` fields
+  plus the currently-saved `timezone`, so clearing the window doesn't also drop the timezone preference.
+- **Each option is labeled with its live GMT offset**, e.g. `(GMT+02:00) Central Europe`, computed
+  per-request from `ZoneId.rules.getOffset()` so it stays correct across DST transitions (a pattern borrowed
+  from `dailygames`' `UserPreferencesService.displayString()`). Considered switching to `dailygames`' full
+  `ZoneId.getAvailableZoneIds()` list (604 IDs, sorted by offset) instead of a curated set, but rejected it —
+  that list is mostly legacy aliases (`US/Pacific`, `Canada/Eastern`, sign-inverted `Etc/GMT+n`) and would be
+  more noise than help for a small contact list, and its GMT-string sort has a bug where UTC (`"Z"`) sorts
+  out of place. The non-US options are sorted by that same live offset (ascending, west to east) when the
+  `<select>` is rendered, rather than hardcoded in offset order, so the ordering stays correct across DST
+  changes too.
+- **Checked the curated list for population coverage** rather than assuming it: walked every ~1-hour-wide
+  GMT offset band and confirmed at least one zone represents it. Found and fixed two gaps — no zone for
+  GMT+01:00 outside DST-only London (added `Africa/Lagos`, ~220M-person Nigeria/West Africa, no DST) and no
+  zone at all for GMT+06:00 (added `Asia/Dhaka`, ~170M-person Bangladesh). Also added `Africa/Nairobi`
+  (GMT+03:00) so East Africa isn't only represented by European cities at the same offset.
 
 ### `POST /contact/preferences/quiet-hours` — new endpoint
 
@@ -186,17 +209,8 @@ Auckland             Pacific/Auckland
 ... (add others as needed)
 ```
 
-Pre-select the saved `timezone` when set. When not yet set, pre-select via browser detection with a script added via 
-`frontend/README.md` conventions:
-
-```javascript
-const sel = document.getElementById('timezone-select');
-if (!sel.value) {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const opt = sel.querySelector(`option[value="${CSS.escape(tz)}"]`);
-    if (opt) sel.value = tz;
-}
-```
+Pre-select the saved `timezone` (see as-built note above — always set in practice, so no browser-detection
+fallback was needed).
 
 ### Tests
 

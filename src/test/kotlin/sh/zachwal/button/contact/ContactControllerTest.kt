@@ -18,6 +18,7 @@ import sh.zachwal.button.db.dao.ContactDAO
 import sh.zachwal.button.db.jdbi.contact
 import sh.zachwal.button.testing.withContactTestApp
 import java.time.Instant
+import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -109,6 +110,112 @@ internal class ContactControllerTest {
             assertEquals(HttpStatusCode.Found, response.status)
             assertEquals("/contact?saved=true", response.headers[HttpHeaders.Location])
             verify { contactDAO.updateSnoozedUntil(1, null) }
+        }
+
+    @Test
+    fun `POST quiet-hours with times and timezone calls DAO with parsed values`() =
+        withContactTestApp(contactId = 1) {
+            routing { with(controller) { contactQuietHours() } }
+            every {
+                contactDAO.updateQuietHours(1, LocalTime.of(23, 0), LocalTime.of(7, 0), "America/New_York")
+            } returns contact(id = 1)
+
+            val client = createClient { install(HttpCookies) }
+            client.get("/test/set-session")
+
+            val response = client.post("/contact/preferences/quiet-hours") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody("quietHoursStart=23:00&quietHoursEnd=07:00&timezone=America/New_York")
+            }
+
+            assertEquals(HttpStatusCode.Found, response.status)
+            assertEquals("/contact?saved=true", response.headers[HttpHeaders.Location])
+            verify { contactDAO.updateQuietHours(1, LocalTime.of(23, 0), LocalTime.of(7, 0), "America/New_York") }
+        }
+
+    @Test
+    fun `POST quiet-hours with empty times clears quiet hours but keeps timezone`() =
+        withContactTestApp(contactId = 1) {
+            routing { with(controller) { contactQuietHours() } }
+            every {
+                contactDAO.updateQuietHours(1, null, null, "America/Chicago")
+            } returns contact(id = 1)
+
+            val client = createClient { install(HttpCookies) }
+            client.get("/test/set-session")
+
+            val response = client.post("/contact/preferences/quiet-hours") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody("quietHoursStart=&quietHoursEnd=&timezone=America/Chicago")
+            }
+
+            assertEquals(HttpStatusCode.Found, response.status)
+            assertEquals("/contact?saved=true", response.headers[HttpHeaders.Location])
+            verify { contactDAO.updateQuietHours(1, null, null, "America/Chicago") }
+        }
+
+    @Test
+    fun `POST quiet-hours with only one time field returns 400`() =
+        withContactTestApp(contactId = 1) {
+            routing { with(controller) { contactQuietHours() } }
+
+            val client = createClient { install(HttpCookies) }
+            client.get("/test/set-session")
+
+            val response = client.post("/contact/preferences/quiet-hours") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody("quietHoursStart=23:00&quietHoursEnd=&timezone=America/New_York")
+            }
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+
+    @Test
+    fun `POST quiet-hours with times but no timezone returns 400`() =
+        withContactTestApp(contactId = 1) {
+            routing { with(controller) { contactQuietHours() } }
+
+            val client = createClient { install(HttpCookies) }
+            client.get("/test/set-session")
+
+            val response = client.post("/contact/preferences/quiet-hours") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody("quietHoursStart=23:00&quietHoursEnd=07:00")
+            }
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+
+    @Test
+    fun `POST quiet-hours with invalid timezone returns 400`() =
+        withContactTestApp(contactId = 1) {
+            routing { with(controller) { contactQuietHours() } }
+
+            val client = createClient { install(HttpCookies) }
+            client.get("/test/set-session")
+
+            val response = client.post("/contact/preferences/quiet-hours") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody("quietHoursStart=23:00&quietHoursEnd=07:00&timezone=Not/AZone")
+            }
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+
+    @Test
+    fun `POST quiet-hours with invalid time format returns 400`() =
+        withContactTestApp(contactId = 1) {
+            routing { with(controller) { contactQuietHours() } }
+
+            val client = createClient { install(HttpCookies) }
+            client.get("/test/set-session")
+
+            val response = client.post("/contact/preferences/quiet-hours") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody("quietHoursStart=not-a-time&quietHoursEnd=07:00&timezone=America/New_York")
+            }
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
         }
 
     @Test
