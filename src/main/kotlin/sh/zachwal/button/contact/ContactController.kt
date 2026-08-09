@@ -29,6 +29,7 @@ import kotlinx.html.form
 import kotlinx.html.h1
 import kotlinx.html.h2
 import kotlinx.html.head
+import kotlinx.html.hr
 import kotlinx.html.id
 import kotlinx.html.input
 import kotlinx.html.label
@@ -105,22 +106,28 @@ class ContactController @Inject constructor(
         card(cardHeader = "Notification Settings", classes = "mt-4") {
             div(classes = "d-flex justify-content-between align-items-center") {
                 if (enabled) {
-                    span { +"Receive text messages from The Button" }
+                    span { +"Text notifications are on." }
                 } else {
                     span(classes = "text-muted") {
-                        +"You won't receive any texts until you turn this back on."
+                        +"Text notifications are off."
                     }
                 }
                 form(action = "/contact/preferences/notifications", method = FormMethod.post) {
                     input(type = InputType.hidden, name = "notificationsEnabled") {
                         value = (!enabled).toString()
                     }
-                    button(type = ButtonType.submit, classes = "btn btn-outline-secondary") {
+                    val toggleClasses = if (enabled) {
+                        "btn btn-outline-danger text-nowrap flex-shrink-0 ml-3"
+                    } else {
+                        "btn btn-outline-success text-nowrap flex-shrink-0 ml-3"
+                    }
+                    button(type = ButtonType.submit, classes = toggleClasses) {
                         +if (enabled) "Turn Off" else "Turn On"
                     }
                 }
             }
             if (enabled) {
+                hr(classes = "my-3")
                 snoozeSection(contact)
             }
         }
