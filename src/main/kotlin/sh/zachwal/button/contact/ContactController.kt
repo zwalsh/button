@@ -80,7 +80,15 @@ internal fun formatSnoozedUntil(instant: Instant, now: Instant = Instant.now()):
     return DateTimeFormatter.ofPattern(pattern, Locale.US).format(zoned)
 }
 
-private data class TimezoneOption(val display: String, val zoneId: String)
+private data class TimezoneOption(val display: String, val zoneId: String) {
+    /**
+     * The offset shifts with DST, so this is computed per-request rather than once at startup.
+     */
+    fun labelWithOffset(now: Instant = Instant.now()): String {
+        val offset = ZoneId.of(zoneId).rules.getOffset(now).id.let { if (it == "Z") "+00:00" else it }
+        return "(GMT$offset) $display"
+    }
+}
 
 private val TIMEZONE_OPTIONS = listOf(
     TimezoneOption("Eastern Time (US)", "America/New_York"),
@@ -89,6 +97,9 @@ private val TIMEZONE_OPTIONS = listOf(
     TimezoneOption("Pacific Time (US)", "America/Los_Angeles"),
 )
 
+// Curated for population coverage, not exhaustiveness: every ~hour-wide GMT offset band with
+// significant population should be represented by at least one zone. See PHASE_3.md for the
+// coverage check behind this list.
 private val OTHER_TIMEZONE_OPTIONS = listOf(
     TimezoneOption("Alaska", "America/Anchorage"),
     TimezoneOption("Hawaii", "Pacific/Honolulu"),
@@ -99,11 +110,14 @@ private val OTHER_TIMEZONE_OPTIONS = listOf(
     TimezoneOption("Central Europe", "Europe/Paris"),
     TimezoneOption("Eastern Europe", "Europe/Helsinki"),
     TimezoneOption("Moscow", "Europe/Moscow"),
+    TimezoneOption("Lagos", "Africa/Lagos"),
     TimezoneOption("Johannesburg", "Africa/Johannesburg"),
     TimezoneOption("Cairo", "Africa/Cairo"),
+    TimezoneOption("Nairobi", "Africa/Nairobi"),
     TimezoneOption("Dubai", "Asia/Dubai"),
     TimezoneOption("Karachi", "Asia/Karachi"),
     TimezoneOption("India", "Asia/Kolkata"),
+    TimezoneOption("Dhaka", "Asia/Dhaka"),
     TimezoneOption("Bangkok", "Asia/Bangkok"),
     TimezoneOption("Singapore / HK", "Asia/Singapore"),
     TimezoneOption("Shanghai", "Asia/Shanghai"),
@@ -264,20 +278,22 @@ class ContactController @Inject constructor(
                             option {
                                 value = tz.zoneId
                                 selected = tz.zoneId == selectedZone
-                                +tz.display
+                                +tz.labelWithOffset()
                             }
                         }
                         option {
                             disabled = true
                             +"──────────────────"
                         }
-                        OTHER_TIMEZONE_OPTIONS.forEach { tz ->
-                            option {
-                                value = tz.zoneId
-                                selected = tz.zoneId == selectedZone
-                                +tz.display
+                        OTHER_TIMEZONE_OPTIONS
+                            .sortedBy { ZoneId.of(it.zoneId).rules.getOffset(Instant.now()).totalSeconds }
+                            .forEach { tz ->
+                                option {
+                                    value = tz.zoneId
+                                    selected = tz.zoneId == selectedZone
+                                    +tz.labelWithOffset()
+                                }
                             }
-                        }
                     }
                 }
                 div(classes = "form-group col-auto mb-2") {
