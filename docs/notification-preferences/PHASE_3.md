@@ -105,8 +105,9 @@ internal fun isInQuietHours(prefs: NotificationPreferences, now: Instant): Boole
 }
 ```
 
-Logs at INFO when skipped (matching the existing disabled/snoozed filters, not DEBUG as originally planned):
-`"Skipping contact ${c.id}: in quiet hours (${prefs.quietHoursStart}–${prefs.quietHoursEnd} ${prefs.timezone})"`.
+Logs at INFO when skipped, matching the existing disabled/snoozed filters' format (not DEBUG as originally
+planned):
+`"Skipping contact id=${c.id} name=${c.name}: in quiet hours (${prefs.quietHoursStart}–${prefs.quietHoursEnd} ${prefs.timezone})"`.
 
 ### Tests — shipped
 

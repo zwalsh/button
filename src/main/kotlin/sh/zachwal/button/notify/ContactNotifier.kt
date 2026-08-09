@@ -107,7 +107,8 @@ class ContactNotifier @Inject constructor(
             }
             if (isInQuietHours(prefs, now)) {
                 logger.info(
-                    "Skipping contact ${c.id}: in quiet hours (${prefs.quietHoursStart}–${prefs.quietHoursEnd} ${prefs.timezone})"
+                    "Skipping contact id=${c.id} name=${c.name}: in quiet hours " +
+                        "(${prefs.quietHoursStart}–${prefs.quietHoursEnd} ${prefs.timezone})"
                 )
                 return@filter false
             }

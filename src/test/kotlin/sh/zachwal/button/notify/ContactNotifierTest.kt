@@ -25,8 +25,11 @@ import sh.zachwal.button.presser.Presser
 import sh.zachwal.button.sms.ControlledContactMessagingService
 import sh.zachwal.button.sms.MessageQueued
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -333,6 +336,104 @@ internal class ContactNotifierTest {
     }
 
     @Test
+    fun `isInQuietHours - non-wrapping window America New York`() {
+        // window 22:00-23:00 local, EST (UTC-5), no DST in January
+        val zone = "America/New_York"
+        val date = LocalDate.of(2026, 1, 15)
+        val prefs = NotificationPreferences(
+            notificationsEnabled = true,
+            snoozedUntil = null,
+            quietHoursStart = LocalTime.of(22, 0),
+            quietHoursEnd = LocalTime.of(23, 0),
+            timezone = zone,
+        )
+        val inside = zonedInstant(date, LocalTime.of(22, 30), zone)
+        val outside = zonedInstant(date, LocalTime.of(21, 0), zone)
+        val atStart = zonedInstant(date, LocalTime.of(22, 0), zone)
+        val atEnd = zonedInstant(date, LocalTime.of(23, 0), zone)
+
+        assertTrue(notifier.isInQuietHours(prefs, inside))
+        assertFalse(notifier.isInQuietHours(prefs, outside))
+        assertTrue(notifier.isInQuietHours(prefs, atStart))
+        assertFalse(notifier.isInQuietHours(prefs, atEnd))
+    }
+
+    @Test
+    fun `isInQuietHours - midnight-wrapping window America New York`() {
+        // window 23:00-07:00 local, EST (UTC-5), no DST in January
+        val zone = "America/New_York"
+        val date = LocalDate.of(2026, 1, 15)
+        val nextDay = date.plusDays(1)
+        val prefs = NotificationPreferences(
+            notificationsEnabled = true,
+            snoozedUntil = null,
+            quietHoursStart = LocalTime.of(23, 0),
+            quietHoursEnd = LocalTime.of(7, 0),
+            timezone = zone,
+        )
+        val insideBeforeMidnight = zonedInstant(date, LocalTime.of(23, 30), zone)
+        val insideAfterMidnight = zonedInstant(nextDay, LocalTime.of(3, 0), zone)
+        val outside = zonedInstant(nextDay, LocalTime.of(12, 0), zone)
+        val atStart = zonedInstant(date, LocalTime.of(23, 0), zone)
+        val atEnd = zonedInstant(nextDay, LocalTime.of(7, 0), zone)
+
+        assertTrue(notifier.isInQuietHours(prefs, insideBeforeMidnight))
+        assertTrue(notifier.isInQuietHours(prefs, insideAfterMidnight))
+        assertFalse(notifier.isInQuietHours(prefs, outside))
+        assertTrue(notifier.isInQuietHours(prefs, atStart))
+        assertFalse(notifier.isInQuietHours(prefs, atEnd))
+    }
+
+    @Test
+    fun `isInQuietHours - non-wrapping window America Los Angeles`() {
+        // window 22:00-23:00 local, PST (UTC-8), no DST in January
+        val zone = "America/Los_Angeles"
+        val date = LocalDate.of(2026, 1, 15)
+        val prefs = NotificationPreferences(
+            notificationsEnabled = true,
+            snoozedUntil = null,
+            quietHoursStart = LocalTime.of(22, 0),
+            quietHoursEnd = LocalTime.of(23, 0),
+            timezone = zone,
+        )
+        val inside = zonedInstant(date, LocalTime.of(22, 30), zone)
+        val outside = zonedInstant(date, LocalTime.of(21, 0), zone)
+        val atStart = zonedInstant(date, LocalTime.of(22, 0), zone)
+        val atEnd = zonedInstant(date, LocalTime.of(23, 0), zone)
+
+        assertTrue(notifier.isInQuietHours(prefs, inside))
+        assertFalse(notifier.isInQuietHours(prefs, outside))
+        assertTrue(notifier.isInQuietHours(prefs, atStart))
+        assertFalse(notifier.isInQuietHours(prefs, atEnd))
+    }
+
+    @Test
+    fun `isInQuietHours - midnight-wrapping window America Los Angeles`() {
+        // window 23:00-07:00 local, PST (UTC-8), no DST in January
+        val zone = "America/Los_Angeles"
+        val date = LocalDate.of(2026, 1, 15)
+        val nextDay = date.plusDays(1)
+        val prefs = NotificationPreferences(
+            notificationsEnabled = true,
+            snoozedUntil = null,
+            quietHoursStart = LocalTime.of(23, 0),
+            quietHoursEnd = LocalTime.of(7, 0),
+            timezone = zone,
+        )
+        val insideBeforeMidnight = zonedInstant(date, LocalTime.of(23, 30), zone)
+        val insideAfterMidnight = zonedInstant(nextDay, LocalTime.of(3, 0), zone)
+        val outside = zonedInstant(nextDay, LocalTime.of(12, 0), zone)
+        val atStart = zonedInstant(date, LocalTime.of(23, 0), zone)
+        val atEnd = zonedInstant(nextDay, LocalTime.of(7, 0), zone)
+
+        assertTrue(notifier.isInQuietHours(prefs, insideBeforeMidnight))
+        assertTrue(notifier.isInQuietHours(prefs, insideAfterMidnight))
+        assertFalse(notifier.isInQuietHours(prefs, outside))
+        assertTrue(notifier.isInQuietHours(prefs, atStart))
+        assertFalse(notifier.isInQuietHours(prefs, atEnd))
+    }
+
+    @Test
     fun `isInQuietHours - null timezone or start returns false`() {
         val noTimezone = NotificationPreferences(
             notificationsEnabled = true,
@@ -365,4 +466,7 @@ internal class ContactNotifierTest {
 
         verify(timeout = 1000) { notificationDAO.createNotification() }
     }
+
+    private fun zonedInstant(date: LocalDate, time: LocalTime, zone: String): Instant =
+        ZonedDateTime.of(date, time, ZoneId.of(zone)).toInstant()
 }
