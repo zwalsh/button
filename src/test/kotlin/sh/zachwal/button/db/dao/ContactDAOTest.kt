@@ -2,11 +2,14 @@ package sh.zachwal.button.db.dao
 
 import com.google.common.truth.Truth.assertThat
 import org.jdbi.v3.core.Jdbi
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import sh.zachwal.button.db.extension.DatabaseExtension
 import java.time.Instant
+import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
 @ExtendWith(DatabaseExtension::class)
@@ -72,5 +75,42 @@ class ContactDAOTest(private val jdbi: Jdbi) {
         dao.updateNotificationsEnabled(contact.id, false)
         val updated = dao.updateSnoozedUntil(contact.id, Instant.now().plus(1, ChronoUnit.DAYS))
         assertThat(updated!!.notificationPreferences.notificationsEnabled).isFalse()
+    }
+
+    @Test
+    fun `contacts default to America New_York timezone`() {
+        val contact = dao.createContact("Alice", "+15550001")
+        assertThat(contact.notificationPreferences.timezone).isEqualTo("America/New_York")
+    }
+
+    @Test
+    fun `updateQuietHours round-trips quiet hours and timezone`() {
+        val contact = dao.createContact("Alice", "+15550001")
+        val start = LocalTime.of(23, 0)
+        val end = LocalTime.of(7, 0)
+        val updated = dao.updateQuietHours(contact.id, start, end, "America/Los_Angeles")
+
+        assertThat(updated!!.notificationPreferences.quietHoursStart).isEqualTo(start)
+        assertThat(updated.notificationPreferences.quietHoursEnd).isEqualTo(end)
+        assertThat(updated.notificationPreferences.timezone).isEqualTo("America/Los_Angeles")
+    }
+
+    @Test
+    fun `updateQuietHours allows timezone alone without quiet hours`() {
+        val contact = dao.createContact("Alice", "+15550001")
+        val updated = dao.updateQuietHours(contact.id, null, null, "Europe/London")
+
+        assertThat(updated!!.notificationPreferences.quietHoursStart).isNull()
+        assertThat(updated.notificationPreferences.quietHoursEnd).isNull()
+        assertThat(updated.notificationPreferences.timezone).isEqualTo("Europe/London")
+    }
+
+    @Test
+    fun `updateQuietHours rejects quietHoursStart without timezone`() {
+        val contact = dao.createContact("Alice", "+15550001")
+
+        assertThrows(UnableToExecuteStatementException::class.java) {
+            dao.updateQuietHours(contact.id, LocalTime.of(23, 0), LocalTime.of(7, 0), null)
+        }
     }
 }

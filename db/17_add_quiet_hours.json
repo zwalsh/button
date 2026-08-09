@@ -1,0 +1,43 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "17_add_quiet_hours",
+        "author": "zach",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "contact",
+              "columns": [
+                {
+                  "column": {
+                    "name": "quiet_hours_start",
+                    "type": "time"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "quiet_hours_end",
+                    "type": "time"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "timezone",
+                    "type": "VARCHAR(64)",
+                    "defaultValue": "America/New_York"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "sql": {
+              "sql": "ALTER TABLE contact ADD CONSTRAINT contact_quiet_hours_check CHECK ((quiet_hours_start IS NULL AND quiet_hours_end IS NULL) OR (quiet_hours_start IS NOT NULL AND quiet_hours_end IS NOT NULL AND timezone IS NOT NULL))"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
