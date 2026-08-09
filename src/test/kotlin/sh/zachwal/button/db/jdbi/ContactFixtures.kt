@@ -9,11 +9,15 @@ fun contact(
     phoneNumber: String = "+15550000000",
     active: Boolean = true,
     notificationsEnabled: Boolean = true,
+    snoozedUntil: Instant? = null,
 ) = Contact(
     id = id,
     createdDate = createdDate,
     name = name,
     phoneNumber = phoneNumber,
     active = active,
-    notificationPreferences = NotificationPreferences(notificationsEnabled = notificationsEnabled),
+    notificationPreferences = NotificationPreferences(
+        notificationsEnabled = notificationsEnabled,
+        snoozedUntil = snoozedUntil,
+    ),
 )

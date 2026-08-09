@@ -1,0 +1,25 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "16_add_snoozed_until",
+        "author": "zach",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "contact",
+              "columns": [
+                {
+                  "column": {
+                    "name": "snoozed_until",
+                    "type": "timestamp with time zone"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
