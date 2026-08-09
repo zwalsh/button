@@ -1,6 +1,12 @@
 # Phase 1 — Opt-Out Toggle
 
+**Status: Shipped.** PR 1a merged as "Phase 1a: notifications_enabled column, NotificationPreferences model,
+ContactDAO" (0614024), PR 1b merged as "Phase 1b: notification filtering, preferences endpoint, settings UI"
+(c83249f).
+
 Ships the `notifications_enabled` flag end-to-end: DB → filtering → contact page toggle.
+
+A few implementation details differ from the plan below; see the note at the end of each PR section.
 
 ---
 
@@ -77,6 +83,9 @@ work — the new column has a server-side default and is returned via `SELECT *`
   `Contact` has `notificationPreferences.notificationsEnabled == false`.
 - Assert existing contacts loaded after migration have `notificationsEnabled = true`.
 
+**As shipped:** matches the plan as written — `@Nested` worked with `KotlinMapper`, no fallback needed.
+Tests live in `ContactDAOTest`.
+
 ---
 
 ## PR 1b — Filtering, Endpoint, UI
@@ -90,6 +99,10 @@ Add one filter after `contactDAO.selectActiveContacts()`:
 ```
 
 Log at DEBUG when a contact is skipped: `"Skipping contact ${c.id}: notifications disabled"`.
+
+**As shipped:** filter lives inline in `contactsToNotify()` (`ContactNotifier.kt`) rather than a bare
+`.filter { ... }` chain call, and the skip log is at INFO, not DEBUG: `"Skipping contact id=${c.id}
+name=${c.name}: notifications disabled"`.
 
 ### `POST /contact/preferences`
 
@@ -120,6 +133,11 @@ Render a `<form method="post" action="/contact/preferences">` with:
 
 Later phases will add snooze and quiet hours sections to this same form.
 
+**As shipped:** the settings page is the existing `GET /contact` route (auth-gated by `contactRoute` /
+`CONTACT_SESSION_AUTH`, so it is not publicly accessible), renamed to page title "Settings" with an
+`h1` "Settings" heading. `notificationSettingsCard()` and `contactInfoCard()` in `ContactController.kt`
+render the info table and the toggle card. The submit button reads "Save", not "Save settings".
+
 ### Toast on save
 
 In `GET /contact`, check for `?saved=true` query param. When present, render a Bootstrap toast:
@@ -137,8 +155,14 @@ In `GET /contact`, check for `?saved=true` query param. When present, render a B
 
 Add a new js file to trigger the toast following `frontend/README.md` patterns.
 
+**As shipped:** implemented as a dismissible Bootstrap alert (`savedAlert()`, `#savedAlert`,
+`alert alert-success ... fixed-bottom`) rather than a toast component, still triggered by `?saved=true`.
+JS lives at `frontend/src/main/contact/toast.js`, served as `/static/src/contact/toast.js`.
+
 ### Tests
 
 - Integration test for `POST /contact/preferences`: checkbox present → `notificationsEnabled = true`;
   absent → false; successful post redirects to `/contact?saved=true`.
 - Manual smoke test on testbutton: toggle off, submit, reload, verify state persists and toast appears.
+
+**As shipped:** `ContactControllerTest` covers the endpoint; `ContactNotifierTest` covers the filtering.

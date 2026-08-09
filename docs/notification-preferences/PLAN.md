@@ -10,12 +10,25 @@ Give contacts self-service control over SMS notifications from the `/contact` pa
 
 ## Current State
 
-The `contact` table has `id`, `created_date`, `name`, `phone_number`, `active`. There is no per-contact
-preference state of any kind. `ContactNotifier.contactsToNotify()` sends to all active contacts. The only
-suppression mechanism is the admin-controlled `active` flag, which conflates admin deactivation with user opt-out.
+_Last updated 2026-08-09, after Phase 2a shipped, PR 2b in progress._
 
-The `/contact` page is auth-gated behind `ContactSessionPrincipal` (token-based, from SMS link). It
-currently shows name and phone number only.
+**Phase 1 (opt-out toggle) is shipped** — see `PHASE_1.md` for as-built details. The `contact` table now has
+a `notifications_enabled` column (migration `15_add_notifications_enabled.json`), exposed on `Contact` via a
+nested `NotificationPreferences` model. `ContactNotifier.contactsToNotify()` filters out contacts with
+notifications disabled before sending. The `/contact` page (auth-gated behind `ContactSessionPrincipal`,
+token-based from SMS link — not publicly accessible) now has a "Settings" heading with a Notification
+Settings card containing the opt-out toggle, which posts to `/contact/preferences` and redirects back with a
+dismissible success alert.
+
+**Phase 2a (snooze migration, model, DAO) is shipped** — see `PHASE_2.md` for as-built details. The `contact`
+table now has a nullable `snoozed_until` column (migration `16_add_snoozed_until.json`), added to
+`NotificationPreferences` as `snoozedUntil: Instant?` and to `ContactDAO.updateNotificationPreferences`.
+PR 2b (filtering, endpoint, UI) is in progress.
+
+Phase 3 (quiet hours) and Phase 4 (admin visibility) are not started — no quiet-hours columns or code exist
+yet.
+
+The `active` flag remains the separate admin-controlled suppression mechanism described below.
 
 ## Architectural Decisions
 
@@ -61,11 +74,11 @@ renders the stored value as selected.
 
 Each phase ships one end-to-end working feature. Within each phase, the migration PR deploys first.
 
-| Phase | What ships | PRs |
-|-------|-----------|-----|
-| 1 | Opt-out toggle | 1a: migration + model + DAO · 1b: filtering + endpoint + UI |
-| 2 | Snooze | 2a: migration + model + DAO · 2b: filtering + endpoint + UI |
-| 3 | Quiet hours | 3a: migration + model + DAO · 3b: filtering + endpoint + UI |
-| 4 | Admin visibility | Single PR: read-only prefs on admin contact cards |
+| Phase | What ships | PRs | Status |
+|-------|-----------|-----|--------|
+| 1 | Opt-out toggle | 1a: migration + model + DAO · 1b: filtering + endpoint + UI | Shipped |
+| 2 | Snooze | 2a: migration + model + DAO · 2b: filtering + endpoint + UI | 2a shipped, 2b in progress |
+| 3 | Quiet hours | 3a: migration + model + DAO · 3b: filtering + endpoint + UI | Not started |
+| 4 | Admin visibility | Single PR: read-only prefs on admin contact cards | Not started |
 
 Phases deploy in order. Each PR is independently mergeable and safe to run on testbutton before production.

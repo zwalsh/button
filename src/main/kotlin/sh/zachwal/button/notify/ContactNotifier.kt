@@ -92,12 +92,18 @@ class ContactNotifier @Inject constructor(
      */
     private fun contactsToNotify(): List<Contact> {
         val active = contactDAO.selectActiveContacts()
+        val now = Instant.now()
         val contacts = active.filter { c ->
-            val enabled = c.notificationPreferences.notificationsEnabled
-            if (!enabled) {
+            val prefs = c.notificationPreferences
+            if (!prefs.notificationsEnabled) {
                 logger.info("Skipping contact id=${c.id} name=${c.name}: notifications disabled")
+                return@filter false
             }
-            enabled
+            if (prefs.snoozedUntil?.isAfter(now) == true) {
+                logger.info("Skipping contact id=${c.id} name=${c.name}: snoozed until ${prefs.snoozedUntil}")
+                return@filter false
+            }
+            true
         }
         val endDate = LocalDate.now()
         val startDate = endDate.minusDays(90)
