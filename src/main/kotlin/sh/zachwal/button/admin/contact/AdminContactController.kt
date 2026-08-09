@@ -29,13 +29,41 @@ import org.slf4j.LoggerFactory
 import sh.zachwal.button.admin.ContactPressStat
 import sh.zachwal.button.admin.ContactPressStatsService
 import sh.zachwal.button.admin.TimeRange
+import sh.zachwal.button.contact.formatSnoozedUntil
+import sh.zachwal.button.contact.timezoneDisplayName
 import sh.zachwal.button.controller.Controller
+import sh.zachwal.button.db.jdbi.NotificationPreferences
 import sh.zachwal.button.phone.ContactNotFound
 import sh.zachwal.button.phone.PhoneBookService
 import sh.zachwal.button.phone.UpdatedContact
 import sh.zachwal.button.roles.adminRoute
 import sh.zachwal.button.sharedhtml.headSetup
 import java.net.URLEncoder
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
+private val QUIET_HOURS_DISPLAY_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
+
+internal fun notificationLines(prefs: NotificationPreferences): List<String> {
+    val lines = mutableListOf<String>()
+    if (!prefs.notificationsEnabled) {
+        lines.add("Notifications off")
+    }
+    if (prefs.snoozedUntil != null && prefs.snoozedUntil.isAfter(Instant.now())) {
+        lines.add("Snoozed until ${formatSnoozedUntil(prefs.snoozedUntil)}")
+    }
+    if (prefs.quietHoursStart != null && prefs.quietHoursEnd != null) {
+        val start = prefs.quietHoursStart.format(QUIET_HOURS_DISPLAY_FORMAT)
+        val end = prefs.quietHoursEnd.format(QUIET_HOURS_DISPLAY_FORMAT)
+        val tz = prefs.timezone?.let { timezoneDisplayName(it) } ?: prefs.timezone
+        lines.add("Quiet $start–$end $tz")
+    }
+    if (lines.isEmpty()) {
+        lines.add("Notifications on")
+    }
+    return lines
+}
 
 @Controller
 class AdminContactController @Inject constructor(
@@ -149,6 +177,9 @@ class AdminContactController @Inject constructor(
                     div {
                         strong { +c.name }
                         div(classes = "text-muted") { +c.phoneNumber }
+                        notificationLines(c.notificationPreferences).forEach { line ->
+                            div(classes = "text-muted small") { +line }
+                        }
                     }
                     div(classes = "text-right") {
                         div {
