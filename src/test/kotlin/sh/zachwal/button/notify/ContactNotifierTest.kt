@@ -216,6 +216,49 @@ internal class ContactNotifierTest {
     }
 
     @Test
+    fun `does not notify contacts who are snoozed`() {
+        val snoozedContact = contact(
+            id = 3,
+            name = "Snoozed",
+            phoneNumber = "+18005551111",
+            snoozedUntil = Instant.now().plus(1, ChronoUnit.DAYS),
+        )
+        every { notificationDAO.getLatestNotification() } returns Notification(
+            1,
+            Instant.now().minus(25, ChronoUnit.HOURS)
+        )
+        every { contactDao.selectActiveContacts() } returns listOf(zachContact, snoozedContact)
+
+        runBlocking {
+            notifier.pressed(presser)
+        }
+
+        coVerify(timeout = 2000) { messagingService.sendMessage(zachContact, any()) }
+        coVerify(exactly = 0, timeout = 1000) { messagingService.sendMessage(snoozedContact, any()) }
+    }
+
+    @Test
+    fun `notifies contacts whose snooze has expired`() {
+        val expiredSnoozeContact = contact(
+            id = 3,
+            name = "No Longer Snoozed",
+            phoneNumber = "+18005552222",
+            snoozedUntil = Instant.now().minus(1, ChronoUnit.DAYS),
+        )
+        every { notificationDAO.getLatestNotification() } returns Notification(
+            1,
+            Instant.now().minus(25, ChronoUnit.HOURS)
+        )
+        every { contactDao.selectActiveContacts() } returns listOf(expiredSnoozeContact)
+
+        runBlocking {
+            notifier.pressed(presser)
+        }
+
+        coVerify(timeout = 2000) { messagingService.sendMessage(expiredSnoozeContact, any()) }
+    }
+
+    @Test
     fun `creates new notification record`() {
         val overOneDayAgo = Instant.now().minus(25, ChronoUnit.HOURS)
         every { notificationDAO.getLatestNotification() } returns Notification(1, overOneDayAgo)

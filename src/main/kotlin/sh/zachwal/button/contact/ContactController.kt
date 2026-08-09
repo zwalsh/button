@@ -49,8 +49,29 @@ import sh.zachwal.button.sharedhtml.bootstrapJs
 import sh.zachwal.button.sharedhtml.card
 import sh.zachwal.button.sharedhtml.headSetup
 import sh.zachwal.button.sharedhtml.jqueryJs
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private val SNOOZE_PRESETS = listOf(
+    "none" to "None",
+    "1" to "1 day",
+    "7" to "7 days",
+    "30" to "30 days",
+    "90" to "90 days",
+)
+
+private val SNOOZE_ZONE = ZoneId.of("America/New_York")
+
+internal fun formatSnoozedUntil(instant: Instant, now: Instant = Instant.now()): String {
+    val zoned = instant.atZone(SNOOZE_ZONE)
+    val pattern = if (zoned.year == now.atZone(SNOOZE_ZONE).year) "MMM d" else "MMM d, yyyy"
+    return DateTimeFormatter.ofPattern(pattern, Locale.US).format(zoned)
+}
 
 @Controller
 @Singleton
@@ -101,10 +122,42 @@ class ContactController @Inject constructor(
                         }
                     }
                 }
+                if (contact.notificationPreferences.notificationsEnabled) {
+                    snoozeSection(contact)
+                }
                 div(classes = "d-flex justify-content-end") {
                     button(type = ButtonType.submit, classes = "btn btn-primary") {
                         +"Save"
                     }
+                }
+            }
+        }
+    }
+
+    private fun FlowContent.snoozeSection(contact: Contact) {
+        div(classes = "form-group mt-3") {
+            label { +"Snooze for:" }
+            div(classes = "btn-group btn-group-toggle d-flex flex-wrap") {
+                attributes["data-toggle"] = "buttons"
+                SNOOZE_PRESETS.forEach { (presetValue, display) ->
+                    val labelClasses = if (presetValue == "none") {
+                        "btn btn-outline-secondary active"
+                    } else {
+                        "btn btn-outline-secondary"
+                    }
+                    label(classes = labelClasses) {
+                        input(type = InputType.radio, name = "snoozePreset") {
+                            value = presetValue
+                            checked = presetValue == "none"
+                        }
+                        +display
+                    }
+                }
+            }
+            val snoozedUntil = contact.notificationPreferences.snoozedUntil
+            if (snoozedUntil != null && snoozedUntil.isAfter(Instant.now())) {
+                p(classes = "text-muted mt-2 mb-0") {
+                    +"Snoozed until ${formatSnoozedUntil(snoozedUntil)}"
                 }
             }
         }
@@ -210,10 +263,12 @@ class ContactController @Inject constructor(
                 val contactSession = call.sessions.get<ContactSessionPrincipal>()!!
                 val params = call.receiveParameters()
                 val notificationsEnabled = params["notificationsEnabled"] != null
+                val snoozeDays = params["snoozePreset"]?.toLongOrNull()
+                val snoozedUntil = snoozeDays?.let { Instant.now().plus(it, ChronoUnit.DAYS) }
                 val updated = contactDAO.updateNotificationPreferences(
                     contactSession.contactId,
                     notificationsEnabled,
-                    snoozedUntil = null,
+                    snoozedUntil = snoozedUntil,
                 )
                 if (updated == null) {
                     call.respond(HttpStatusCode.NotFound, "Contact not found")
