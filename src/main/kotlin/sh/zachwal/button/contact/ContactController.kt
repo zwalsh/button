@@ -104,31 +104,36 @@ class ContactController @Inject constructor(
     private fun DIV.notificationSettingsCard(contact: Contact) {
         val enabled = contact.notificationPreferences.notificationsEnabled
         card(cardHeader = "Notification Settings", classes = "mt-4") {
-            div(classes = "d-flex justify-content-between align-items-center") {
-                if (enabled) {
-                    span { +"Text notifications are on." }
-                } else {
-                    span(classes = "text-muted") {
-                        +"Text notifications are off."
-                    }
-                }
-                form(action = "/contact/preferences/notifications", method = FormMethod.post) {
-                    input(type = InputType.hidden, name = "notificationsEnabled") {
-                        value = (!enabled).toString()
-                    }
-                    val toggleClasses = if (enabled) {
-                        "btn btn-outline-danger text-nowrap flex-shrink-0 ml-3"
-                    } else {
-                        "btn btn-outline-success text-nowrap flex-shrink-0 ml-3"
-                    }
-                    button(type = ButtonType.submit, classes = toggleClasses) {
-                        +if (enabled) "Turn Off" else "Turn On"
-                    }
-                }
-            }
+            notificationToggleSection(contact)
             if (enabled) {
                 hr(classes = "my-3")
                 snoozeSection(contact)
+            }
+        }
+    }
+
+    private fun DIV.notificationToggleSection(contact: Contact) {
+        val enabled = contact.notificationPreferences.notificationsEnabled
+        div(classes = "d-flex justify-content-between align-items-center") {
+            if (enabled) {
+                span { +"Text notifications are on." }
+            } else {
+                span(classes = "text-muted") {
+                    +"Text notifications are off."
+                }
+            }
+            form(action = "/contact/preferences/notifications", method = FormMethod.post) {
+                input(type = InputType.hidden, name = "notificationsEnabled") {
+                    value = (!enabled).toString()
+                }
+                val toggleClasses = if (enabled) {
+                    "btn btn-outline-danger text-nowrap flex-shrink-0 ml-3"
+                } else {
+                    "btn btn-outline-success text-nowrap flex-shrink-0 ml-3"
+                }
+                button(type = ButtonType.submit, classes = toggleClasses) {
+                    +if (enabled) "Turn Off" else "Turn On"
+                }
             }
         }
     }

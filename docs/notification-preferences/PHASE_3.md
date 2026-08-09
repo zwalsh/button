@@ -2,6 +2,14 @@
 
 Depends on Phase 2. Suppresses notifications during a nightly time window in the contact's local timezone.
 
+**Note on Phase 2b's redesign:** the plan below still describes a single combined `POST /contact/preferences`
+endpoint and a single combined `ContactDAO.updateNotificationPreferences` method, matching how this doc
+originally read before Phase 2 shipped. Phase 2b replaced that with independent per-action endpoints and
+DAO methods (`/contact/preferences/notifications` + `updateNotificationsEnabled`, and
+`/contact/preferences/snooze` + `updateSnoozedUntil`) after a combined form/DAO method turned out to let one
+action silently clobber another's state (see `PHASE_2.md`'s PR 2b notes). Quiet hours should follow the same
+narrow-DAO-method precedent — see the updated PR 3a/3b sections below.
+
 ---
 
 ## PR 3a — Migration, Model, DAO
@@ -37,23 +45,24 @@ data class NotificationPreferences(
 )
 ```
 
-### Update `ContactDAO.updateNotificationPreferences`
+### Add `ContactDAO.updateQuietHours`
+
+As of Phase 2b, `ContactDAO` no longer has one combined preferences-update method — it has one narrow
+method per independently-editable concern (`updateNotificationsEnabled`, `updateSnoozedUntil`). Quiet hours'
+three fields are always edited together (see PR 3b), so they get one more method for that group, still
+scoped only to its own columns:
 
 ```kotlin
-@SqlUpdate("""
+@SqlQuery("""
     UPDATE contact SET
-        notifications_enabled = :notificationsEnabled,
-        snoozed_until         = :snoozedUntil,
-        quiet_hours_start     = :quietHoursStart,
-        quiet_hours_end       = :quietHoursEnd,
-        timezone              = :timezone
+        quiet_hours_start = :quietHoursStart,
+        quiet_hours_end   = :quietHoursEnd,
+        timezone          = :timezone
     WHERE id = :contactId
     RETURNING *
 """)
-fun updateNotificationPreferences(
+fun updateQuietHours(
     @Bind("contactId") contactId: Int,
-    @Bind("notificationsEnabled") notificationsEnabled: Boolean,
-    @Bind("snoozedUntil") snoozedUntil: Instant?,
     @Bind("quietHoursStart") quietHoursStart: LocalTime?,
     @Bind("quietHoursEnd") quietHoursEnd: LocalTime?,
     @Bind("timezone") timezone: String?,
@@ -93,9 +102,12 @@ private fun isInQuietHours(prefs: NotificationPreferences, now: Instant): Boolea
 
 Log at DEBUG when skipped: `"Skipping contact ${c.id}: in quiet hours (${prefs.quietHoursStart}–${prefs.quietHoursEnd} ${prefs.timezone})"`.
 
-### `POST /contact/preferences` — extend handler
+### `POST /contact/preferences/quiet-hours` — new endpoint
 
-Add quiet hours fields:
+A dedicated endpoint, not a shared/combined one — following the Phase 2b precedent of one endpoint per
+independently-submitted concern. Unlike the toggle and snooze actions (immediate one-click buttons), quiet
+hours has three correlated fields that must be submitted together, so this is the one section that keeps a
+traditional `<form>` with an explicit Save button.
 
 | Form field | Notes |
 |---|---|
@@ -107,10 +119,14 @@ Validation:
 - If either `quietHoursStart` or `quietHoursEnd` is non-empty, both must be present and `timezone` must
   be a valid IANA zone ID. Catch `ZoneRulesException` from `ZoneId.of()`, return `400` on failure.
 - If both time fields are empty, pass `null` for both (clears quiet hours; `timezone` may still be saved).
+- Handler calls `contactDAO.updateQuietHours(...)`, not the old combined method.
 
 ### Contact page UI — quiet hours section
 
-Add inside the existing preferences `<form>`, below the snooze section, visible only when `notificationsEnabled`.
+Add as its own `<form>`+Save button inside the same "Notification Settings" card used by the toggle and
+snooze sections (`notificationSettingsCard()` in `ContactController.kt`), separated from the snooze section
+above it by an `<hr>` — same pattern Phase 2b used to separate the toggle section from the snooze section.
+Visible only when `notificationsEnabled`.
 
 Two `<input type="time">` fields and a `<select>` for timezone, on one row:
 
@@ -165,6 +181,6 @@ Unit tests for `isInQuietHours`:
 - Midnight-wrapping window (e.g. 23:00–07:00): same
 - Null timezone / null start returns false
 
-Integration test for quiet hours round-trip via `POST /contact/preferences`.
+Integration test for quiet hours round-trip via `POST /contact/preferences/quiet-hours`.
 
 Manual smoke test: set quiet hours spanning current time, verify contact is skipped in `contactsToNotify()`.
