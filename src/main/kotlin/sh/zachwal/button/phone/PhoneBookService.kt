@@ -18,6 +18,12 @@ import kotlin.concurrent.thread
 
 class InvalidNumberException(val invalidNumber: InvalidNumber) : Exception(invalidNumber.reason)
 
+// Signups using this name are being used to probe/validate phone numbers via the public
+// signup form (no messages have gone out, no other signal to key off yet). Shadowban them by
+// deactivating on creation rather than rejecting outright, so the bot sees the same success
+// response and keeps using this form as its number-validity oracle instead of adapting.
+private val SHADOWBANNED_NAMES = setOf("test")
+
 @Singleton
 class PhoneBookService @Inject constructor(
     private val messagingService: MessagingService,
@@ -52,6 +58,12 @@ class PhoneBookService @Inject constructor(
         // TODO check if phone number already exists
         val contact = contactDAO.createContact(name, validNumber)
 
+        val finalContact = if (name.trim().lowercase() in SHADOWBANNED_NAMES) {
+            contactDAO.updateContactStatus(contact.id, false) ?: contact
+        } else {
+            contact
+        }
+
         // TODO: Once the opt-in flow is built, notifications_enabled should default to false here.
         // The contact proves phone ownership by clicking the SMS link, landing on /contact, and toggling on.
 
@@ -62,7 +74,7 @@ class PhoneBookService @Inject constructor(
             )
         }
 
-        return contact
+        return finalContact
     }
 
     fun contacts(): List<Contact> {
