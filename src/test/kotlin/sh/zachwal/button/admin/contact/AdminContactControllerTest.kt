@@ -4,9 +4,25 @@ import org.junit.jupiter.api.Test
 import sh.zachwal.button.db.jdbi.NotificationPreferences
 import java.time.Instant
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.Locale
 import kotlin.test.assertEquals
 
 internal class AdminContactControllerTest {
+
+    /**
+     * Mirrors the private formatting logic in `formatSnoozedUntil` (year-aware "MMM d" /
+     * "MMM d, yyyy" in America/New_York) so expectations track whatever "now" is at test
+     * time, instead of a hardcoded date that eventually lands in the past.
+     */
+    private fun expectedSnoozeLabel(instant: Instant): String {
+        val zone = ZoneId.of("America/New_York")
+        val zoned = instant.atZone(zone)
+        val pattern = if (zoned.year == Instant.now().atZone(zone).year) "MMM d" else "MMM d, yyyy"
+        return DateTimeFormatter.ofPattern(pattern, Locale.US).format(zoned)
+    }
 
     @Test
     fun `notificationLines shows Notifications on by default`() {
@@ -34,21 +50,22 @@ internal class AdminContactControllerTest {
 
     @Test
     fun `notificationLines shows snooze when snoozedUntil is in the future`() {
+        val snoozedUntil = Instant.now().plus(30, ChronoUnit.DAYS)
         val prefs = NotificationPreferences(
             notificationsEnabled = true,
-            snoozedUntil = Instant.parse("2026-08-16T12:00:00Z"),
+            snoozedUntil = snoozedUntil,
             quietHoursStart = null,
             quietHoursEnd = null,
             timezone = null,
         )
-        assertEquals(listOf("Snoozed until Aug 16"), notificationLines(prefs))
+        assertEquals(listOf("Snoozed until ${expectedSnoozeLabel(snoozedUntil)}"), notificationLines(prefs))
     }
 
     @Test
     fun `notificationLines omits snooze line when snoozedUntil is in the past`() {
         val prefs = NotificationPreferences(
             notificationsEnabled = true,
-            snoozedUntil = Instant.parse("2020-01-01T00:00:00Z"),
+            snoozedUntil = Instant.now().minus(30, ChronoUnit.DAYS),
             quietHoursStart = null,
             quietHoursEnd = null,
             timezone = null,
@@ -82,15 +99,16 @@ internal class AdminContactControllerTest {
 
     @Test
     fun `notificationLines shows both snooze and quiet hours lines together`() {
+        val snoozedUntil = Instant.now().plus(30, ChronoUnit.DAYS)
         val prefs = NotificationPreferences(
             notificationsEnabled = true,
-            snoozedUntil = Instant.parse("2026-08-16T12:00:00Z"),
+            snoozedUntil = snoozedUntil,
             quietHoursStart = LocalTime.of(23, 0),
             quietHoursEnd = LocalTime.of(7, 0),
             timezone = "America/New_York",
         )
         assertEquals(
-            listOf("Snoozed until Aug 16", "Quiet 11:00 PM–7:00 AM Eastern Time (US)"),
+            listOf("Snoozed until ${expectedSnoozeLabel(snoozedUntil)}", "Quiet 11:00 PM–7:00 AM Eastern Time (US)"),
             notificationLines(prefs),
         )
     }
