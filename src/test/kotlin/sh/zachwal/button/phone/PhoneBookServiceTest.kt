@@ -120,6 +120,46 @@ internal class PhoneBookServiceTest {
     }
 
     @Test
+    fun `shadowbans contacts named Test by deactivating on creation`() {
+        val createdContact = contact(id = 5, name = "Test", phoneNumber = "+18001234567", active = true)
+        val deactivatedContact = createdContact.copy(active = false)
+        every {
+            contactDAO.createContact("Test", "+18001234567")
+        } returns createdContact
+        every {
+            contactDAO.updateContactStatus(createdContact.id, false)
+        } returns deactivatedContact
+
+        val contact = runBlocking {
+            phoneBookService.register("Test", "+18001234567")
+        }
+
+        assertThat(contact.active).isFalse()
+        verify {
+            contactDAO.updateContactStatus(createdContact.id, false)
+        }
+    }
+
+    @Test
+    fun `shadowban name match is case and whitespace insensitive`() {
+        val createdContact = contact(id = 6, name = " TEST ", phoneNumber = "+18001234568", active = true)
+        every {
+            contactDAO.createContact(" TEST ", "+18001234568")
+        } returns createdContact
+        every {
+            contactDAO.updateContactStatus(createdContact.id, false)
+        } returns createdContact.copy(active = false)
+
+        runBlocking {
+            phoneBookService.register(" TEST ", "+18001234568")
+        }
+
+        verify {
+            contactDAO.updateContactStatus(createdContact.id, false)
+        }
+    }
+
+    @Test
     fun `updateContactStatus updates contact to active`() {
         val inactiveContact = zachContact.copy(active = false)
         every {
