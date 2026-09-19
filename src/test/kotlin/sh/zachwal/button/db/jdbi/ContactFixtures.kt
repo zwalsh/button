@@ -9,6 +9,7 @@ fun contact(
     name: String = "Alice",
     phoneNumber: String = "+15550000000",
     active: Boolean = true,
+    verified: Boolean = true,
     notificationsEnabled: Boolean = true,
     snoozedUntil: Instant? = null,
     quietHoursStart: LocalTime? = null,
@@ -20,6 +21,7 @@ fun contact(
     name = name,
     phoneNumber = phoneNumber,
     active = active,
+    verified = verified,
     notificationPreferences = NotificationPreferences(
         notificationsEnabled = notificationsEnabled,
         snoozedUntil = snoozedUntil,

@@ -92,5 +92,17 @@ interface ContactDAO {
         @Bind("timezone") timezone: String?,
     ): Contact?
 
+    @SqlQuery(
+        """
+            update public.contact set verified = :verified where id = :contactId returning *;
+        """
+    )
+    fun updateContactVerified(
+        @Bind("contactId")
+        contactId: Int,
+        @Bind("verified")
+        verified: Boolean
+    ): Contact?
+
     // TODO deactivate number
 }
