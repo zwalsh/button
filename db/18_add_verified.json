@@ -1,0 +1,29 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "18_add_verified",
+        "author": "zach",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "contact",
+              "columns": [
+                {
+                  "column": {
+                    "name": "verified",
+                    "type": "boolean",
+                    "defaultValueBoolean": true,
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

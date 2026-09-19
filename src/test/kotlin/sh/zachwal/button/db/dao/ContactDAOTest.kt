@@ -113,4 +113,25 @@ class ContactDAOTest(private val jdbi: Jdbi) {
             dao.updateQuietHours(contact.id, LocalTime.of(23, 0), LocalTime.of(7, 0), null)
         }
     }
+
+    @Test
+    fun `contacts default to verified true`() {
+        val contact = dao.createContact("Alice", "+15550001")
+        assertThat(contact.verified).isTrue()
+    }
+
+    @Test
+    fun `updateContactVerified sets verified false`() {
+        val contact = dao.createContact("Alice", "+15550001")
+        val updated = dao.updateContactVerified(contact.id, false)
+        assertThat(updated!!.verified).isFalse()
+    }
+
+    @Test
+    fun `updateContactVerified sets verified true`() {
+        val contact = dao.createContact("Alice", "+15550001")
+        dao.updateContactVerified(contact.id, false)
+        val updated = dao.updateContactVerified(contact.id, true)
+        assertThat(updated!!.verified).isTrue()
+    }
 }

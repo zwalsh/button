@@ -84,6 +84,11 @@
       "include": {
         "file": "17_add_quiet_hours.json"
       }
+    },
+    {
+      "include": {
+        "file": "18_add_verified.json"
+      }
     }
   ]
 }

@@ -9,5 +9,6 @@ data class Contact(
     val name: String,
     val phoneNumber: String,
     val active: Boolean,
+    val verified: Boolean,
     @Nested val notificationPreferences: NotificationPreferences,
 )
